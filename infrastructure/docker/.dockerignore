@@ -1,0 +1,54 @@
+# Dependencies
+node_modules/
+
+# Build artifacts (we build inside the container, so we don't want local artifacts)
+dist/
+build/
+
+# Environment variables (CRITICAL: Never copy these)
+.env
+.env.*
+
+# Logs
+*.log
+backend/logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+firebase-debug.log
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# PM2 configuration
+ecosystem.config.js
+
+# Uploads
+backend/uploads/
+
+# Firebase
+.firebase/
+
+# Google Cloud / Secrets
+service-account.json
+*-key.json
+key.json
+*.pem
+
+# Version Control
+.git/
+.gitignore
+
+# Build Configuration & Documentation (Not needed in runtime image)
+cloudbuild.yaml
+GEMINI.md
+README.md
+.docs/
+scripts/

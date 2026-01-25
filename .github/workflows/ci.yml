@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    env:
+      # Mock Environment Variables for Build/Test
+      # These are required so the app doesn't crash on startup config checks
+      PORT: 3000
+      NODE_ENV: test
+      NOCODB_API_URL: http://localhost:8080
+      NOCODB_API_TOKEN: mock-token
+      FIREBASE_SERVICE_ACCOUNT_KEY_JSON: e30=
+      REACT_APP_FIREBASE_API_KEY: mock-key
+      REACT_APP_FIREBASE_AUTH_DOMAIN: mock-project.firebaseapp.com
+      REACT_APP_FIREBASE_PROJECT_ID: mock-project
+      REACT_APP_FIREBASE_STORAGE_BUCKET: mock.appspot.com
+      REACT_APP_FIREBASE_MESSAGING_SENDER_ID: 123456
+      REACT_APP_FIREBASE_APP_ID: 1:123456:web:123456
+      SMTP_USER: mock@example.com
+      SMTP_PASS: mockpass
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Run Backend Tests
+      # Assuming existing backend tests are unit tests and don't require a live DB
+      run: npm test
+
+    - name: Run Frontend Tests
+      run: npm run test:ui
+
+    - name: Build Application
+      run: npm run build

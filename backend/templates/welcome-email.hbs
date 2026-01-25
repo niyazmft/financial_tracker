@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: 'Inter', Helvetica, Arial, sans-serif; background-color: #f4f7f9; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+        .wrapper { width: 100%; padding: 40px 0; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .header { padding: 30px; text-align: center; border-bottom: 1px solid #f3f4f6; }
+        .content { padding: 40px 30px; color: #374151; line-height: 1.6; }
+        .footer { padding: 20px; text-align: center; font-size: 12px; color: #9ca3af; background: #fafafa; }
+        
+        h1 { color: #111827; font-size: 22px; margin: 0 0 16px 0; font-weight: 600; }
+        p { margin: 0 0 24px 0; font-size: 15px; }
+        
+        .btn { 
+            display: inline-block; 
+            padding: 14px 32px; 
+            background-color: #0066cc; 
+            color: #ffffff !important; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(0, 102, 204, 0.2);
+            transition: background-color 0.2s;
+        }
+        .btn:hover { background-color: #0052a3; }
+        
+        /* Mobile Adjustments */
+        @media only screen and (max-width: 600px) {
+            .wrapper { padding: 20px 0; }
+            .container { border-radius: 0; border: none; }
+            .content { padding: 30px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <div class="header">
+                <h2 style="color: #0066cc; margin: 0; font-size: 24px; letter-spacing: -0.5px;">{{appName}}</h2>
+            </div>
+            
+            <div class="content">
+                <h1>Welcome to {{appName}}!</h1>
+                <p>Hello,</p>
+                <p>We're thrilled to have you on board. {{appName}} is here to help you take control of your finances, track your spending, and achieve your savings goals.</p>
+                <p>To get started, we recommend setting up your profile and adding your first transaction.</p>
+                
+                <div style="text-align: center; margin: 40px 0;">
+                    <a href="{{dashboardLink}}" class="btn">Go to Dashboard</a>
+                </div>
+                
+                <p>If you have any questions, feel free to reply to this email.</p>
+            </div>
+            
+            <div class="footer">
+                &copy; {{year}} {{appName}}. All rights reserved.<br>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

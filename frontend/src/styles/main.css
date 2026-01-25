@@ -1,0 +1,216 @@
+@import "tailwindcss";
+
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/container-queries";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* --- Primitive Colors (Reference) --- */
+  --color-white: #ffffff;
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+
+  /* --- Semantic Variables (Light Mode Default) --- */
+  
+  /* Backgrounds */
+  --bg-app: var(--color-slate-50);
+  --bg-card: var(--color-white);
+  --bg-input: var(--color-white);
+  --bg-hover: var(--color-slate-100);
+  
+  /* Text */
+  --text-main: var(--color-slate-900);
+  --text-sub: var(--color-slate-500);
+  --text-muted: var(--color-slate-400);
+  
+  /* Borders */
+  --border-base: var(--color-slate-200);
+  --border-input: var(--color-slate-300);
+
+  /* Charts (Light Mode) */
+  --chart-grid: var(--color-slate-200);
+  --chart-border: var(--color-slate-300);
+  --chart-text: var(--color-slate-500);
+  --chart-tooltip-bg: var(--color-white);
+  --chart-tooltip-text: var(--color-slate-700);
+
+  /* Chart Sequential Colors */
+  --chart-color-1: #3B82F6;
+  --chart-color-2: #10B981;
+  --chart-color-3: #F59E0B;
+  --chart-color-4: #EF4444;
+  --chart-color-5: #8B5CF6;
+  --chart-color-6: #EC4899;
+  --chart-color-7: #6366F1;
+  --chart-color-8: #14B8A6;
+  --chart-color-9: #F97316;
+  --chart-color-10: #06B6D4;
+
+  /* Bank Brand Colors */
+  --bank-akbank: #e11d48;
+  --bank-garanti: #fbbf24;
+  --bank-isbank: #059669;
+  --bank-denizbank: #2563eb;
+  --bank-vakifbank: #7c3aed;
+  --bank-ziraat: #65a30d;
+}
+
+.dark {
+  /* --- Semantic Variables (Dark Mode Override) --- */
+  
+  /* Backgrounds */
+  --bg-app: var(--color-slate-950); /* Deep dark background */
+  --bg-card: var(--color-slate-900); /* Slightly lighter card */
+  --bg-input: var(--color-slate-900);
+  --bg-hover: var(--color-slate-800);
+  
+  /* Text */
+  --text-main: var(--color-white);
+  --text-sub: var(--color-slate-400);
+  --text-muted: var(--color-slate-500);
+  
+  /* Borders */
+  --border-base: var(--color-slate-800);
+  --border-input: var(--color-slate-700);
+
+  /* Charts (Dark Mode) */
+  --chart-grid: var(--color-slate-800);
+  --chart-border: var(--color-slate-700);
+  --chart-text: var(--color-slate-400);
+  --chart-tooltip-bg: var(--color-slate-800);
+  --chart-tooltip-text: var(--color-slate-200);
+}
+
+@theme {
+  --color-primary: #2563eb;
+  --color-success: #10b981;
+  --color-danger: #f43f5e;
+  --color-warning: #f59e0b;
+  
+  /* Register Semantic Colors as Utilities */
+  --color-app-bg: var(--bg-app);
+  --color-card-bg: var(--bg-card);
+  --color-input-bg: var(--bg-input);
+  --color-hover-bg: var(--bg-hover);
+  
+  --color-text-main: var(--text-main);
+  --color-text-sub: var(--text-sub);
+  --color-text-mute: var(--text-muted);
+  
+  --color-border-base: var(--border-base);
+  --color-border-input: var(--border-input);
+  
+  --font-display: Inter, sans-serif;
+  --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+}
+
+/* Typography */
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Material Symbols Icons */
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+.content-hidden {
+  display: none;
+}
+
+/* Global Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Tabs */
+.tab-item.active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Modern Components */
+@layer components {
+  /* 
+     Update .card to use semantic colors.
+     This automatically switches colors based on theme.
+  */
+  .card, .p-card {
+    @apply bg-card-bg text-text-main rounded-xl shadow-soft border border-border-base dark:border-white/10;
+  }
+  
+  /* Ensure PrimeVue Card body has transparent bg to inherit from .p-card */
+  .p-card-body {
+    @apply bg-transparent;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white font-medium py-2 px-4 rounded-lg shadow-sm hover:opacity-90 transition-all duration-200;
+  }
+
+  .input-field {
+    @apply w-full rounded-lg border-border-input bg-input-bg text-text-main focus:ring-2 focus:ring-primary/50 transition-all duration-200;
+  }
+}
+
+/* Responsive Table Card View */
+@media (max-width: 640px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  tr {
+    @apply border border-border-base rounded-lg mb-4 bg-card-bg shadow-sm;
+  }
+
+  td {
+    border: none;
+    position: relative;
+    padding-left: 50% !important;
+    @apply px-4 py-2 flex justify-between items-center text-right border-b border-slate-100 dark:border-slate-600/60; /* Keep some raw slate here for sub-borders or map to variable? keeping raw for safety */
+  }
+
+  td:last-child {
+    border-bottom: none;
+  }
+
+  td::before {
+    position: absolute;
+    left: 1rem;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: 600;
+    content: attr(data-label);
+    @apply text-text-sub text-sm;
+  }
+  
+  td[data-label="Actions"] {
+    @apply justify-end;
+    padding-left: 1rem !important;
+  }
+  
+  td[data-label="Actions"]::before {
+    display: none;
+  }
+}

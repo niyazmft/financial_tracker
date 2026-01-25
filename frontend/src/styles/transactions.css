@@ -1,0 +1,248 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/**
+ * Transactions Page Styles
+ * Page-specific styles for the transactions view
+ * Uses accordion design similar to Installment Plans
+ */
+
+/* Accordion transaction group styling (similar to installment plans) */
+.transaction-accordion {
+    @apply space-y-4;
+}
+
+.transaction-month-group {
+    @apply border border-slate-200 dark:border-slate-600 rounded-lg overflow-hidden;
+}
+
+.transaction-month-header {
+    @apply w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 text-left flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors;
+}
+
+.transaction-category-header {
+    @apply w-full px-6 py-3 bg-blue-50 dark:bg-blue-900/20 text-left flex items-center justify-between hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors;
+}
+
+/* Transaction table styling */
+.transactions-table {
+    @apply w-full table-auto;
+}
+
+.transactions-table thead {
+    @apply bg-slate-50 dark:bg-slate-800;
+}
+
+.transactions-table th {
+    @apply px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300;
+}
+
+.transactions-table tbody {
+    @apply divide-y divide-slate-200 dark:divide-slate-600 bg-white dark:bg-slate-900;
+}
+
+.transactions-table tr:nth-child(even) {
+    @apply bg-slate-50 dark:bg-slate-800/50;
+}
+
+.transactions-table td {
+    @apply px-6 py-4 text-sm text-slate-900 dark:text-slate-100;
+}
+
+/* Transaction amount styling - consistent readable colors */
+.transaction-amount-positive,
+.transaction-amount-negative,
+.transaction-amount-neutral {
+    @apply text-slate-500 dark:text-slate-400 font-medium;
+}
+
+/* Optional: Keep subtle color variants for special cases */
+.transaction-amount-positive-subtle {
+    @apply text-emerald-700 dark:text-emerald-300 font-medium;
+}
+
+.transaction-amount-negative-subtle {
+    @apply text-rose-700 dark:text-rose-300 font-medium;
+}
+
+/* Bank badge styling */
+.bank-badge {
+    @apply inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 rounded;
+}
+
+/* Category badge styling */
+.category-badge {
+    @apply inline-flex items-center px-2 py-1 text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-200 rounded;
+}
+
+/* Empty state styling */
+.empty-state {
+    @apply bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-600 p-8;
+}
+
+.empty-state-content {
+    @apply text-center py-8;
+}
+
+.empty-state-icon {
+    @apply text-6xl mb-4 block;
+}
+
+.empty-state-title {
+    @apply text-xl font-semibold text-slate-900 dark:text-white mb-3;
+}
+
+.empty-state-description {
+    @apply text-slate-600 dark:text-slate-400 max-w-md mx-auto leading-relaxed;
+}
+
+/* Loading state styling */
+.loading-state {
+    @apply text-center py-12;
+}
+
+.loading-spinner {
+    @apply inline-block w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin mb-4;
+}
+
+/* Filter panel styling */
+.filter-panel {
+    @apply bg-slate-50 dark:bg-slate-800 rounded-lg overflow-hidden;
+}
+
+.filter-panel-content {
+    @apply p-4 space-y-4;
+}
+
+/* Search input styling */
+.search-input-container {
+    @apply relative;
+}
+
+.search-input {
+    @apply w-full rounded-md border dark:border-slate-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-white pl-10 pr-3 py-2 text-sm focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:outline-none;
+}
+
+.search-icon {
+    @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .transaction-month-header {
+        @apply px-4 py-3;
+    }
+    
+    .transaction-category-header {
+        @apply px-4 py-2;
+    }
+    
+    .transaction-month-header .flex {
+        @apply flex-col items-start gap-2;
+    }
+    
+    .transaction-category-header .flex {
+        @apply flex-col items-start gap-1;
+    }
+    
+    .transactions-table {
+        @apply text-xs;
+    }
+    
+    .transactions-table th,
+    .transactions-table td {
+        @apply px-4 py-3;
+    }
+
+    /* Stacked table for mobile */
+    .transactions-table thead {
+        @apply hidden; /* Hide table headers on small screens */
+    }
+
+    .transactions-table,
+    .transactions-table tbody,
+    .transactions-table tr,
+    .transactions-table td {
+        @apply block; /* Make table elements behave like blocks */
+    }
+
+    .transactions-table tr {
+        @apply mb-4 p-4 border border-slate-200 dark:border-slate-600 rounded-lg; /* Style rows as cards */
+    }
+
+    .transactions-table td {
+        @apply text-right relative pl-24 text-base; /* Align text right, make space for label */
+    }
+
+    .transactions-table td::before {
+        content: attr(data-label); /* Display data-label as content */
+        @apply absolute left-4 w-20 text-left font-semibold text-slate-500 dark:text-slate-400; /* Style the label */
+    }
+}
+
+@media (max-width: 640px) {
+    .transactions-table th,
+    .transactions-table td {
+        @apply px-3 py-2;
+    }
+    
+    .bank-badge,
+    .category-badge {
+        @apply text-xs px-1.5 py-0.5;
+    }
+}
+
+/* Custom scrollbar for tables */
+.table-container {
+    @apply overflow-x-auto;
+}
+
+.table-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    @apply bg-slate-100 dark:bg-slate-800 rounded;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    @apply bg-slate-400 dark:bg-slate-600 rounded;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-500 dark:bg-slate-500;
+}
+
+/* Transition animations */
+.tab-transition {
+    @apply transition-all duration-200 ease-in-out;
+}
+
+.filter-transition {
+    @apply transition-colors duration-150;
+}
+
+/* Focus styles for accessibility */
+.transactions-table th:focus,
+.transactions-table td:focus {
+    @apply outline-none ring-2 ring-[var(--color-primary)]/50;
+}
+
+/* Print styles */
+@media print {
+    .filter-panel,
+    .empty-state,
+    .loading-state {
+        display: none;
+    }
+    
+    .transactions-table {
+        @apply text-black;
+    }
+    
+    .transactions-table th,
+    .transactions-table td {
+        @apply border border-gray-300 px-2 py-1 text-xs;
+    }
+}
