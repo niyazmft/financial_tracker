@@ -1,5 +1,5 @@
 import { Chart, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend, LineController, BarController, Filler } from 'chart.js';
-import { ChartComponent } from './chartComponent.js';
+import { ChartComponent } from './ChartComponent.js';
 import * as utils from './utils';
 import * as constants from './constants';
 
