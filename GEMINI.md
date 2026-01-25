@@ -211,7 +211,8 @@ The authentication tokens are managed client-side and validated on the backend
 for protected routes.
 
 Refers to issue #42
-```## 7. Testing Protocol (TDD)
+```
+## 7. Testing Protocol (TDD)
 
 To ensure code quality and prevent regressions, adherence to **Test-Driven Development (TDD)** is now mandatory for all new features and significant refactoring.
 
