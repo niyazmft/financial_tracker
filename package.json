@@ -7,15 +7,15 @@
     "start": "node backend/server.js",
     "pm2:start": "npm run build && pm2 start infrastructure/ecosystem.config.js",
     "dev": "nodemon backend/server.js",
-    "build": "vite build",
-    "preview": "vite preview",
+    "build": "vite build --config vite.config.mjs",
+    "preview": "vite preview --config vite.config.mjs",
     "db:dump": "bash scripts/dump_schema.sh",
     "db:setup": "node backend/scripts/setupNocodb.js",
     "db:seed": "node backend/scripts/seedData.js",
     "db:check": "node backend/scripts/checkData.js",
     "test": "mocha 'backend/tests/**/*.test.js'",
     "test:email": "node backend/tests/manual_email_test.js",
-    "test:ui": "vitest run"
+    "test:ui": "vitest run --config vite.config.mjs"
   },
   "keywords": [
     "financial",
