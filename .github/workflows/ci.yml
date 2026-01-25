@@ -21,6 +21,15 @@ jobs:
       NODE_ENV: test
       NOCODB_API_URL: http://localhost:8080
       NOCODB_API_TOKEN: mock-token
+      BANK_STATEMENTS_TABLE_ID: mock-bank-statements-table
+      CATEGORIES_TABLE_ID: mock-categories-table
+      ITEMS_TABLE_ID: mock-items-table
+      TAGGING_RULES_TABLE_ID: mock-tagging-rules-table
+      SUBSCRIPTIONS_TABLE_ID: mock-subscriptions-table
+      INSTALLMENTS_PER_RECORD_TABLE_ID: mock-installments-table
+      BUDGET_MANAGER_TABLE_ID: mock-budget-table
+      USER_SETTINGS_TABLE_ID: mock-user-settings-table
+      SAVINGS_GOALS_TABLE_ID: mock-savings-goals-table
       FIREBASE_SERVICE_ACCOUNT_KEY_JSON: e30=
       REACT_APP_FIREBASE_API_KEY: mock-key
       REACT_APP_FIREBASE_AUTH_DOMAIN: mock-project.firebaseapp.com
