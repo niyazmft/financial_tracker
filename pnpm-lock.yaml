@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@primevue/core':
+        specifier: ^4.5.4
+        version: 4.5.4(vue@3.5.25)
       '@primevue/themes':
         specifier: ^4.5.4
         version: 4.5.4

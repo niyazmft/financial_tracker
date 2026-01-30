@@ -26,6 +26,7 @@
   "author": "Niyaz Almufti",
   "license": "Apache-2.0",
   "dependencies": {
+    "@primevue/core": "^4.5.4",
     "@primevue/themes": "^4.5.4",
     "axios": "^1.12.2",
     "chart.js": "^4.5.1",
