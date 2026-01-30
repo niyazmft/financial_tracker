@@ -4,17 +4,20 @@ FROM node:20-alpine
 # Set working directory
 WORKDIR /app
 
+# Install pnpm
+RUN npm install -g pnpm
+
 # Copy package files first to leverage Docker cache
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies
-RUN npm install
+RUN pnpm install --frozen-lockfile
 
 # Copy the rest of the application code
 COPY . .
 
 # Build the frontend
-RUN npm run build
+RUN pnpm run build
 
 # Expose the port the app runs on
 EXPOSE 3000

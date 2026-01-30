@@ -215,9 +215,9 @@ FinTrack utilizes NocoDB to manage its data. Ensure the following tables are set
    3.  Update your `.env` file with `NOCODB_API_TOKEN` and `NOCODB_PROJECT_ID`.
    4.  Run the setup script from the root directory:
        ```bash
-       npm run db:setup
+       pnpm run db:setup
        ```
-       *Note: If the script detects existing tables, it will abort to prevent data loss. Use `npm run db:setup -- --force` to override this safeguard.*
+       *Note: If the script detects existing tables, it will abort to prevent data loss. Use `pnpm run db:setup -- --force` to override this safeguard.*
     5.  The script will output the created **Table IDs**. Copy them into your `.env` file to finalize the configuration.
 
    #### 🛠️ Development Utility Scripts
@@ -225,25 +225,25 @@ FinTrack utilizes NocoDB to manage its data. Ensure the following tables are set
 
    - **Seed Data**: Populates your database with realistic dummy data for testing.
      ```bash
-     npm run db:seed -- <USER_ID>
+     pnpm run db:seed -- <USER_ID>
      ```
    - **Check Data**: A diagnostic tool to verify the existence and integrity of a user's data.
      ```bash
-     npm run db:check -- <USER_ID>
+     pnpm run db:check -- <USER_ID>
      ```
    - **Email Diagnostic**: Interactively verify your SMTP configuration by sending a test email.
      ```bash
-     npm run test:email
+     pnpm run test:email
      ```
 
    ### Step 2: Start the Application
    Run the frontend and backend locally from the root directory:
    ```bash
    # Install dependencies
-   npm install
+   pnpm install
 
    # Development Mode (Hot Reload)
-   npm run dev
+   pnpm run dev
    ```
    *   **FinTrack App:** [http://localhost:3000](http://localhost:3000)
 
@@ -254,7 +254,7 @@ FinTrack utilizes NocoDB to manage its data. Ensure the following tables are set
 
    **Run with PM2:**
    ```bash
-   npm run pm2:start
+   pnpm run pm2:start
    ```
 
    **Key Benefits:**

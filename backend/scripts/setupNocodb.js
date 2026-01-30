@@ -127,7 +127,7 @@ async function setup() {
             preExisting.forEach(t => console.error(' - ' + t));
             console.error('\nTo avoid data corruption or duplicate columns, the setup has been aborted.');
             console.error('If you want to proceed anyway, run the command with the --force flag:');
-            console.error('npm run db:setup -- --force');
+            console.error('pnpm run db:setup -- --force');
             process.exit(1);
         }
 

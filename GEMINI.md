@@ -58,17 +58,17 @@ These are the foundational rules that govern all agent actions.
 
 ### ❌ NEVER DO:
 - **NO New Dependencies:** Never add or update any npm package in `package.json` without explicit user permission.
-- **NO Force Commands:** Never use `--force` flags (e.g., `npm install --force`, `git push --force`).
+- **NO Force Commands:** Never use `--force` flags (e.g., `pnpm install --force`, `git push --force`).
 - **NO Direct API Calls:** Never use `fetch` or `axios` directly in page-specific JavaScript. Use the `api.js` module.
 - **NO Secret Commits:** Never commit API keys, secrets, or any sensitive data. The `.gitignore` file must be respected.
-- **NO Automated Testing Commands (Unless Instructed):** You may run `npm test` to execute backend tests using Mocha. Do not use Jest unless explicitly configured.
+- **NO Automated Testing Commands (Unless Instructed):** You may run `pnpm test` to execute backend tests using Mocha. Do not use Jest unless explicitly configured.
 
 ## 2. Development & Build Commands
 
--   **Install Dependencies:** `npm install`
--   **Start Backend Dev:** `npm run dev` (runs `nodemon backend/server.js`)
--   **Start Frontend Dev:** `npx vite`
--   **Run Full Build:** `npm run build`
+-   **Install Dependencies:** `pnpm install`
+-   **Start Backend Dev:** `pnpm run dev` (runs `nodemon backend/server.js`)
+-   **Start Frontend Dev:** `pnpm vite`
+-   **Run Full Build:** `pnpm run build`
 
 ## 3. Mandatory Agent Development Protocol
 
@@ -99,7 +99,7 @@ After **ANY** code change, perform these checks. **If any check fails, you must 
         4. If the check still fails after three total attempts, **revert all file changes** to their original state and report the final error.
 
 2.  **Frontend Build Verification (If frontend was modified):**
-    - **Action:** Run `npm run build`.
+    - **Action:** Run `pnpm run build`.
     - **Success Criteria:** The command exits with code 0.
     - **Failure Action:**
         1. Read the error log.
@@ -112,7 +112,7 @@ After **ANY** code change, perform these checks. **If any check fails, you must 
 1.  **Requirement:** New backend features in `controllers` or `services` must have a corresponding test.
 2.  **Location:** `backend/tests/`.
 3.  **Tool:** Node.js built-in `assert` or Mocha.
-4.  **Execution:** Run `npm test` to verify all backend tests pass.
+4.  **Execution:** Run `pnpm test` to verify all backend tests pass.
 
 ## 4. Architecture & File Organization
 
@@ -226,7 +226,7 @@ To ensure code quality and prevent regressions, adherence to **Test-Driven Devel
 -   **Frontend:** Vitest + Vue Test Utils (for component and unit tests).
 
 ### Continuous Integration (CI)
--   A GitHub Actions workflow is configured to run `npm test` (backend) and `npm run test:ui` (frontend) on every push.
+-   A GitHub Actions workflow is configured to run `pnpm test` (backend) and `pnpm run test:ui` (frontend) on every push.
 -   **Rule:** You must ensure all tests pass locally before committing code.
 
 ### ❌ NEVER DO:

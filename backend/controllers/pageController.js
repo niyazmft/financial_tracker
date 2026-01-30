@@ -34,7 +34,7 @@ const servePage = async (res, pagePath, pageId) => {
         console.error(`Error serving page ${pagePath}:`, err);
         // Fallback for development/missing build - try to serve source if dist fails (OPTIONAL, maybe risky)
         // For now, let's stick to erroring if build is missing to enforce correct workflow.
-        res.status(500).send('Internal Server Error: Page not found in build output. Run "npm run build".');
+        res.status(500).send('Internal Server Error: Page not found in build output. Run "pnpm run build".');
     }
 };
 
