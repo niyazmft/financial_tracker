@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 const env = require('../config/env');
 const { compileTemplate } = require('./emailTemplateService');
+const logger = require('../config/logger');
 
 let transporter = null;
 
@@ -15,7 +16,7 @@ const initTransporter = async () => {
 
     if (env.NODE_ENV === 'development' && !user) {
         // Use Ethereal for testing if no SMTP creds in dev
-        console.log('📧 Email Service: Using Ethereal (Fake SMTP) for development');
+        logger.info('📧 Email Service: Using Ethereal (Fake SMTP) for development');
         const testAccount = await nodemailer.createTestAccount();
         transporter = nodemailer.createTransport({
             host: 'smtp.ethereal.email',
@@ -27,7 +28,7 @@ const initTransporter = async () => {
             }
         });
     } else {
-        console.log(`📧 Email Service: Initializing SMTP (${host}:${port}) for ${user}`);
+        logger.info(`📧 Email Service: Initializing SMTP (${host}:${port}) for ${user}`);
         // Use Real SMTP
         transporter = nodemailer.createTransport({
             host: host,
@@ -41,9 +42,9 @@ const initTransporter = async () => {
 
         try {
             await transporter.verify();
-            console.log('✅ Email Service: SMTP connection verified successfully.');
+            logger.info('✅ Email Service: SMTP connection verified successfully.');
         } catch (verifyError) {
-            console.error('❌ Email Service: SMTP verification failed:', verifyError.message);
+            logger.error(`❌ Email Service: SMTP verification failed: ${verifyError.message}`);
         }
     }
     return transporter;
@@ -75,15 +76,15 @@ const sendEmail = async (to, subject, templateName, context) => {
         };
 
         const info = await transport.sendMail(mailOptions);
-        console.log(`📧 Email sent to ${to}: ${info.messageId}`);
+        logger.info(`📧 Email sent to ${to}: ${info.messageId}`);
 
         if (env.NODE_ENV === 'development' && !env.SMTP.USER) {
-            console.log('🔗 Preview URL:', nodemailer.getTestMessageUrl(info));
+            logger.info(`🔗 Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
         }
         
         return info;
     } catch (error) {
-        console.error('❌ Email Service Error:', error);
+        logger.error(`❌ Email Service Error: ${error.message}`);
         throw error; // Re-throw so controller can handle it
     }
 };

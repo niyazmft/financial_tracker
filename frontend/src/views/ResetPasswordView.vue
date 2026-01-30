@@ -97,7 +97,6 @@ onMounted(async () => {
 
     // 3. Verify Code
     try {
-        console.log('Verifying code:', oobCode.substring(0, 10) + '...');
         email.value = await authStore.verifyResetCode(oobCode);
         isValidCode.value = true;
     } catch (error) {
