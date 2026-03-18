@@ -114,9 +114,56 @@ const deleteInstallment = catchAsync(async (req, res, next) => {
     res.status(204).json({ success: true, data: null });
 });
 
+const createInstallmentPlan = catchAsync(async (req, res, next) => {
+    const verifiedUserId = req.user.uid;
+    const { itemName, categoryId, totalAmount, installments } = req.body;
+
+    if (!itemName || !categoryId || !Array.isArray(installments) || installments.length === 0) {
+        return next(new AppError('itemName, categoryId, and installments array are required', 400));
+    }
+
+    const ITEMS_TABLE_ID = env.NOCODB.TABLES.ITEMS;
+    const INSTALLMENTS_TABLE_ID = env.NOCODB.TABLES.INSTALLMENTS;
+
+    if (!ITEMS_TABLE_ID || !INSTALLMENTS_TABLE_ID) {
+        return next(new AppError('Backend is missing NocoDB configuration for ITEMS or INSTALLMENTS.', 500));
+    }
+
+    // 1. Create the parent item
+    const itemResponse = await nocodbService.createRecord(ITEMS_TABLE_ID, {
+        item_name: itemName,
+        categories_id: categoryId,
+        user_id: verifiedUserId
+    });
+
+    const itemId = itemResponse.Id;
+
+    // 2. Prepare installment records
+    const installmentRecords = installments.map(inst => ({
+        start_date: inst.dueDate,
+        installment_payment: inst.amount,
+        items_id: itemId,
+        categories_id: categoryId,
+        user_id: verifiedUserId,
+        paid: false
+    }));
+
+    // 3. Bulk create installments
+    const installmentsResponse = await nocodbService.createRecord(INSTALLMENTS_TABLE_ID, installmentRecords);
+
+    res.status(201).json({
+        success: true,
+        data: {
+            item: itemResponse,
+            installments: installmentsResponse
+        }
+    });
+});
+
 module.exports = {
     getInstallments,
     updateInstallment,
     batchUpdateInstallments,
     deleteInstallment,
+    createInstallmentPlan,
 };

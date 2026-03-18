@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
+const { authenticateToken } = require('../middleware/authMiddleware');
+const installmentController = require('../controllers/installmentController');
+
 const budgetRoutes = require('./budgetRoutes');
 const cashFlowRoutes = require('./cashFlowRoutes');
 const installmentRoutes = require('./installmentRoutes');
@@ -19,6 +22,7 @@ router.use('/', pageRoutes);
 router.use('/api', budgetRoutes);
 router.use('/api', cashFlowRoutes);
 router.use('/api/installments', installmentRoutes);
+router.post('/api/installment-plans', authenticateToken, installmentController.createInstallmentPlan);
 router.use('/api/nocodb', nocodbRoutes);
 router.use('/api', reportRoutes);
 router.use('/api/transactions', transactionRoutes);
