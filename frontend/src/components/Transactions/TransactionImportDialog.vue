@@ -44,13 +44,48 @@
                 </TabPanel>
                 <TabPanel value="1">
                     <div class="flex flex-col gap-4 py-4">
-                        <FileUpload mode="advanced" name="demo[]" accept=".csv" :maxFileSize="1000000" customUpload @uploader="onCsvUpload" chooseLabel="Select CSV File" class="w-full">
+                        <div v-if="!importResult && csvPreviewData.length === 0" class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-500 italic">Need the template? Click the button to download.</span>
+                            <Button label="Download Template" icon="pi pi-download" text severity="info" class="p-button-sm" @click="downloadTemplate" />
+                        </div>
+                        
+                        <FileUpload v-if="!importResult && csvPreviewData.length === 0" mode="advanced" name="demo[]" accept=".csv" :maxFileSize="1000000" customUpload @uploader="onCsvUpload" chooseLabel="Select CSV File" class="w-full">
                             <template #empty>
                                 <p>Drag and drop CSV files here to upload.</p>
                             </template>
                         </FileUpload>
                         
-                        <div v-if="csvPreviewData.length > 0" class="mt-4">
+                        <div v-if="importResult" class="mt-4 p-4 border rounded-lg bg-gray-50">
+                            <h3 class="font-bold mb-2 flex items-center gap-2">
+                                <i :class="importResult.failed === 0 ? 'pi pi-check-circle text-green-500' : 'pi pi-exclamation-triangle text-orange-500'"></i>
+                                Import Summary
+                            </h3>
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div class="p-2 bg-white rounded border flex flex-col items-center">
+                                    <span class="text-2xl font-bold text-green-600">{{ importResult.successful }}</span>
+                                    <span class="text-xs uppercase text-gray-500">Successful</span>
+                                </div>
+                                <div class="p-2 bg-white rounded border flex flex-col items-center">
+                                    <span class="text-2xl font-bold text-red-600">{{ importResult.failed }}</span>
+                                    <span class="text-xs uppercase text-gray-500">Failed</span>
+                                </div>
+                            </div>
+                            
+                            <div v-if="importResult.errors && importResult.errors.length > 0" class="mt-2">
+                                <p class="text-sm font-bold text-red-600 mb-1">Errors Details:</p>
+                                <div class="max-h-40 overflow-y-auto border rounded p-2 bg-red-50 text-xs font-mono">
+                                    <div v-for="(err, idx) in importResult.errors" :key="idx" class="mb-1 pb-1 border-b last:border-0 border-red-100 text-red-800">
+                                        Row {{ err.row }}: {{ err.error || err.message }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end mt-4">
+                                <Button label="Close" text @click="clearImportResult" />
+                            </div>
+                        </div>
+
+                        <div v-else-if="csvPreviewData.length > 0" class="mt-4">
                             <h3 class="font-bold mb-2">Preview ({{ csvPreviewData.length }} rows)</h3>
                             <DataTable :value="csvPreviewData" scrollable scrollHeight="300px" class="p-datatable-xs">
                                 <Column field="date" header="Date"></Column>
@@ -114,6 +149,7 @@ const visible = computed({
 const singleLoading = ref(false);
 const importLoading = ref(false);
 const csvPreviewData = ref([]);
+const importResult = ref(null);
 
 const singleForm = reactive({
     date: new Date(),
@@ -125,6 +161,14 @@ const singleForm = reactive({
 
 const closeModal = () => {
     visible.value = false;
+    // Reset states on close
+    csvPreviewData.value = [];
+    importResult.value = null;
+};
+
+const clearImportResult = () => {
+    importResult.value = null;
+    csvPreviewData.value = [];
 };
 
 const saveSingleTransaction = async () => {
@@ -179,16 +223,47 @@ const onCsvUpload = (event) => {
 const submitCsvImport = async () => {
     importLoading.value = true;
     try {
-        await financeStore.importTransactions(csvPreviewData.value);
+        const summary = await financeStore.importTransactions(csvPreviewData.value);
         trackEvent('add_transaction', { type: 'csv', count: csvPreviewData.value.length });
-        toast.add({ severity: 'success', summary: 'Success', detail: 'Transactions imported', life: 3000 });
-        csvPreviewData.value = [];
-        emit('saved');
-        closeModal();
-    } catch (err) {
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to import transactions', life: 3000 });
+        
+        importResult.value = summary;
+
+        if (summary.failed === 0) {
+            toast.add({ 
+                severity: 'success', 
+                summary: 'Import Successful', 
+                detail: `All ${summary.successful} transactions imported correctly.`, 
+                life: 5000 
+            });
+            // Auto-close only on perfect success
+            setTimeout(() => {
+                if (importResult.value === summary) {
+                    closeModal();
+                }
+            }, 2000);
+        } else {
+            toast.add({ 
+                severity: 'warn', 
+                summary: 'Import Completed with Issues', 
+                detail: `${summary.successful} successful, ${summary.failed} failed.`, 
+                life: 5000 
+            });
+            // Keep modal open to show the summary/errors
+        }
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to import transactions: ' + error.message, life: 5000 });
     } finally {
         importLoading.value = false;
     }
 };
-</script>
+
+const downloadTemplate = () => {
+    const headers = ['date', 'amount', 'bank', 'category', 'description', 'ref_no'];
+    const exampleRow = ['2026-03-18', '-150.00', 'Akbank', 'Dining', 'Lunch at Cafe', 'TXN123456'];
+
+    const content = utils.generateCsvTemplate(headers, exampleRow);
+    utils.downloadFile(content, 'fintrack_template.csv');
+
+    trackEvent('download_csv_template', { format: 'csv' });
+    };
+    </script>

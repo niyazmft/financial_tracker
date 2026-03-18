@@ -120,10 +120,41 @@ export const useFinanceStore = defineStore('finance', {
 
         async importTransactions(transactionList) {
              this.loading = true;
+             const summary = {
+                 total: transactionList.length,
+                 successful: 0,
+                 failed: 0,
+                 errors: []
+             };
+
              try {
                  const api = useApi();
-                 await api.importTransactionsJSON(transactionList);
+                 
+                 const batchSize = 100;
+                 for (let i = 0; i < transactionList.length; i += batchSize) {
+                     const batch = transactionList.slice(i, i + batchSize);
+                     const response = await api.importTransactionsJSON(batch);
+                     
+                     if (response.summary) {
+                         summary.successful += response.summary.successful;
+                         summary.failed += response.summary.failed;
+                         if (response.summary.importErrors) {
+                             summary.errors.push(...response.summary.importErrors);
+                         }
+                     } else if (response.success) {
+                         summary.successful += batch.length;
+                     } else {
+                         summary.failed += batch.length;
+                         summary.errors.push({ error: response.message || 'Batch failed' });
+                     }
+                     
+                     if (i + batchSize < transactionList.length) {
+                         await new Promise(resolve => setTimeout(resolve, 100));
+                     }
+                 }
+                 
                  await this.fetchTransactions();
+                 return summary;
              } catch (err) {
                  this.error = err.message;
                  throw err;

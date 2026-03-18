@@ -229,8 +229,8 @@ const importTransactionsJson = catchAsync(async (req, res, next) => {
     const successful = [];
     const importErrors = [];
     
-    // NocoDB bulk insert has a limit of 1000 records
-    const batchSize = 1000;
+    // NocoDB bulk insert has a strict limit of 100 records per request
+    const batchSize = 100;
     for (let i = 0; i < results.length; i += batchSize) {
         const batch = results.slice(i, i + batchSize);
         try {

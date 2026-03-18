@@ -152,3 +152,41 @@ export const getCssVariableValue = (variableName) => {
     // and clear cache on theme switch. For now, reading direct is safest for accuracy.
     return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
 };
+
+/**
+ * Generates a CSV template string with headers and an example row.
+ * @param {string[]} headers - Array of header names
+ * @param {string[]} exampleRow - Array of example values
+ * @returns {string} CSV string
+ */
+export const generateCsvTemplate = (headers, exampleRow = []) => {
+    const headerRow = headers.join(',');
+    const rows = [headerRow];
+    
+    if (exampleRow.length > 0) {
+        rows.push(exampleRow.join(','));
+    }
+    
+    return rows.join('\n');
+};
+
+/**
+ * Triggers a browser download for a given string or data.
+ * @param {string} content - The content to download
+ * @param {string} fileName - The name of the file to save as
+ * @param {string} contentType - The MIME type of the file
+ */
+export const downloadFile = (content, fileName, contentType = 'text/csv') => {
+    const blob = new Blob([content], { type: contentType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    link.href = url;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    
+    // Cleanup
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+};
