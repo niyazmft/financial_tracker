@@ -80,8 +80,8 @@ const isValidRange = computed(() => {
 });
 
 const togglePicker = (event) => {
-    tempRange.value.start = props.startDate;
-    tempRange.value.end = props.endDate;
+    tempRange.value.start = props.startDate ? new Date(props.startDate) : null;
+    tempRange.value.end = props.endDate ? new Date(props.endDate) : null;
     op.value.toggle(event);
 };
 
@@ -105,8 +105,8 @@ const applyPreset = (preset) => {
         start.setMonth(0, 1);
     }
 
-    tempRange.value.start = start.toISOString().split('T')[0];
-    tempRange.value.end = end.toISOString().split('T')[0];
+    tempRange.value.start = start;
+    tempRange.value.end = end;
 };
 
 const applyRange = () => {
