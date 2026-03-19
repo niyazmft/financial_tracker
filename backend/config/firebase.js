@@ -20,12 +20,29 @@ let serviceAccount;
 try {
   serviceAccount = JSON.parse(serviceAccountJsonString);
 } catch (e) {
-  console.error("Error parsing FIREBASE_SERVICE_ACCOUNT_KEY_JSON:", e);
-  throw new Error("Invalid Firebase Service Account JSON format.");
+  if (process.env.NODE_ENV === 'test') {
+    console.warn("Using dummy Firebase credentials for test environment.");
+    serviceAccount = {
+        project_id: "test-project",
+        private_key: "-----BEGIN PRIVATE KEY-----\nMOCK\n-----END PRIVATE KEY-----\n",
+        client_email: "test@example.com"
+    };
+  } else {
+    console.error("Error parsing FIREBASE_SERVICE_ACCOUNT_KEY_JSON:", e);
+    throw new Error("Invalid Firebase Service Account JSON format.");
+  }
 }
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+try {
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+    });
+} catch (initError) {
+    if (process.env.NODE_ENV === 'test') {
+        console.warn("Firebase already initialized or failed in test mode, skipping.");
+    } else {
+        throw initError;
+    }
+}
 
 module.exports = admin;

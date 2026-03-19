@@ -30,7 +30,7 @@ jobs:
       BUDGET_MANAGER_TABLE_ID: mock-budget-table
       USER_SETTINGS_TABLE_ID: mock-user-settings-table
       SAVINGS_GOALS_TABLE_ID: mock-savings-goals-table
-      FIREBASE_SERVICE_ACCOUNT_KEY_JSON: '{}'
+      FIREBASE_SERVICE_ACCOUNT_KEY_JSON: '{"project_id":"mock-project","private_key":"-----BEGIN PRIVATE KEY-----\nMOCK\n-----END PRIVATE KEY-----\n","client_email":"mock@example.com"}'
       REACT_APP_FIREBASE_API_KEY: mock-key
       REACT_APP_FIREBASE_AUTH_DOMAIN: mock-project.firebaseapp.com
       REACT_APP_FIREBASE_PROJECT_ID: mock-project
