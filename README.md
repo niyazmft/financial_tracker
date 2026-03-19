@@ -286,12 +286,17 @@ The backend provides a RESTful API. Key endpoints include:
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome! To ensure stability, please follow these steps:
 1.  Fork the repository.
 2.  Create a feature branch (`git checkout -b feature/AmazingFeature`).
-3.  Commit your changes (`git commit -m 'feat: Add some AmazingFeature'`).
-4.  Push to the branch (`git push origin feature/AmazingFeature`).
-5.  Open a Pull Request.
+3.  **Run local tests** to ensure no regressions:
+    ```bash
+    pnpm test          # Backend tests
+    pnpm run test:ui   # Frontend tests
+    ```
+4.  Commit your changes (`git commit -m 'feat: Add some AmazingFeature'`).
+5.  Push to the branch (`git push origin feature/AmazingFeature`).
+6.  Open a Pull Request.
 
 ## 💎 Credits
 
