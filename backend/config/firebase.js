@@ -15,8 +15,15 @@ try {
   throw new Error("Invalid Firebase Service Account JSON format.");
 }
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+if (process.env.NODE_ENV === 'test' && !serviceAccount.project_id) {
+  // Use a mock for testing if no real credentials are provided
+  admin.initializeApp({
+    projectId: 'mock-project'
+  });
+} else {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
 
 module.exports = admin;
