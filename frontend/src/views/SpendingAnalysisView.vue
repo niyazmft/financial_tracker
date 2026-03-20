@@ -127,9 +127,7 @@ const calculatePercentage = (amount) => {
 };
 
 const handleDateRangeUpdate = ({ start, end }) => {
-    const startStr = typeof start === 'string' ? start : utils.formatDateForInput(start);
-    const endStr = typeof end === 'string' ? end : utils.formatDateForInput(end);
-    fetchData(startStr, endStr);
+    fetchData(utils.formatDateForInput(start), utils.formatDateForInput(end));
 };
 
 const fetchData = async (start, end) => {

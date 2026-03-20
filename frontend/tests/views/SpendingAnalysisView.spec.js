@@ -18,7 +18,7 @@ const stubs = {
     AppChart: { template: '<div>Chart</div>' },
     DateRangePicker: {
         name: 'DateRangePicker',
-        template: '<div @click="$emit(\'update:range\', { start: \'2023-01-01\', end: \'2023-01-31\' })">Picker</div>',
+        template: '<div @click="$emit(\'update:range\', { start: new Date(), end: new Date() })">Picker</div>',
         props: ['startDate', 'endDate']
     }
 };
@@ -64,22 +64,6 @@ describe('SpendingAnalysisView.vue', () => {
         vi.clearAllMocks();
     });
 
-    it('refreshes data when DateRangePicker emits string dates', async () => {
-        const wrapper = mount(SpendingAnalysisView, {
-            global: {
-                plugins: [PrimeVue],
-                stubs
-            }
-        });
-
-        // Trigger date range update with strings
-        const picker = wrapper.findComponent({ name: 'DateRangePicker' });
-        await picker.vm.$emit('update:range', { start: '2023-10-01', end: '2023-10-31' });
-
-        // If it doesn't crash, it should call fetchCategorySpendingData
-        expect(mockApi.fetchCategorySpendingData).toHaveBeenCalledWith('2023-10-01', '2023-10-31');
-    });
-
     it('refreshes data when DateRangePicker emits Date objects', async () => {
         const wrapper = mount(SpendingAnalysisView, {
             global: {
@@ -88,13 +72,27 @@ describe('SpendingAnalysisView.vue', () => {
             }
         });
 
-        const startDate = new Date(2023, 9, 1);
-        const endDate = new Date(2023, 9, 31);
+        // Use UTC to avoid timezone fragility
+        const startDate = new Date(Date.UTC(2023, 9, 1)); // Oct 1, 2023
+        const endDate = new Date(Date.UTC(2023, 9, 31)); // Oct 31, 2023
 
         const picker = wrapper.findComponent({ name: 'DateRangePicker' });
         await picker.vm.$emit('update:range', { start: startDate, end: endDate });
 
         // Should be formatted as YYYY-MM-DD
         expect(mockApi.fetchCategorySpendingData).toHaveBeenCalledWith('2023-10-01', '2023-10-31');
+    });
+
+    it('correctly handles the initial data load on mount', async () => {
+        mount(SpendingAnalysisView, {
+            global: {
+                plugins: [PrimeVue],
+                stubs
+            }
+        });
+
+        // fetchData is called in onMounted
+        expect(mockApi.fetchCategorySpendingData).toHaveBeenCalled();
+        expect(mockApi.fetchMonthlySpendingDataWithRange).toHaveBeenCalled();
     });
 });
