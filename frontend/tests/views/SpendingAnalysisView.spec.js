@@ -42,6 +42,14 @@ describe('SpendingAnalysisView.vue', () => {
     let authStore;
 
     beforeEach(() => {
+        // Global mock for localStorage
+        vi.stubGlobal('localStorage', {
+            getItem: vi.fn(),
+            setItem: vi.fn(),
+            removeItem: vi.fn(),
+            clear: vi.fn()
+        });
+
         setActivePinia(createPinia());
 
         mockApi = {

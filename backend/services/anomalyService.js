@@ -4,102 +4,143 @@ const AppError = require('../utils/AppError');
 const { getCategoryMapping } = require('./categoryService');
 
 /**
- * Detects spending anomalies for a given user based on category averages.
- * An anomaly is defined as a transaction where the absolute amount is `sensitivity` times
- * greater than the user's average spending for that category.
+ * Shared helper to fetch all transactions for a user.
  */
-const detectSpendingAnomalies = async (userId, sensitivity = 3) => {
-    const bankStatementsTableId = env.NOCODB.TABLES.BANK_STATEMENTS;
-    if (!bankStatementsTableId) {
-        throw new AppError('BANK_STATEMENTS_TABLE_ID is not configured.', 500);
-    }
-
-    // 1. Fetch all transactions for the user
+async function fetchAllTransactions(userId) {
+    const tableId = env.NOCODB.TABLES.BANK_STATEMENTS;
     const whereClause = `(user_id,eq,${userId})`;
     let allRecords = [];
     let currentOffset = 0;
     const pageSize = 1000;
 
     while (true) {
-        const params = { limit: pageSize, offset: currentOffset, where: whereClause };
-        const response = await nocodbService.getRecords(bankStatementsTableId, params);
-        const pageRecords = response.list || [];
-        if (pageRecords.length === 0) break;
-        allRecords = allRecords.concat(pageRecords);
-        if (pageRecords.length < pageSize) break;
+        const response = await nocodbService.getRecords(tableId, { 
+            limit: pageSize, 
+            offset: currentOffset, 
+            where: whereClause 
+        });
+        const list = response.list || [];
+        allRecords = allRecords.concat(list);
+        if (list.length < pageSize) break;
         currentOffset += pageSize;
     }
+    return allRecords;
+}
 
-    const spendingTransactions = allRecords.filter(t => parseFloat(t.amount) < 0).map(t => ({
-        ...t,
-        amount: Math.abs(parseFloat(t.amount)),
-        date: new Date(t.date)
-    }));
+/**
+ * Detects spending anomalies. Fixes "Temporal Leakage" by using 
+ * non-overlapping windows for baseline and scoring.
+ */
+const detectSpendingAnomalies = async (userId, sensitivity = 3) => {
+    const allRecords = await fetchAllTransactions(userId);
+    const spendingTransactions = allRecords
+        .filter(t => parseFloat(t.amount) < 0)
+        .map(t => ({
+            ...t,
+            amount: Math.abs(parseFloat(t.amount)),
+            date: new Date(t.date)
+        }));
 
-    // 2. Calculate historical average spending per category
+    const scoringCutoff = new Date();
+    scoringCutoff.setDate(scoringCutoff.getDate() - 30); // Last 30 days are for scoring
+
+    // Baseline is everything older than the scoring window (Leakage Fix)
+    const historicalTransactions = spendingTransactions.filter(t => t.date <= scoringCutoff);
+    const recentTransactions = spendingTransactions.filter(t => t.date > scoringCutoff);
+
     const categoryAverages = {};
     const categoryCounts = {};
 
-    const historicalCutoff = new Date();
-    historicalCutoff.setDate(historicalCutoff.getDate() - 90); // 90-day history
-
-    const historicalTransactions = spendingTransactions.filter(t => t.date <= historicalCutoff);
-
     historicalTransactions.forEach(t => {
-        const categoryId = t.categories_id;
-        if (!categoryId) return;
-
-        if (!categoryAverages[categoryId]) {
-            categoryAverages[categoryId] = 0;
-            categoryCounts[categoryId] = 0;
-        }
-        categoryAverages[categoryId] += t.amount;
-        categoryCounts[categoryId]++;
+        const cat = t.categories_id;
+        if (!cat) return;
+        categoryAverages[cat] = (categoryAverages[cat] || 0) + t.amount;
+        categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
     });
 
-    for (const categoryId in categoryAverages) {
-        categoryAverages[categoryId] /= categoryCounts[categoryId];
+    for (const cat in categoryAverages) {
+        categoryAverages[cat] /= categoryCounts[cat];
     }
 
-    // 3. Identify anomalies in recent transactions
-    const recentCutoff = new Date();
-    recentCutoff.setDate(recentCutoff.getDate() - 30); // 30-day window for anomalies
-
-    const recentTransactions = spendingTransactions.filter(t => t.date > recentCutoff);
     const anomalies = [];
-
     const categoryMapping = await getCategoryMapping(userId);
 
     recentTransactions.forEach(t => {
-        const categoryId = t.categories_id;
-        const categoryAverage = categoryAverages[categoryId];
-
-        if (categoryAverage && t.amount > categoryAverage * sensitivity) {
+        const avg = categoryAverages[t.categories_id];
+        if (avg && t.amount > avg * sensitivity) {
             anomalies.push({
                 id: t.Id,
                 date: t.date.toISOString().split('T')[0],
-                amount: -t.amount, // Keep original negative sign
+                amount: -t.amount,
                 description: t.description,
                 categoryId: t.categories_id,
                 categoryName: categoryMapping[t.categories_id] || 'Unknown',
                 detectedAt: new Date().toISOString(),
-                reason: `This transaction is ~${Math.round(t.amount / categoryAverage)}x higher than the average for this category.`
+                reason: `Unusual spike: ~${Math.round(t.amount / avg)}x historical average.`
             });
         }
     });
 
-    return {
-        anomalies,
-        summary: {
-            checkedTransactions: recentTransactions.length,
-            foundAnomalies: anomalies.length,
-            sensitivity,
-            historicalDataPoints: historicalTransactions.length,
-            categoryAverages
+    return { anomalies, summary: { checked: recentTransactions.length, found: anomalies.length, sensitivity } };
+};
+
+/**
+ * Detects "Negative Anomalies" (Missing expected income events).
+ */
+const detectMissingEntries = async (userId) => {
+    const allRecords = await fetchAllTransactions(userId);
+    const incomeTx = allRecords.filter(t => parseFloat(t.amount) > 0);
+    
+    if (incomeTx.length < 10) return []; // Not enough history to predict missing events
+
+    const monthlyCounts = {}; // dayOfMonth -> count of months it appeared
+    const monthSet = new Set();
+
+    incomeTx.forEach(t => {
+        const d = new Date(t.date);
+        const day = d.getDate();
+        const monthKey = `${d.getFullYear()}-${d.getMonth()}`;
+        monthSet.add(monthKey);
+        
+        if (!monthlyCounts[day]) monthlyCounts[day] = new Set();
+        monthlyCounts[day].add(monthKey);
+    });
+
+    const monthsCount = monthSet.size;
+    const expectedPaydays = Object.entries(monthlyCounts)
+        .filter(([, sets]) => sets.size >= monthsCount * 0.6) // Appeared in 60% of recorded months
+        .map(([day]) => parseInt(day));
+
+    const today = new Date();
+    const missing = [];
+
+    expectedPaydays.forEach(day => {
+        // If today is at least 3 days past the expected day
+        if (today.getDate() >= day + 3) {
+            // Check if we already have income recorded for this month around that day (+/- 3 days)
+            const hasIncome = incomeTx.some(t => {
+                const txDate = new Date(t.date);
+                return txDate.getMonth() === today.getMonth() && 
+                       txDate.getFullYear() === today.getFullYear() &&
+                       Math.abs(txDate.getDate() - day) <= 3;
+            });
+
+            if (!hasIncome) {
+                missing.push({
+                    type: 'missing_income',
+                    expectedDay: day,
+                    message: `Expected income around the ${day}th has not been detected yet this month.`,
+                    severity: 'high'
+                });
+            }
         }
-    };
+    });
+
+    return missing;
 };
 
 module.exports = {
     detectSpendingAnomalies,
+    detectMissingEntries,
+    fetchAllTransactions
 };

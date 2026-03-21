@@ -7,5 +7,6 @@ const router = express.Router();
 router.use(authMiddleware.authenticateToken); // Use the function from the object
 
 router.get('/', anomalyController.getAnomalies);
+router.get('/advisory', anomalyController.getIntelligenceAdvisory);
 
 module.exports = router;

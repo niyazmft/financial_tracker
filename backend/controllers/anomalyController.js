@@ -4,6 +4,8 @@ const anomalyService = require('../services/anomalyService');
 const nocodbService = require('../services/nocodbService');
 const env = require('../config/env');
 
+const intelligenceService = require('../services/intelligenceService');
+
 const getAnomalies = catchAsync(async (req, res, next) => {
     const userId = req.user.uid;
 
@@ -17,7 +19,8 @@ const getAnomalies = catchAsync(async (req, res, next) => {
         limit: 1,
     });
 
-    if (list.length === 0 || !list[0].anomaly_detection_enabled) {
+    const settings = list[0] || {};
+    if (!settings.anomaly_detection_enabled) {
         return res.json({
             success: true,
             anomalies: [],
@@ -25,9 +28,7 @@ const getAnomalies = catchAsync(async (req, res, next) => {
         });
     }
 
-    const settings = list[0];
     const sensitivity = settings.anomaly_detection_sensitivity || 3;
-
     const anomalyData = await anomalyService.detectSpendingAnomalies(userId, sensitivity);
 
     res.json({
@@ -36,6 +37,26 @@ const getAnomalies = catchAsync(async (req, res, next) => {
     });
 });
 
+const getIntelligenceAdvisory = catchAsync(async (req, res, next) => {
+    const userId = req.user.uid;
+    
+    // 1. Fetch user settings for sensitivity
+    const { list } = await nocodbService.getRecords(env.NOCODB.TABLES.USER_SETTINGS, {
+        where: `(user_id,eq,${userId})`,
+        limit: 1,
+    });
+    
+    const settings = list[0] || { anomaly_detection_sensitivity: 3 };
+    
+    // 2. Call the Intelligence Loop orchestrator
+    const advisory = await intelligenceService.getUnifiedAdvisory(userId, {
+        sensitivity: settings.anomaly_detection_sensitivity
+    });
+
+    res.json(advisory);
+});
+
 module.exports = {
     getAnomalies,
+    getIntelligenceAdvisory
 };

@@ -10,14 +10,22 @@ import AppPrivacy from '@/views/AppPrivacyView.vue';
 // which is a valid "Red" state (compilation error).
 
 describe('Legal Pages', () => {
+    const mountOptions = {
+        global: {
+            stubs: {
+                'router-link': true
+            }
+        }
+    };
+
     it('renders Terms of Service page', () => {
-        const wrapper = mount(TermsOfService);
+        const wrapper = mount(TermsOfService, mountOptions);
         expect(wrapper.text()).toContain('Terms of Service');
         expect(wrapper.text()).toContain('Last updated');
     });
 
     it('renders Privacy Policy page', () => {
-        const wrapper = mount(AppPrivacy);
+        const wrapper = mount(AppPrivacy, mountOptions);
         expect(wrapper.text()).toContain('Privacy Policy');
         expect(wrapper.text()).toContain('Information We Collect');
     });
