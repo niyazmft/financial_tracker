@@ -239,5 +239,6 @@ To ensure code quality and prevent regressions, adherence to **Test-Driven Devel
 
 ### ❌ NEVER DO:
 - NO Automated Commits: Never commit code changes unless explicitly instructed to do so by the user.
+- NO Environment-Specific Configs: Do not commit files that link the project to a specific personal/production instance (e.g., `.firebaserc`). These should be in `.gitignore`.
 ### ❌ NEVER DO:
 - NO Echoing Completion Messages: Never use 'echo' to output completion messages after a task. Simply indicate completion through direct tool output or by stating the task is done.

@@ -194,6 +194,10 @@ FinTrack utilizes NocoDB to manage its data. Ensure the following tables are set
        ```
    *   Open `.env` and fill in your **Firebase** credentials and **NocoDB** tokens.
    *   Place your Firebase Service Account JSON file in the root directory (e.g., `service-account.json`).
+   *   **Associate your Firebase Project**:
+       ```bash
+       firebase use --add
+       ```
 
 3. **Development Workflow**
    This project uses a hybrid workflow: **Docker** handles the infrastructure (Database, NocoDB), while the **FinTrack App** runs locally on your machine for rapid development.
