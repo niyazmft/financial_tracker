@@ -111,7 +111,7 @@ After **ANY** code change, perform these checks. **If any check fails, you must 
         3. If it fails again, you may repeat step 2 **two more times** (for a total of three attempts).
         4. If the check still fails after three total attempts, **revert all file changes** to their original state and report the final error.
 
-3.  **Local Test Verification (Mandatory for all changes):**
+3. **Local Test Verification (Mandatory for all changes):**
     - **Action:** Run `pnpm test` (Backend), `pnpm run test:ui` (Frontend), and `pnpm run lint:all` (Multi-language Quality Audit).
     - **Success Criteria:** All commands exit with code 0. All tests must pass and no linting errors should exist across JS, Vue, CSS, JSON, or Markdown.
 
