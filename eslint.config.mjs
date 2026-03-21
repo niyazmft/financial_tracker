@@ -2,6 +2,7 @@ import js from "@eslint/js";
 import globals from "globals";
 import pluginVue from "eslint-plugin-vue";
 import vueParser from "vue-eslint-parser";
+import jsonFormat from "eslint-plugin-json-format";
 
 export default [
   {
@@ -12,11 +13,17 @@ export default [
       "build/",
       ".obsidian/",
       "ProjectManager/",
-      "infrastructure/docker/postgres_data/"
+      "infrastructure/docker/postgres_data/",
+      "pnpm-lock.yaml"
     ]
   },
   js.configs.recommended,
   ...pluginVue.configs["flat/recommended"],
+  {
+    plugins: {
+      "json-format": jsonFormat
+    }
+  },
   {
     files: ["**/*.js", "**/*.mjs", "**/*.vue"],
     languageOptions: {
