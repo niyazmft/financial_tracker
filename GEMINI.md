@@ -88,6 +88,9 @@ This protocol **MUST** be followed for every task involving code modification.
     - **State:** Use Pinia stores (`frontend/src/stores/`) for global state.
     - **API:** Import `useApi` from `frontend/src/services/apiInstance.js`.
     - **UI:** Use PrimeVue components and services (Toast, ConfirmDialog).
+3. **Linting & Quality:**
+    - **Auto-Fix First:** Before making manual code changes to resolve lint errors, you **MUST** first execute the project's auto-fix commands (`eslint --fix`, `stylelint --fix`). Do not waste context or effort on fixable stylistic issues.
+    - **Pre-commit Hook:** Note that a Husky pre-commit hook is active. It will automatically attempt to fix and re-stage your changes upon commit. Do not rely on this; ensure code is clean before committing.
 
 ### Step 3: Post-Change Verification
 

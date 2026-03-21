@@ -76,6 +76,7 @@ FinTrack follows a clean, modular architecture separating the frontend, backend,
   - **Backend**: Mocha + Sinon + Supertest
   - **Frontend**: Vitest + Vue Test Utils
 - **Code Quality**: Project-wide linting via **ESLint** (JS, Vue, JSON), **Stylelint** (CSS/Tailwind v4), and **Markdownlint**. Unified under `pnpm run lint:all`.
+- **Git Hooks**: Automated pre-commit hooks via **Husky** and **lint-staged** ensure all staged code is automatically fixed and validated before being committed.
 
 ## 🤖 AI-Ready Development
 
@@ -325,7 +326,14 @@ Contributions are welcome! To ensure stability and high code quality, please fol
 1. Fork the repository.
 2. Create a feature branch (`git checkout -b feature/AmazingFeature`).
 3. **Lint-First Rule**: If your feature introduces a new language or framework, ensure its linter is configured and added to `pnpm run lint:all` before implementation.
-4. **Run local tests** to ensure no regressions:
+4. **Auto-Fix Rule**: Before manually addressing linting errors, always execute the project's auto-fixers to save time and tokens:
+
+    ```bash
+    pnpm exec eslint '**/*.{js,mjs,vue}' --fix
+    pnpm exec stylelint 'frontend/src/**/*.css' --fix
+    ```
+
+5. **Run local tests** to ensure no regressions:
 
     ```bash
     pnpm test          # Backend tests
@@ -333,9 +341,9 @@ Contributions are welcome! To ensure stability and high code quality, please fol
     pnpm run lint:all  # Code quality audit
     ```
 
-5. Commit your changes (`git commit -m 'feat: Add some AmazingFeature'`).
-6. Push to the branch (`git push origin feature/AmazingFeature`).
-7. Open a Pull Request.
+6. Commit your changes (`git commit -m 'feat: Add some AmazingFeature'`).
+7. Push to the branch (`git push origin feature/AmazingFeature`).
+8. Open a Pull Request.
 
 ## 💎 Credits
 
