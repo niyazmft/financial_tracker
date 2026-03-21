@@ -70,14 +70,14 @@ describe('DateRangePicker.vue', () => {
         expect(emitted).toBeTruthy();
 
         const { start, end } = emitted[0][0];
-        // Our stubbed DatePicker emits strings because we use setValue on an input
-        // But the component logic should ideally convert them if it was doing so.
-        // Wait, the component logic only converts PROPS to Dates in togglePicker.
-        // Manual selection in the DatePicker stub sets tempRange.start/end directly via v-model.
-        // In the real app, PrimeVue DatePicker v-model would be a Date object.
-        // For the test, we'll verify it's at least truthy and matches our input.
-        expect(start).toBe('2026-01-01');
-        expect(end).toBe('2026-01-31');
+
+        // Component now ensures Date objects are emitted
+        expect(start).toBeInstanceOf(Date);
+        expect(end).toBeInstanceOf(Date);
+
+        // Verify formatted values match our inputs
+        expect(start.toISOString().split('T')[0]).toBe('2026-01-01');
+        expect(end.toISOString().split('T')[0]).toBe('2026-01-31');
     });
 
     it('emits Date objects when Last 30 Days preset is selected', async () => {

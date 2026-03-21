@@ -111,10 +111,11 @@ const applyPreset = (preset) => {
 
 const applyRange = () => {
     if (isValidRange.value) {
-        emit('update:range', {
-            start: tempRange.value.start,
-            end: tempRange.value.end
-        });
+        // Ensure we always emit Date objects even if input gave us strings
+        const start = tempRange.value.start instanceof Date ? tempRange.value.start : new Date(tempRange.value.start);
+        const end = tempRange.value.end instanceof Date ? tempRange.value.end : new Date(tempRange.value.end);
+
+        emit('update:range', { start, end });
         closePicker();
     }
 };
