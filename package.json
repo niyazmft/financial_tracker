@@ -15,7 +15,9 @@
     "db:check": "node backend/scripts/checkData.js",
     "test": "mocha 'backend/tests/**/*.test.js'",
     "test:email": "node backend/tests/manual_email_test.js",
-    "test:ui": "vitest run --config vite.config.mjs"
+    "test:ui": "vitest run --config vite.config.mjs",
+    "lint:js": "eslint '**/*.js'",
+    "lint:all": "pnpm run lint:js"
   },
   "keywords": [
     "financial",
@@ -53,6 +55,7 @@
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@primevue/auto-import-resolver": "^4.5.4",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.10",
@@ -60,6 +63,8 @@
     "@vitejs/plugin-vue": "^6.0.2",
     "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.22",
+    "eslint": "^10.1.0",
+    "globals": "^17.4.0",
     "http-server": "^14.1.1",
     "jsdom": "^27.4.0",
     "mocha": "^11.7.5",
