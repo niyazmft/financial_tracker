@@ -79,11 +79,11 @@ const _getOrCreateUserSettings = async (userId) => {
     });
 };
 
-const getFirebaseConfig = catchAsync(async (req, res) => {
+const getFirebaseConfig = catchAsync(async (_req, res) => {
     res.json(env.FIREBASE.CLIENT_CONFIG);
 });
 
-const getUserSettings = catchAsync(async (req, res, next) => {
+const getUserSettings = catchAsync(async (req, res, _next) => {
     const settings = await _getOrCreateUserSettings(req.user.uid);
     res.json(settings);
 });

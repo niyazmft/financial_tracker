@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import { useApi } from '../services/apiInstance';
-import { formatDateForInput } from '../services/utils';
 
 export const useFinanceStore = defineStore('finance', {
     state: () => ({

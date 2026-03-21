@@ -37,7 +37,7 @@ const getAnomalies = catchAsync(async (req, res, next) => {
     });
 });
 
-const getIntelligenceAdvisory = catchAsync(async (req, res, next) => {
+const getIntelligenceAdvisory = catchAsync(async (req, res, _next) => {
     const userId = req.user.uid;
     
     // 1. Fetch user settings for sensitivity

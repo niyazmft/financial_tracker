@@ -1,7 +1,6 @@
 const fs = require('fs/promises');
 const path = require('path');
 const handlebars = require('handlebars');
-const env = require('../config/env');
 
 const TEMPLATE_DIR = path.join(__dirname, '../templates');
 
@@ -27,7 +26,7 @@ const compileTemplate = async (templateName, context) => {
         return template(commonContext);
     } catch (error) {
         console.error(`Error compiling template ${templateName}:`, error);
-        throw new Error('Failed to generate email content.');
+        throw new Error('Failed to generate email content.', { cause: error });
     }
 };
 

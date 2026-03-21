@@ -5,7 +5,7 @@ const AppError = require('../utils/AppError');
 
 const SAVINGS_GOALS_TABLE_ID = process.env.SAVINGS_GOALS_TABLE_ID || 'mqe77ttqd3ge3yc';
 
-exports.getGoals = catchAsync(async (req, res, next) => {
+exports.getGoals = catchAsync(async (req, res, _next) => {
     const verifiedUserId = req.user.uid;
     const result = await savingsGoalService.getGoalsWithProgress(verifiedUserId);
 
@@ -43,7 +43,7 @@ exports.createGoal = catchAsync(async (req, res, next) => {
     });
 });
 
-exports.updateGoal = catchAsync(async (req, res, next) => {
+exports.updateGoal = catchAsync(async (req, res, _next) => {
     const { id } = req.params;
     const { goal_name, target_amount, priority, target_date } = req.body;
 
@@ -63,7 +63,7 @@ exports.updateGoal = catchAsync(async (req, res, next) => {
     });
 });
 
-exports.deleteGoal = catchAsync(async (req, res, next) => {
+exports.deleteGoal = catchAsync(async (req, res, _next) => {
     const { id } = req.params;
     
     await nocodbService.deleteRecord(SAVINGS_GOALS_TABLE_ID, id);

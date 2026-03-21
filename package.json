@@ -16,7 +16,7 @@
     "test": "mocha 'backend/tests/**/*.test.js'",
     "test:email": "node backend/tests/manual_email_test.js",
     "test:ui": "vitest run --config vite.config.mjs",
-    "lint:js": "eslint '**/*.js'",
+    "lint:js": "eslint '**/*.{js,mjs,vue}'",
     "lint:all": "pnpm run lint:js"
   },
   "keywords": [
@@ -64,6 +64,7 @@
     "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.22",
     "eslint": "^10.1.0",
+    "eslint-plugin-vue": "^10.8.0",
     "globals": "^17.4.0",
     "http-server": "^14.1.1",
     "jsdom": "^27.4.0",
@@ -77,6 +78,7 @@
     "unplugin-vue-components": "^30.0.0",
     "vite": "^7.2.4",
     "vitest": "^4.0.18",
+    "vue-eslint-parser": "^10.4.0",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4"
   }

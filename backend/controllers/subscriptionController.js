@@ -1,8 +1,7 @@
 const catchAsync = require('../utils/catchAsync');
 const subscriptionService = require('../services/subscriptionService');
-const AppError = require('../utils/AppError');
 
-exports.getSubscriptions = catchAsync(async (req, res, next) => {
+exports.getSubscriptions = catchAsync(async (req, res, _next) => {
     const userId = req.user.uid;
 
     // Parallel fetch
@@ -27,7 +26,7 @@ exports.getSubscriptions = catchAsync(async (req, res, next) => {
     });
 });
 
-exports.createSubscription = catchAsync(async (req, res, next) => {
+exports.createSubscription = catchAsync(async (req, res, _next) => {
     const newSubscription = await subscriptionService.createSubscription({
         ...req.body,
         user_id: req.user.uid,
@@ -42,7 +41,7 @@ exports.createSubscription = catchAsync(async (req, res, next) => {
     });
 });
 
-exports.updateSubscription = catchAsync(async (req, res, next) => {
+exports.updateSubscription = catchAsync(async (req, res, _next) => {
     const updatedSubscription = await subscriptionService.updateSubscription(req.params.id, req.body);
 
     res.status(200).json({
@@ -53,7 +52,7 @@ exports.updateSubscription = catchAsync(async (req, res, next) => {
     });
 });
 
-exports.deleteSubscription = catchAsync(async (req, res, next) => {
+exports.deleteSubscription = catchAsync(async (req, res, _next) => {
     await subscriptionService.deleteSubscription(req.params.id);
 
     res.status(204).json({

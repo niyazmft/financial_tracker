@@ -81,7 +81,7 @@ const logger = winston.createLogger({
 
 // Create a stream object with a 'write' function that will be used by morgan
 logger.stream = {
-  write: function(message, encoding) {
+  write: function(message, _encoding) {
     // Use the 'info' level so the output will be picked up by both transports
     logger.info(message.trim());
   },

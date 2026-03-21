@@ -5,7 +5,7 @@ const AppError = require('../utils/AppError'); // Import AppError for consistent
 async function _verifyToken(token) {
     try {
         return await admin.auth().verifyIdToken(token);
-    } catch (error) {
+    } catch {
         throw new AppError('Unauthorized: Invalid token', 401);
     }
 }

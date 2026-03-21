@@ -13,7 +13,7 @@ function buildAdvisory(forecast, anomalies, missingEntries) {
     const willDip = forecast.warnings.length > 0;
     const lowest = forecast.summaryMetrics.lowestProjectedBalance;
     
-    let statement = "";
+    let statement;
 
     if (willDip && recentAnomalies.length > 0) {
         statement = `Your balance is projected to dip to ${lowest.toFixed(0)} around ${forecast.warnings[0].date}. `

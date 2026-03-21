@@ -1,5 +1,5 @@
 const nocodbService = require('./nocodbService');
-const { getLookaheadDates, formatDateForDisplay } = require('../utils/dateUtils');
+const { getLookaheadDates } = require('../utils/dateUtils');
 const { getEarningCategoryIds } = require('./categoryService');
 const env = require('../config/env');
 

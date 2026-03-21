@@ -1,5 +1,4 @@
 const logger = require('../config/logger');
-const AppError = require('../utils/AppError');
 const env = require('../config/env'); // Import env
 
 const handleDevelopmentError = (err, res) => {
@@ -32,7 +31,7 @@ const handleProductionError = (err, res) => {
   }
 };
 
-module.exports = (err, req, res, next) => {
+module.exports = (err, req, res, _next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 

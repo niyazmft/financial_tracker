@@ -122,7 +122,7 @@ function normalizeAndValidateCategory(categoryName, availableCategories) {
     
     // Find category ID by name (case-insensitive and normalized)
     for (const id in availableCategories) {
-        if (availableCategories.hasOwnProperty(id) && normalizeTurkishChars(availableCategories[id].toLowerCase()) === normalizedName) {
+        if (Object.prototype.hasOwnProperty.call(availableCategories, id) && normalizeTurkishChars(availableCategories[id].toLowerCase()) === normalizedName) {
             return { id: parseInt(id, 10), name: availableCategories[id] };
         }
     }

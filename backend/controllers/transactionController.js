@@ -8,7 +8,7 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 const env = require('../config/env');
 
-const getTransactions = catchAsync(async (req, res, next) => {
+const getTransactions = catchAsync(async (req, res, _next) => {
     const verifiedUserId = req.user.uid;
     const { startDate, endDate } = req.query;
     
@@ -158,7 +158,7 @@ const deleteTransaction = catchAsync(async (req, res, next) => {
     res.json({ success: true, message: 'Transaction deleted successfully' });
 });
 
-const getTransactionStats = catchAsync(async (req, res, next) => {
+const getTransactionStats = catchAsync(async (req, res, _next) => {
     const verifiedUserId = req.user.uid;
 
     const { statistics } = await transactionService.getTransactions(verifiedUserId, {});

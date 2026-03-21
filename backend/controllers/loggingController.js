@@ -1,6 +1,6 @@
 const logger = require('../config/logger');
 
-exports.logError = (req, res, next) => {
+exports.logError = (req, res, _next) => {
   const { message, stack, url, timestamp } = req.body;
 
   logger.error('Frontend Error', {

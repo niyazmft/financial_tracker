@@ -108,12 +108,12 @@ After **ANY** code change, perform these checks. **If any check fails, you must 
         4. If the check still fails after three total attempts, **revert all file changes** to their original state and report the final error.
 
 3.  **Local Test Verification (Mandatory for all changes):**
-    - **Action:** Run `pnpm test` (Backend) and `pnpm run test:ui` (Frontend).
-    - **Success Criteria:** Both commands exit with code 0. All tests must pass.
+    - **Action:** Run `pnpm test` (Backend), `pnpm run test:ui` (Frontend), and `pnpm run lint:all` (Code Quality).
+    - **Success Criteria:** All commands exit with code 0. All tests must pass and no linting errors should exist.
     - **Failure Action:**
-        1. Identify the failing test case.
-        2. Follow the TDD workflow (Section 7) to fix the regression.
-        3. Re-run tests until green.
+        1. Identify the failing test case or linting error.
+        2. Follow the TDD workflow (Section 7) or fix the code quality issue.
+        3. Re-run verification until green.
 
 ### Step 4: Adding New Tests (Backend Only)
 
@@ -240,5 +240,6 @@ To ensure code quality and prevent regressions, adherence to **Test-Driven Devel
 ### ❌ NEVER DO:
 - NO Automated Commits: Never commit code changes unless explicitly instructed to do so by the user.
 - NO Environment-Specific Configs: Do not commit files that link the project to a specific personal/production instance (e.g., `.firebaserc`). These should be in `.gitignore`.
+- NO Unlinted Frameworks: Whenever a new framework or language is added to the project, its linter MUST be configured and integrated into `pnpm run lint:all` before starting feature work.
 ### ❌ NEVER DO:
 - NO Echoing Completion Messages: Never use 'echo' to output completion messages after a task. Simply indicate completion through direct tool output or by stating the task is done.

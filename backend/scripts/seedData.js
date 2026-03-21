@@ -13,11 +13,6 @@ const askQuestion = (query) => new Promise((resolve) => rl.question(query, resol
 // --- Helper Functions ---
 const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const getRandomFloat = (min, max) => (Math.random() * (max - min) + min).toFixed(2);
-const addMonths = (date, months) => {
-    const result = new Date(date);
-    result.setMonth(result.getMonth() + months);
-    return result;
-};
 const formatDate = (date) => date.toISOString().split('T')[0];
 
 // --- Data Definitions ---

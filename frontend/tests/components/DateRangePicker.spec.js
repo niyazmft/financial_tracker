@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import DateRangePicker from '@/components/Shared/DateRangePicker.vue';
 import PrimeVue from 'primevue/config';
 import * as utils from '@/services/utils';
@@ -75,7 +75,7 @@ describe('DateRangePicker.vue', () => {
             await applyBtn.trigger('click');
 
             const emitted = wrapper.emitted('update:range');
-            const { start, end } = emitted[emitted.length - 1][0];
+            const { start, _end } = emitted[emitted.length - 1][0];
 
             // This is the critical check: Can the utility process the emitted object?
             // If the bug reported (n.toISOString is not a function) is present, this will fail.

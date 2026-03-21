@@ -1,12 +1,11 @@
 const cashFlowService = require('../services/cashFlowService');
-const { getLookaheadDates } = require('../utils/dateUtils');
 const catchAsync = require('../utils/catchAsync');
 const env = require('../config/env');
 
 /**
  * Endpoint for summarized cash flow warnings (backward compatible).
  */
-const getCashFlowWarnings = catchAsync(async (req, res, next) => {
+const getCashFlowWarnings = catchAsync(async (req, res, _next) => {
     const verifiedUserId = req.user.uid;
     
     // We call the service to get the latest simulation
@@ -26,7 +25,7 @@ const getCashFlowWarnings = catchAsync(async (req, res, next) => {
 /**
  * Endpoint for the full 30-day balance projection.
  */
-const getCashFlowForecast = catchAsync(async (req, res, next) => {
+const getCashFlowForecast = catchAsync(async (req, res, _next) => {
     const verifiedUserId = req.user.uid;
     const duration = parseInt(req.query.duration) || 30;
 

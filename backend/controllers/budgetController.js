@@ -92,7 +92,7 @@ const deleteBudget = catchAsync(async (req, res, next) => {
     res.json({ success: true, message: 'Budget deleted successfully.' });
 });
 
-const getActiveBudgets = catchAsync(async (req, res, next) => {
+const getActiveBudgets = catchAsync(async (req, res, _next) => {
     const userId = req.user.uid;
     const today = new Date().toISOString().split('T')[0];
 

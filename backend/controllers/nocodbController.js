@@ -4,7 +4,7 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 const env = require('../config/env');
 
-const getCategories = catchAsync(async (req, res, next) => {
+const getCategories = catchAsync(async (req, res, _next) => {
     const verifiedUserId = req.user.uid;
 
     const categoriesTableId = env.NOCODB.TABLES.CATEGORIES;
@@ -17,7 +17,7 @@ const getCategories = catchAsync(async (req, res, next) => {
     res.status(200).json({ success: true, categories });
 });
 
-const getCategoryTypes = catchAsync(async (req, res, next) => {
+const getCategoryTypes = catchAsync(async (req, res, _next) => {
     const verifiedUserId = req.user.uid;
     const categoriesTableId = env.NOCODB.TABLES.CATEGORIES;
     const whereClause = `(user_id,eq,${verifiedUserId})`;

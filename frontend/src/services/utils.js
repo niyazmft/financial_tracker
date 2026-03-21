@@ -61,31 +61,36 @@ export const getDateRangeForType = (type) => {
     let startDate, endDate;
     
     switch(type) {
-        case 'ytd':
+        case 'ytd': {
             startDate = createDateUTC(now.getFullYear(), 0, 1);
             endDate = now;
             break;
-        case 'last-year':
+        }
+        case 'last-year': {
             const lastYear = now.getFullYear() - 1;
             startDate = createDateUTC(lastYear, 0, 1);
             endDate = createDateUTC(lastYear, 11, 31);
             break;
-        case 'last-6m':
+        }
+        case 'last-6m': {
             const sixMonthsAgoDate = new Date(now);
             sixMonthsAgoDate.setMonth(now.getMonth() - 6);
             startDate = createDateUTC(sixMonthsAgoDate.getFullYear(), sixMonthsAgoDate.getMonth(), 1);
             endDate = now;
             break;
-        case 'last-3m':
+        }
+        case 'last-3m': {
             const threeMonthsAgoDate = new Date(now);
             threeMonthsAgoDate.setMonth(now.getMonth() - 3);
             startDate = createDateUTC(threeMonthsAgoDate.getFullYear(), threeMonthsAgoDate.getMonth(), 1);
             endDate = now;
             break;
-        case 'this-year':
+        }
+        case 'this-year': {
             startDate = createDateUTC(now.getFullYear(), 0, 1);
             endDate = createDateUTC(now.getFullYear(), 11, 31);
             break;
+        }
         default:
             return null;
     }
@@ -102,7 +107,7 @@ export const calculateMonthsDifference = (startDate, endDate) => {
         const end = new Date(endDate);
         const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
         return months < 1 ? 1 : months;
-    } catch (e) {
+    } catch {
         return 1;
     }
 };

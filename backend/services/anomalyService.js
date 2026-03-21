@@ -1,6 +1,5 @@
 const nocodbService = require('./nocodbService');
 const env = require('../config/env');
-const AppError = require('../utils/AppError');
 const { getCategoryMapping } = require('./categoryService');
 
 /**

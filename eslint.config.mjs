@@ -1,5 +1,7 @@
 import js from "@eslint/js";
 import globals from "globals";
+import pluginVue from "eslint-plugin-vue";
+import vueParser from "vue-eslint-parser";
 
 export default [
   {
@@ -14,11 +16,15 @@ export default [
     ]
   },
   js.configs.recommended,
+  ...pluginVue.configs["flat/recommended"],
   {
-    files: ["**/*.js", "**/*.mjs"],
+    files: ["**/*.js", "**/*.mjs", "**/*.vue"],
     languageOptions: {
-      ecmaVersion: 2022,
-      sourceType: "module",
+      parser: vueParser,
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: "module",
+      },
       globals: {
         ...globals.node,
         ...globals.browser,
@@ -34,7 +40,9 @@ export default [
         "varsIgnorePattern": "^_"
       }],
       "no-console": "off",
-      "no-undef": "error"
+      "no-undef": "error",
+      "vue/multi-word-component-names": "off", // Common in this project
+      "vue/no-v-html": "off" // Use with caution
     }
   }
 ];

@@ -116,7 +116,7 @@ const deleteInstallment = catchAsync(async (req, res, next) => {
 
 const createInstallmentPlan = catchAsync(async (req, res, next) => {
     const verifiedUserId = req.user.uid;
-    const { itemName, categoryId, totalAmount, installments } = req.body;
+    const { itemName, categoryId, _totalAmount, installments } = req.body;
 
     if (!itemName || !categoryId || !Array.isArray(installments) || installments.length === 0) {
         return next(new AppError('itemName, categoryId, and installments array are required', 400));

@@ -2,7 +2,6 @@ const assert = require('assert');
 const sinon = require('sinon');
 const categoryService = require('../services/categoryService');
 const nocodbService = require('../services/nocodbService');
-const env = require('../config/env');
 
 describe('Category Service', () => {
     let getRecordsStub;
