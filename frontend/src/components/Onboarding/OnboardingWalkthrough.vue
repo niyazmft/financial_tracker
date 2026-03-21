@@ -1,21 +1,44 @@
 <template>
-  <Dialog v-model:visible="visible" modal header="Welcome to FinTrack!" :style="{ width: '50rem' }" :breakpoints="{ '960px': '75vw', '641px': '100vw' }" :closable="false" :draggable="false">
+  <Dialog
+    v-model:visible="visible"
+    modal
+    header="Welcome to FinTrack!"
+    :style="{ width: '50rem' }"
+    :breakpoints="{ '960px': '75vw', '641px': '100vw' }"
+    :closable="false"
+    :draggable="false"
+  >
     <div class="stepper">
-      <div class="step" v-for="(step, index) in steps" :key="index" :class="{ 'active': currentStep === index, 'completed': currentStep > index }">
-        <div class="step-icon">{{ index + 1 }}</div>
-        <div class="step-label">{{ step.title }}</div>
+      <div
+        v-for="(step, index) in steps"
+        :key="index"
+        class="step"
+        :class="{ 'active': currentStep === index, 'completed': currentStep > index }"
+      >
+        <div class="step-icon">
+          {{ index + 1 }}
+        </div>
+        <div class="step-label">
+          {{ step.title }}
+        </div>
       </div>
     </div>
     <div class="step-content mt-8">
       <div v-if="currentStep === 0">
-        <h2 class="text-xl font-bold mb-4">Secure Sign-In & Authentication</h2>
+        <h2 class="text-xl font-bold mb-4">
+          Secure Sign-In & Authentication
+        </h2>
         <p>Your financial data is protected. We use secure, token-based authentication for every request. Your information is only accessible to you.</p>
       </div>
       <div v-if="currentStep === 1">
-        <h2 class="text-xl font-bold mb-4">CSV Upload Process</h2>
+        <h2 class="text-xl font-bold mb-4">
+          CSV Upload Process
+        </h2>
         <p>To get started, upload a CSV file of your bank statements. Navigate to the 'Transactions' page and click 'Add Transactions' to begin.</p>
         <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p class="font-bold">Required Columns:</p>
+          <p class="font-bold">
+            Required Columns:
+          </p>
           <ul class="list-disc list-inside mt-2">
             <li><code class="bg-gray-200 px-1 rounded">date</code> (YYYY-MM-DD)</li>
             <li><code class="bg-gray-200 px-1 rounded">amount</code></li>
@@ -25,15 +48,31 @@
           </ul>
         </div>
       </div>
-       <div v-if="currentStep === 2">
-        <h2 class="text-xl font-bold mb-4">You're All Set!</h2>
+      <div v-if="currentStep === 2">
+        <h2 class="text-xl font-bold mb-4">
+          You're All Set!
+        </h2>
         <p>You can always find more information in our documentation. Enjoy tracking your finances!</p>
       </div>
     </div>
     <template #footer>
-      <Button v-if="currentStep > 0" label="Back" text @click="prevStep" />
-      <Button v-if="currentStep < steps.length - 1" label="Next" @click="nextStep" />
-      <Button v-else label="Finish" severity="success" @click="finishOnboarding" />
+      <Button
+        v-if="currentStep > 0"
+        label="Back"
+        text
+        @click="prevStep"
+      />
+      <Button
+        v-if="currentStep < steps.length - 1"
+        label="Next"
+        @click="nextStep"
+      />
+      <Button
+        v-else
+        label="Finish"
+        severity="success"
+        @click="finishOnboarding"
+      />
     </template>
   </Dialog>
 </template>

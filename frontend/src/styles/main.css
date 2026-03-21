@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import url("tailwindcss");
 
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/container-queries";
@@ -7,7 +7,7 @@
 
 :root {
   /* --- Primitive Colors (Reference) --- */
-  --color-white: #ffffff;
+  --color-white: #fff;
   --color-slate-50: #f8fafc;
   --color-slate-100: #f1f5f9;
   --color-slate-200: #e2e8f0;
@@ -102,16 +102,13 @@
   --color-card-bg: var(--bg-card);
   --color-input-bg: var(--bg-input);
   --color-hover-bg: var(--bg-hover);
-  
   --color-text-main: var(--text-main);
   --color-text-sub: var(--text-sub);
   --color-text-mute: var(--text-muted);
-  
   --color-border-base: var(--border-base);
   --color-border-input: var(--border-input);
-  
-  --font-display: Inter, sans-serif;
-  --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --font-display: inter, sans-serif;
+  --shadow-soft: 0 4px 6px -1px rgb(0 0 0 / 5%), 0 2px 4px -1px rgb(0 0 0 / 3%);
   --radius-lg: 0.5rem;
   --radius-xl: 0.75rem;
 }
@@ -167,7 +164,7 @@ html {
 }
 
 /* Responsive Table Card View */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   table, thead, tbody, th, td, tr {
     display: block;
   }
@@ -186,6 +183,7 @@ html {
     border: none;
     position: relative;
     padding-left: 50% !important;
+
     @apply px-4 py-2 flex justify-between items-center text-right border-b border-slate-100 dark:border-slate-600/60; /* Keep some raw slate here for sub-borders or map to variable? keeping raw for safety */
   }
 
@@ -202,11 +200,13 @@ html {
     text-align: left;
     font-weight: 600;
     content: attr(data-label);
+
     @apply text-text-sub text-sm;
   }
   
   td[data-label="Actions"] {
     @apply justify-end;
+
     padding-left: 1rem !important;
   }
   

@@ -1,26 +1,55 @@
 <template>
-    <Card>
-        <template #title>Change Password</template>
-        <template #content>
-            <form @submit.prevent="handleChangePassword" class="flex flex-col gap-4">
-                <div class="flex flex-col gap-2">
-                    <label for="current-password">Current Password</label>
-                    <Password inputId="current-password" name="current-password" v-model="passwordForm.currentPassword" autocomplete="current-password" toggleMask :feedback="false" />
-                </div>
-                <div class="flex flex-col gap-2">
-                    <label for="new-password">New Password</label>
-                    <Password inputId="new-password" name="new-password" v-model="passwordForm.newPassword" autocomplete="new-password" toggleMask />
-                </div>
-                <div class="flex flex-col gap-2">
-                    <label for="confirm-password">Confirm New Password</label>
-                    <Password inputId="confirm-password" name="confirm-password" v-model="passwordForm.confirmPassword" autocomplete="new-password" toggleMask :feedback="false" />
-                </div>
-                <div class="flex justify-end mt-2">
-                    <Button type="submit" label="Change Password" :loading="isChangingPassword" />
-                </div>
-            </form>
-        </template>
-    </Card>
+  <Card>
+    <template #title>
+      Change Password
+    </template>
+    <template #content>
+      <form
+        class="flex flex-col gap-4"
+        @submit.prevent="handleChangePassword"
+      >
+        <div class="flex flex-col gap-2">
+          <label for="current-password">Current Password</label>
+          <Password
+            v-model="passwordForm.currentPassword"
+            input-id="current-password"
+            name="current-password"
+            autocomplete="current-password"
+            toggle-mask
+            :feedback="false"
+          />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="new-password">New Password</label>
+          <Password
+            v-model="passwordForm.newPassword"
+            input-id="new-password"
+            name="new-password"
+            autocomplete="new-password"
+            toggle-mask
+          />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="confirm-password">Confirm New Password</label>
+          <Password
+            v-model="passwordForm.confirmPassword"
+            input-id="confirm-password"
+            name="confirm-password"
+            autocomplete="new-password"
+            toggle-mask
+            :feedback="false"
+          />
+        </div>
+        <div class="flex justify-end mt-2">
+          <Button
+            type="submit"
+            label="Change Password"
+            :loading="isChangingPassword"
+          />
+        </div>
+      </form>
+    </template>
+  </Card>
 </template>
 
 <script setup>

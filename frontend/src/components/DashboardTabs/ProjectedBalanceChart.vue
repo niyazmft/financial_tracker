@@ -2,28 +2,35 @@
   <Card class="lg:col-span-2">
     <template #header>
       <div class="flex flex-wrap items-center justify-between p-4 pb-0">
-        <h3 class="text-lg font-bold">Projected Balance</h3>
+        <h3 class="text-lg font-bold">
+          Projected Balance
+        </h3>
         <SelectButton 
-          :modelValue="period" 
+          :model-value="period" 
           :options="periodOptions" 
-          optionLabel="label" 
-          optionValue="value" 
-          @update:modelValue="onPeriodChange" 
+          option-label="label" 
+          option-value="value" 
           aria-labelledby="basic" 
+          @update:model-value="onPeriodChange" 
         />
       </div>
     </template>
     <template #content>
       <div class="mb-4">
-        <p :class="['text-3xl font-bold', getForecastAmountClass(currentBalance)]">{{ currentBalance }}</p>
+        <p :class="['text-3xl font-bold', getForecastAmountClass(currentBalance)]">
+          {{ currentBalance }}
+        </p>
         <div class="flex items-center gap-2 text-sm text-text-sub">
-          <i class="pi pi-calendar text-xs"></i>
+          <i class="pi pi-calendar text-xs" />
           <span>{{ periodText }}</span>
         </div>
       </div>
       <div class="h-80 relative">
-        <canvas :id="chartId"></canvas>
-        <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-card-bg/80 backdrop-blur-sm z-10">
+        <canvas :id="chartId" />
+        <div
+          v-if="loading"
+          class="absolute inset-0 flex items-center justify-center bg-card-bg/80 backdrop-blur-sm z-10"
+        >
           <ProgressSpinner style="width: 50px; height: 50px" />
         </div>
       </div>

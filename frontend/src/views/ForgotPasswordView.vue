@@ -3,27 +3,62 @@
     <Card class="w-full max-w-md shadow-lg">
       <template #header>
         <div class="flex flex-col items-center gap-4 pt-8 pb-4">
-          <i class="pi pi-lock-open text-primary text-5xl"></i>
-          <h1 class="text-3xl font-black tracking-tighter text-text-main">Reset Password</h1>
-          <p class="text-text-sub text-base text-center px-4">Enter your email to receive instructions on how to reset your password.</p>
+          <i class="pi pi-lock-open text-primary text-5xl" />
+          <h1 class="text-3xl font-black tracking-tighter text-text-main">
+            Reset Password
+          </h1>
+          <p class="text-text-sub text-base text-center px-4">
+            Enter your email to receive instructions on how to reset your password.
+          </p>
         </div>
       </template>
       <template #content>
-        <form @submit.prevent="handleForgotPassword" class="flex flex-col gap-4">
-          <Message v-if="message" :severity="messageType" class="mb-2">{{ message }}</Message>
+        <form
+          class="flex flex-col gap-4"
+          @submit.prevent="handleForgotPassword"
+        >
+          <Message
+            v-if="message"
+            :severity="messageType"
+            class="mb-2"
+          >
+            {{ message }}
+          </Message>
           
           <div class="flex flex-col gap-2">
-            <label for="email" class="text-sm font-medium text-text-sub">Email Address</label>
-            <InputText id="email" name="email" v-model="email" type="email" placeholder="you@example.com" autocomplete="email" required class="w-full" />
+            <label
+              for="email"
+              class="text-sm font-medium text-text-sub"
+            >Email Address</label>
+            <InputText
+              id="email"
+              v-model="email"
+              name="email"
+              type="email"
+              placeholder="you@example.com"
+              autocomplete="email"
+              required
+              class="w-full"
+            />
           </div>
 
           <div class="flex flex-col gap-3 mt-4">
-            <Button type="submit" label="Send Reset Link" :loading="isLoading" class="w-full" />
+            <Button
+              type="submit"
+              label="Send Reset Link"
+              :loading="isLoading"
+              class="w-full"
+            />
           </div>
 
           <p class="text-text-mute text-sm text-center mt-6">
             Remember your password? 
-            <router-link to="/login" class="text-primary font-medium underline hover:opacity-80">Back to Login</router-link>
+            <router-link
+              to="/login"
+              class="text-primary font-medium underline hover:opacity-80"
+            >
+              Back to Login
+            </router-link>
           </p>
         </form>
       </template>

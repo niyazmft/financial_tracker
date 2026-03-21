@@ -1,77 +1,126 @@
 <template>
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <Card class="lg:col-span-2">
-        <template #header>
+      <template #header>
         <div class="flex flex-wrap items-center justify-between p-4 pb-0">
-            <h3 class="text-lg font-bold">Projected Balance</h3>
-            <SelectButton v-model="forecastPeriodDays" :options="forecastPeriodOptions" optionLabel="label" optionValue="value" @change="loadForecastData(forecastPeriodDays)" aria-labelledby="basic" />
+          <h3 class="text-lg font-bold">
+            Projected Balance
+          </h3>
+          <SelectButton
+            v-model="forecastPeriodDays"
+            :options="forecastPeriodOptions"
+            option-label="label"
+            option-value="value"
+            aria-labelledby="basic"
+            @change="loadForecastData(forecastPeriodDays)"
+          />
         </div>
-        </template>
-        <template #content>
+      </template>
+      <template #content>
         <div class="mb-4">
-            <p :class="['text-3xl font-bold', getForecastAmountClass(forecast.currentProjectedBalance)]">{{ forecast.currentProjectedBalance }}</p>
-            <div class="flex items-center gap-2 text-sm text-text-sub">
-            <i class="pi pi-calendar text-xs"></i>
+          <p :class="['text-3xl font-bold', getForecastAmountClass(forecast.currentProjectedBalance)]">
+            {{ forecast.currentProjectedBalance }}
+          </p>
+          <div class="flex items-center gap-2 text-sm text-text-sub">
+            <i class="pi pi-calendar text-xs" />
             <span>{{ forecast.forecastPeriodText }}</span>
-            </div>
+          </div>
         </div>
         <div class="h-80 relative">
-            <AppChart 
-                type="CashFlowForecast" 
-                :data="forecastRawData" 
-                :options="{ warningThreshold: forecastRawData?.warningThreshold }"
-                :loading="isLoadingForecast" 
-            />
+          <AppChart 
+            type="CashFlowForecast" 
+            :data="forecastRawData" 
+            :options="{ warningThreshold: forecastRawData?.warningThreshold }"
+            :loading="isLoadingForecast" 
+          />
         </div>
-        </template>
+      </template>
     </Card>
 
     <div class="flex flex-col gap-4">
-        <Card v-for="metric in forecastMetrics" :key="metric.label">
+      <Card
+        v-for="metric in forecastMetrics"
+        :key="metric.label"
+      >
         <template #content>
-            <div class="flex items-center gap-3 mb-1">
-            <i :class="[metric.icon, metric.iconClass]" class="text-xl"></i>
-            <p class="text-xs font-bold uppercase tracking-wider text-text-sub">{{ metric.label }}</p>
-            </div>
-            <p :class="['text-2xl font-bold', metric.valueClass]">{{ metric.value }}</p>
+          <div class="flex items-center gap-3 mb-1">
+            <i
+              :class="[metric.icon, metric.iconClass]"
+              class="text-xl"
+            />
+            <p class="text-xs font-bold uppercase tracking-wider text-text-sub">
+              {{ metric.label }}
+            </p>
+          </div>
+          <p :class="['text-2xl font-bold', metric.valueClass]">
+            {{ metric.value }}
+          </p>
         </template>
-        </Card>
+      </Card>
     </div>
-    </div>
+  </div>
 
-    <div class="mt-8">
-    <h3 class="text-xl font-bold mb-4">Forecast Warnings</h3>
+  <div class="mt-8">
+    <h3 class="text-xl font-bold mb-4">
+      Forecast Warnings
+    </h3>
     <div class="flex flex-col gap-3">
-        <div v-for="(warningGroup, index) in forecast.warnings" :key="index">
-        <Message v-if="warningGroup.type === 'info'" severity="success" :closable="false">
-            No upcoming cash flow issues detected. Your financial forecast looks clear for the next {{ forecastPeriodDays }} days.
+      <div
+        v-for="(warningGroup, index) in forecast.warnings"
+        :key="index"
+      >
+        <Message
+          v-if="warningGroup.type === 'info'"
+          severity="success"
+          :closable="false"
+        >
+          No upcoming cash flow issues detected. Your financial forecast looks clear for the next {{ forecastPeriodDays }} days.
         </Message>
-        <Panel v-else :header="`${warningGroup.warnings.length} ${warningGroup.type === 'critical' ? 'Critical Warnings' : 'General Warnings'}`" toggleable :collapsed="!warningGroup.expanded">
-            <template #icons>
-            <i :class="warningGroup.type === 'critical' ? 'pi pi-exclamation-circle text-danger' : 'pi pi-exclamation-triangle text-warning'" class="mr-2"></i>
-            </template>
-            <div class="flex flex-col gap-4">
-            <div v-for="(warning, wIndex) in warningGroup.warnings" :key="wIndex" class="flex items-start justify-between gap-4 p-2 border-b border-border-base last:border-0 hover:bg-hover-bg rounded-md transition-colors group">
-                <div>
-                <p class="font-bold" :class="warningGroup.type === 'critical' ? 'text-danger' : 'text-warning'">{{ warning.message }}</p>
-                <p class="text-sm">Projected balance: <span class="font-medium">{{ formatCurrency(warning.details.balance) }}</span></p>
-                </div>
-                <Button 
+        <Panel
+          v-else
+          :header="`${warningGroup.warnings.length} ${warningGroup.type === 'critical' ? 'Critical Warnings' : 'General Warnings'}`"
+          toggleable
+          :collapsed="!warningGroup.expanded"
+        >
+          <template #icons>
+            <i
+              :class="warningGroup.type === 'critical' ? 'pi pi-exclamation-circle text-danger' : 'pi pi-exclamation-triangle text-warning'"
+              class="mr-2"
+            />
+          </template>
+          <div class="flex flex-col gap-4">
+            <div
+              v-for="(warning, wIndex) in warningGroup.warnings"
+              :key="wIndex"
+              class="flex items-start justify-between gap-4 p-2 border-b border-border-base last:border-0 hover:bg-hover-bg rounded-md transition-colors group"
+            >
+              <div>
+                <p
+                  class="font-bold"
+                  :class="warningGroup.type === 'critical' ? 'text-danger' : 'text-warning'"
+                >
+                  {{ warning.message }}
+                </p>
+                <p class="text-sm">
+                  Projected balance: <span class="font-medium">{{ formatCurrency(warning.details.balance) }}</span>
+                </p>
+              </div>
+              <Button 
+                v-tooltip="'Dismiss for 24 hours'" 
                 icon="pi pi-times" 
                 text 
                 rounded 
                 severity="secondary" 
-                size="small" 
+                size="small"
                 class="opacity-0 group-hover:opacity-100 transition-opacity"
-                v-tooltip="'Dismiss for 24 hours'"
                 @click="handleDismissWarning(warning.id)"
-                />
+              />
             </div>
-            </div>
+          </div>
         </Panel>
-        </div>
+      </div>
     </div>
-    </div>
+  </div>
 </template>
 
 <script setup>
@@ -170,7 +219,7 @@ const handleDismissWarning = async (id) => {
         trackEvent('dismiss_warning', { warning_id: id });
         toast.add({ severity: 'info', summary: 'Warning Dismissed', detail: 'This warning will be hidden for 24 hours.', life: 3000 });
         loadForecastData(forecastPeriodDays.value);
-    } catch (err) {
+    } catch {
         toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to dismiss warning', life: 3000 });
     }
 };

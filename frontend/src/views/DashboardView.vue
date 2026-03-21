@@ -1,8 +1,12 @@
 <template>
   <div class="p-4 md:p-8 max-w-7xl mx-auto">
     <div class="flex flex-col gap-1 mb-6">
-      <h1 class="text-3xl font-bold text-text-main">Dashboard</h1>
-      <p class="text-sm text-text-sub">Overview of Your Financial Activity</p>
+      <h1 class="text-3xl font-bold text-text-main">
+        Dashboard
+      </h1>
+      <p class="text-sm text-text-sub">
+        Overview of Your Financial Activity
+      </p>
     </div>
 
     <AnomalyAlerts />
@@ -10,29 +14,29 @@
     <Tabs v-model:value="activeTab">
       <TabList>
         <Tab value="forecast">
-          <i class="pi pi-chart-line mr-2"></i>
+          <i class="pi pi-chart-line mr-2" />
           <span>Cash Flow Forecast</span>
         </Tab>
         <Tab value="history">
-          <i class="pi pi-history mr-2"></i>
+          <i class="pi pi-history mr-2" />
           <span>Cash Flow History</span>
         </Tab>
         <Tab value="savings">
-          <i class="pi pi-save mr-2"></i>
+          <i class="pi pi-save mr-2" />
           <span>Savings Goals</span>
         </Tab>
       </TabList>
       <TabPanels class="bg-transparent px-0 py-4">
         <TabPanel value="forecast">
-            <ForecastPanel />
+          <ForecastPanel />
         </TabPanel>
 
         <TabPanel value="history">
-            <HistoryPanel />
+          <HistoryPanel />
         </TabPanel>
 
         <TabPanel value="savings">
-            <SavingsGoalsPanel />
+          <SavingsGoalsPanel />
         </TabPanel>
       </TabPanels>
     </Tabs>

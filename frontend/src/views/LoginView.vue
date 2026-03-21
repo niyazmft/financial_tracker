@@ -3,43 +3,112 @@
     <Card class="w-full max-w-md shadow-lg">
       <template #header>
         <div class="flex flex-col items-center gap-4 pt-8 pb-4">
-          <i class="pi pi-chart-line text-primary text-5xl"></i>
-          <h1 class="text-3xl font-black tracking-tighter text-text-main">Welcome Back</h1>
-          <p class="text-text-sub text-base text-center px-4">Log in to your FinTrack account</p>
+          <i class="pi pi-chart-line text-primary text-5xl" />
+          <h1 class="text-3xl font-black tracking-tighter text-text-main">
+            Welcome Back
+          </h1>
+          <p class="text-text-sub text-base text-center px-4">
+            Log in to your FinTrack account
+          </p>
         </div>
       </template>
       <template #content>
-        <form @submit.prevent="handleEmailSignIn" class="flex flex-col gap-4">
-          <Message v-if="errorMessage" severity="error" class="mb-2">{{ errorMessage }}</Message>
+        <form
+          class="flex flex-col gap-4"
+          @submit.prevent="handleEmailSignIn"
+        >
+          <Message
+            v-if="errorMessage"
+            severity="error"
+            class="mb-2"
+          >
+            {{ errorMessage }}
+          </Message>
           
           <div class="flex flex-col gap-2">
-            <label for="email" class="text-sm font-medium text-text-sub">Email Address</label>
-            <InputText id="email" name="email" v-model="email" type="email" placeholder="you@example.com" autocomplete="email" required class="w-full" />
+            <label
+              for="email"
+              class="text-sm font-medium text-text-sub"
+            >Email Address</label>
+            <InputText
+              id="email"
+              v-model="email"
+              name="email"
+              type="email"
+              placeholder="you@example.com"
+              autocomplete="email"
+              required
+              class="w-full"
+            />
           </div>
 
           <div class="flex flex-col gap-2">
-            <label for="password" class="text-sm font-medium text-text-sub">Password</label>
-            <Password inputId="password" name="password" v-model="password" :feedback="false" toggleMask placeholder="Enter your password" autocomplete="current-password" required class="w-full" />
+            <label
+              for="password"
+              class="text-sm font-medium text-text-sub"
+            >Password</label>
+            <Password
+              v-model="password"
+              input-id="password"
+              name="password"
+              :feedback="false"
+              toggle-mask
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+              class="w-full"
+            />
           </div>
 
           <div class="flex justify-end">
-            <router-link to="/forgot-password" class="text-primary text-sm font-medium hover:underline">Forgot your password?</router-link>
+            <router-link
+              to="/forgot-password"
+              class="text-primary text-sm font-medium hover:underline"
+            >
+              Forgot your password?
+            </router-link>
           </div>
 
           <div class="flex flex-col gap-3 mt-4">
-            <Button type="submit" label="Login" :loading="loading" class="w-full" />
-            <Button type="button" label="Sign in with Google" icon="pi pi-google" severity="secondary" @click="handleGoogleSignIn" class="w-full" />
+            <Button
+              type="submit"
+              label="Login"
+              :loading="loading"
+              class="w-full"
+            />
+            <Button
+              type="button"
+              label="Sign in with Google"
+              icon="pi pi-google"
+              severity="secondary"
+              class="w-full"
+              @click="handleGoogleSignIn"
+            />
           </div>
 
           <p class="text-text-mute text-sm text-center mt-6">
             Don't have an account? 
-            <a @click.prevent="handleSignUp" href="#" class="text-primary font-medium underline hover:opacity-80">Sign Up</a>
+            <a
+              href="#"
+              class="text-primary font-medium underline hover:opacity-80"
+              @click.prevent="handleSignUp"
+            >Sign Up</a>
           </p>
 
           <div class="mt-8 pt-4 border-t border-border-base flex justify-center gap-4 text-xs text-text-mute">
-            <router-link to="/terms" class="hover:underline">Terms of Service</router-link>
+            <router-link
+              to="/terms"
+              class="hover:underline"
+            >
+              Terms of Service
+            </router-link>
             <span>•</span>
-            <router-link to="/privacy" class="hover:underline">Privacy Policy</router-link>
+            <router-link
+              to="/privacy"
+              class="hover:underline"
+            >
+              Privacy Policy
+            </router-link>
           </div>
         </form>
       </template>

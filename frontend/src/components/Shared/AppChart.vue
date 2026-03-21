@@ -1,7 +1,10 @@
 <template>
   <div class="w-full h-full relative">
-    <canvas ref="canvasRef"></canvas>
-    <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-card-bg/80 backdrop-blur-sm z-10">
+    <canvas ref="canvasRef" />
+    <div
+      v-if="loading"
+      class="absolute inset-0 flex items-center justify-center bg-card-bg/80 backdrop-blur-sm z-10"
+    >
       <ProgressSpinner style="width: 40px; height: 40px" />
     </div>
   </div>

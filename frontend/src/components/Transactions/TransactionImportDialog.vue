@@ -1,107 +1,204 @@
 <template>
-    <Dialog 
-        v-model:visible="visible" 
-        header="Add Transactions" 
-        modal 
-        :style="{ width: '50rem' }" 
-        :breakpoints="{ '960px': '75vw', '641px': '100vw' }"
-    >
-        <Tabs value="0">
-            <TabList>
-                <Tab value="0">Single Transaction</Tab>
-                <Tab value="1">CSV Import</Tab>
-            </TabList>
-            <TabPanels>
-                <TabPanel value="0">
-                    <div class="flex flex-col gap-4 py-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="flex flex-col gap-2">
-                                <label for="date">Date</label>
-                                <DatePicker id="date" v-model="singleForm.date" dateFormat="yy-mm-dd" showIcon />
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label for="amount">Amount</label>
-                                <InputNumber id="amount" v-model="singleForm.amount" mode="currency" :currency="currency" locale="tr-TR" />
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label for="bank">Bank</label>
-                                <InputText id="bank" v-model="singleForm.bank" placeholder="e.g. Akbank" />
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label for="category">Category</label>
-                                <CategoryPicker v-model="singleForm.categories_id" placeholder="Select Category" />
-                            </div>
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <label for="desc">Description</label>
-                            <InputText id="desc" v-model="singleForm.description" />
-                        </div>
-                        <div class="flex justify-end gap-2 mt-4">
-                            <Button label="Cancel" text severity="secondary" @click="closeModal" />
-                            <Button label="Save Transaction" :loading="singleLoading" @click="saveSingleTransaction" />
-                        </div>
-                    </div>
-                </TabPanel>
-                <TabPanel value="1">
-                    <div class="flex flex-col gap-4 py-4">
-                        <div v-if="!importResult && csvPreviewData.length === 0" class="flex justify-between items-center mb-2">
-                            <span class="text-sm text-gray-500 italic">Need the template? Click the button to download.</span>
-                            <Button label="Download Template" icon="pi pi-download" text severity="info" class="p-button-sm" @click="downloadTemplate" />
-                        </div>
+  <Dialog 
+    v-model:visible="visible" 
+    header="Add Transactions" 
+    modal 
+    :style="{ width: '50rem' }" 
+    :breakpoints="{ '960px': '75vw', '641px': '100vw' }"
+  >
+    <Tabs value="0">
+      <TabList>
+        <Tab value="0">
+          Single Transaction
+        </Tab>
+        <Tab value="1">
+          CSV Import
+        </Tab>
+      </TabList>
+      <TabPanels>
+        <TabPanel value="0">
+          <div class="flex flex-col gap-4 py-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="flex flex-col gap-2">
+                <label for="date">Date</label>
+                <DatePicker
+                  id="date"
+                  v-model="singleForm.date"
+                  date-format="yy-mm-dd"
+                  show-icon
+                />
+              </div>
+              <div class="flex flex-col gap-2">
+                <label for="amount">Amount</label>
+                <InputNumber
+                  id="amount"
+                  v-model="singleForm.amount"
+                  mode="currency"
+                  :currency="currency"
+                  locale="tr-TR"
+                />
+              </div>
+              <div class="flex flex-col gap-2">
+                <label for="bank">Bank</label>
+                <InputText
+                  id="bank"
+                  v-model="singleForm.bank"
+                  placeholder="e.g. Akbank"
+                />
+              </div>
+              <div class="flex flex-col gap-2">
+                <label for="category">Category</label>
+                <CategoryPicker
+                  v-model="singleForm.categories_id"
+                  placeholder="Select Category"
+                />
+              </div>
+            </div>
+            <div class="flex flex-col gap-2">
+              <label for="desc">Description</label>
+              <InputText
+                id="desc"
+                v-model="singleForm.description"
+              />
+            </div>
+            <div class="flex justify-end gap-2 mt-4">
+              <Button
+                label="Cancel"
+                text
+                severity="secondary"
+                @click="closeModal"
+              />
+              <Button
+                label="Save Transaction"
+                :loading="singleLoading"
+                @click="saveSingleTransaction"
+              />
+            </div>
+          </div>
+        </TabPanel>
+        <TabPanel value="1">
+          <div class="flex flex-col gap-4 py-4">
+            <div
+              v-if="!importResult && csvPreviewData.length === 0"
+              class="flex justify-between items-center mb-2"
+            >
+              <span class="text-sm text-gray-500 italic">Need the template? Click the button to download.</span>
+              <Button
+                label="Download Template"
+                icon="pi pi-download"
+                text
+                severity="info"
+                class="p-button-sm"
+                @click="downloadTemplate"
+              />
+            </div>
                         
-                        <FileUpload v-if="!importResult && csvPreviewData.length === 0" mode="advanced" name="demo[]" accept=".csv" :maxFileSize="1000000" customUpload @uploader="onCsvUpload" chooseLabel="Select CSV File" class="w-full">
-                            <template #empty>
-                                <p>Drag and drop CSV files here to upload.</p>
-                            </template>
-                        </FileUpload>
+            <FileUpload
+              v-if="!importResult && csvPreviewData.length === 0"
+              mode="advanced"
+              name="demo[]"
+              accept=".csv"
+              :max-file-size="1000000"
+              custom-upload
+              choose-label="Select CSV File"
+              class="w-full"
+              @uploader="onCsvUpload"
+            >
+              <template #empty>
+                <p>Drag and drop CSV files here to upload.</p>
+              </template>
+            </FileUpload>
                         
-                        <div v-if="importResult" class="mt-4 p-4 border rounded-lg bg-gray-50">
-                            <h3 class="font-bold mb-2 flex items-center gap-2">
-                                <i :class="importResult.failed === 0 ? 'pi pi-check-circle text-green-500' : 'pi pi-exclamation-triangle text-orange-500'"></i>
-                                Import Summary
-                            </h3>
-                            <div class="grid grid-cols-2 gap-4 mb-4">
-                                <div class="p-2 bg-white rounded border flex flex-col items-center">
-                                    <span class="text-2xl font-bold text-green-600">{{ importResult.successful }}</span>
-                                    <span class="text-xs uppercase text-gray-500">Successful</span>
-                                </div>
-                                <div class="p-2 bg-white rounded border flex flex-col items-center">
-                                    <span class="text-2xl font-bold text-red-600">{{ importResult.failed }}</span>
-                                    <span class="text-xs uppercase text-gray-500">Failed</span>
-                                </div>
-                            </div>
+            <div
+              v-if="importResult"
+              class="mt-4 p-4 border rounded-lg bg-gray-50"
+            >
+              <h3 class="font-bold mb-2 flex items-center gap-2">
+                <i :class="importResult.failed === 0 ? 'pi pi-check-circle text-green-500' : 'pi pi-exclamation-triangle text-orange-500'" />
+                Import Summary
+              </h3>
+              <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="p-2 bg-white rounded border flex flex-col items-center">
+                  <span class="text-2xl font-bold text-green-600">{{ importResult.successful }}</span>
+                  <span class="text-xs uppercase text-gray-500">Successful</span>
+                </div>
+                <div class="p-2 bg-white rounded border flex flex-col items-center">
+                  <span class="text-2xl font-bold text-red-600">{{ importResult.failed }}</span>
+                  <span class="text-xs uppercase text-gray-500">Failed</span>
+                </div>
+              </div>
                             
-                            <div v-if="importResult.errors && importResult.errors.length > 0" class="mt-2">
-                                <p class="text-sm font-bold text-red-600 mb-1">Errors Details:</p>
-                                <div class="max-h-40 overflow-y-auto border rounded p-2 bg-red-50 text-xs font-mono">
-                                    <div v-for="(err, idx) in importResult.errors" :key="idx" class="mb-1 pb-1 border-b last:border-0 border-red-100 text-red-800">
-                                        Row {{ err.row }}: {{ err.error || err.message }}
-                                    </div>
-                                </div>
-                            </div>
+              <div
+                v-if="importResult.errors && importResult.errors.length > 0"
+                class="mt-2"
+              >
+                <p class="text-sm font-bold text-red-600 mb-1">
+                  Errors Details:
+                </p>
+                <div class="max-h-40 overflow-y-auto border rounded p-2 bg-red-50 text-xs font-mono">
+                  <div
+                    v-for="(err, idx) in importResult.errors"
+                    :key="idx"
+                    class="mb-1 pb-1 border-b last:border-0 border-red-100 text-red-800"
+                  >
+                    Row {{ err.row }}: {{ err.error || err.message }}
+                  </div>
+                </div>
+              </div>
                             
-                            <div class="flex justify-end mt-4">
-                                <Button label="Close" text @click="clearImportResult" />
-                            </div>
-                        </div>
+              <div class="flex justify-end mt-4">
+                <Button
+                  label="Close"
+                  text
+                  @click="clearImportResult"
+                />
+              </div>
+            </div>
 
-                        <div v-else-if="csvPreviewData.length > 0" class="mt-4">
-                            <h3 class="font-bold mb-2">Preview ({{ csvPreviewData.length }} rows)</h3>
-                            <DataTable :value="csvPreviewData" scrollable scrollHeight="300px" class="p-datatable-xs">
-                                <Column field="date" header="Date"></Column>
-                                <Column field="amount" header="Amount"></Column>
-                                <Column field="bank" header="Bank"></Column>
-                                <Column field="category" header="Category"></Column>
-                            </DataTable>
-                            <div class="flex justify-end mt-4">
-                                <Button label="Import All" icon="pi pi-upload" :loading="importLoading" @click="submitCsvImport" />
-                            </div>
-                        </div>
-                    </div>
-                </TabPanel>
-            </TabPanels>
-        </Tabs>
-    </Dialog>
+            <div
+              v-else-if="csvPreviewData.length > 0"
+              class="mt-4"
+            >
+              <h3 class="font-bold mb-2">
+                Preview ({{ csvPreviewData.length }} rows)
+              </h3>
+              <DataTable
+                :value="csvPreviewData"
+                scrollable
+                scroll-height="300px"
+                class="p-datatable-xs"
+              >
+                <Column
+                  field="date"
+                  header="Date"
+                />
+                <Column
+                  field="amount"
+                  header="Amount"
+                />
+                <Column
+                  field="bank"
+                  header="Bank"
+                />
+                <Column
+                  field="category"
+                  header="Category"
+                />
+              </DataTable>
+              <div class="flex justify-end mt-4">
+                <Button
+                  label="Import All"
+                  icon="pi pi-upload"
+                  :loading="importLoading"
+                  @click="submitCsvImport"
+                />
+              </div>
+            </div>
+          </div>
+        </TabPanel>
+      </TabPanels>
+    </Tabs>
+  </Dialog>
 </template>
 
 <script setup>
@@ -188,7 +285,7 @@ const saveSingleTransaction = async () => {
         
         emit('saved');
         closeModal();
-    } catch (err) {
+    } catch {
         toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to add transaction', life: 3000 });
     } finally {
         singleLoading.value = false;

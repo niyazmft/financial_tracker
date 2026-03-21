@@ -1,80 +1,166 @@
 <template>
-    <DataTable 
-        v-model:filters="filters" 
-        :value="transactions" 
-        :loading="loading" 
-        paginator :rows="10" :rowsPerPageOptions="[10, 20, 50, 100]"
-        sortField="date" :sortOrder="-1"
-        removableSort 
-        filterDisplay="menu"
-        :globalFilterFields="['description', 'bank', 'category']"
-        class="p-datatable-sm"
+  <DataTable 
+    v-model:filters="filters" 
+    :value="transactions" 
+    :loading="loading" 
+    paginator
+    :rows="10"
+    :rows-per-page-options="[10, 20, 50, 100]"
+    sort-field="date"
+    :sort-order="-1"
+    removable-sort 
+    filter-display="menu"
+    :global-filter-fields="['description', 'bank', 'category']"
+    class="p-datatable-sm"
+  >
+    <template #header>
+      <div class="flex justify-end items-center gap-4">
+        <IconField icon-position="left">
+          <InputIcon class="pi pi-search" />
+          <InputText
+            id="transaction-search"
+            v-model="filters['global'].value"
+            placeholder="Search..."
+            name="transaction-search"
+          />
+        </IconField>
+      </div>
+    </template>
+
+    <template #empty>
+      No transactions found.
+    </template>
+    <template #loading>
+      Loading transactions data. Please wait.
+    </template>
+
+    <Column
+      field="date"
+      header="Date"
+      sortable
+      style="min-width: 10rem"
     >
-        <template #header>
-            <div class="flex justify-end items-center gap-4">
-                <IconField iconPosition="left">
-                    <InputIcon class="pi pi-search" />
-                    <InputText v-model="filters['global'].value" placeholder="Search..." id="transaction-search" name="transaction-search" />
-                </IconField>
-            </div>
-        </template>
+      <template #body="{ data }">
+        {{ formatDate(data.date) }}
+      </template>
+      <template #filter="{ filterModel }">
+        <DatePicker
+          v-model="filterModel.value"
+          date-format="yy-mm-dd"
+          placeholder="yyyy-mm-dd"
+        />
+      </template>
+    </Column>
 
-        <template #empty> No transactions found. </template>
-        <template #loading> Loading transactions data. Please wait. </template>
+    <Column
+      field="bank"
+      header="Bank"
+      sortable
+      filter
+      style="min-width: 10rem"
+      :show-filter-match-modes="false"
+    >
+      <template #body="{ data }">
+        <Tag
+          :value="data.bank"
+          :style="getBankBadgeStyle(data.bank)"
+        />
+      </template>
+      <template #filter="{ filterModel }">
+        <Select
+          v-model="filterModel.value"
+          :options="uniqueBanks"
+          placeholder="Select Bank"
+          show-clear
+          class="p-column-filter"
+        />
+      </template>
+    </Column>
 
-        <Column field="date" header="Date" sortable style="min-width: 10rem">
-            <template #body="{ data }">
-                {{ formatDate(data.date) }}
-            </template>
-            <template #filter="{ filterModel }">
-                <DatePicker v-model="filterModel.value" dateFormat="yy-mm-dd" placeholder="yyyy-mm-dd" />
-            </template>
-        </Column>
+    <Column
+      field="category"
+      header="Category"
+      sortable
+      filter
+      style="min-width: 10rem"
+      :show-filter-match-modes="false"
+    >
+      <template #body="{ data }">
+        <span class="capitalize">{{ data.category }}</span>
+      </template>
+      <template #filter="{ filterModel }">
+        <Select
+          v-model="filterModel.value"
+          :options="categories"
+          option-label="category_name"
+          option-value="category_name"
+          placeholder="Select Category"
+          show-clear
+          class="p-column-filter"
+        />
+      </template>
+    </Column>
 
-        <Column field="bank" header="Bank" sortable filter style="min-width: 10rem" :showFilterMatchModes="false">
-            <template #body="{ data }">
-                <Tag :value="data.bank" :style="getBankBadgeStyle(data.bank)" />
-            </template>
-            <template #filter="{ filterModel }">
-                <Select v-model="filterModel.value" :options="uniqueBanks" placeholder="Select Bank" showClear class="p-column-filter" />
-            </template>
-        </Column>
+    <Column
+      field="amount"
+      header="Amount"
+      sortable
+      filter
+      style="min-width: 8rem"
+    >
+      <template #body="{ data }">
+        <span :class="['font-bold', data.amount >= 0 ? 'text-success' : 'text-danger']">
+          {{ formatCurrency(data.amount) }}
+        </span>
+      </template>
+      <template #filter="{ filterModel }">
+        <InputNumber
+          v-model="filterModel.value"
+          mode="currency"
+          :currency="currency"
+          locale="tr-TR"
+          placeholder="Amount"
+          class="p-column-filter"
+        />
+      </template>
+    </Column>
 
-        <Column field="category" header="Category" sortable filter style="min-width: 10rem" :showFilterMatchModes="false">
-            <template #body="{ data }">
-                <span class="capitalize">{{ data.category }}</span>
-            </template>
-            <template #filter="{ filterModel }">
-                <Select v-model="filterModel.value" :options="categories" optionLabel="category_name" optionValue="category_name" placeholder="Select Category" showClear class="p-column-filter" />
-            </template>
-        </Column>
+    <Column
+      field="description"
+      header="Description"
+      style="min-width: 15rem"
+    >
+      <template #body="{ data }">
+        <span
+          v-tooltip="data.description"
+          class="text-text-sub truncate block max-w-xs"
+        >{{ data.description || '-' }}</span>
+      </template>
+    </Column>
 
-        <Column field="amount" header="Amount" sortable filter style="min-width: 8rem">
-            <template #body="{ data }">
-                <span :class="['font-bold', data.amount >= 0 ? 'text-success' : 'text-danger']">
-                    {{ formatCurrency(data.amount) }}
-                </span>
-            </template>
-            <template #filter="{ filterModel }">
-                <InputNumber v-model="filterModel.value" mode="currency" :currency="currency" locale="tr-TR" placeholder="Amount" class="p-column-filter" />
-            </template>
-        </Column>
-
-        <Column field="description" header="Description" style="min-width: 15rem">
-            <template #body="{ data }">
-                <span class="text-text-sub truncate block max-w-xs" v-tooltip="data.description">{{ data.description || '-' }}</span>
-            </template>
-        </Column>
-
-        <Column header="Actions" :exportable="false" style="min-width: 8rem">
-            <template #body="slotProps">
-                <div class="flex gap-2">
-                    <Button icon="pi pi-pencil" text class="text-gray-400 hover:text-blue-500 transition-colors" @click="$emit('edit', slotProps.data)" />
-                    <Button icon="pi pi-trash" text class="text-gray-400 hover:text-red-500 transition-colors" @click="$emit('delete', slotProps.data)" />
-                </div>
-            </template>
-        </Column>
-    </DataTable>
+    <Column
+      header="Actions"
+      :exportable="false"
+      style="min-width: 8rem"
+    >
+      <template #body="slotProps">
+        <div class="flex gap-2">
+          <Button
+            icon="pi pi-pencil"
+            text
+            class="text-gray-400 hover:text-blue-500 transition-colors"
+            @click="$emit('edit', slotProps.data)"
+          />
+          <Button
+            icon="pi pi-trash"
+            text
+            class="text-gray-400 hover:text-red-500 transition-colors"
+            @click="$emit('delete', slotProps.data)"
+          />
+        </div>
+      </template>
+    </Column>
+  </DataTable>
 </template>
 
 <script setup>

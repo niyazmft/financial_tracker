@@ -1,7 +1,10 @@
 <template>
   <div class="range-slider-container w-full">
     <div class="flex justify-between items-center mb-2">
-      <label v-if="label" class="text-sm font-medium text-slate-700 dark:text-slate-300">
+      <label
+        v-if="label"
+        class="text-sm font-medium text-slate-700 dark:text-slate-300"
+      >
         {{ label }}
       </label>
       <span class="text-sm font-bold text-primary">{{ modelValue }}x</span>
@@ -13,19 +16,19 @@
         :max="max"
         :step="step"
         :value="modelValue"
-        @input="$emit('update:modelValue', parseFloat($event.target.value))"
         class="w-full absolute z-20 opacity-0 cursor-pointer h-full"
-      />
+        @input="$emit('update:modelValue', parseFloat($event.target.value))"
+      >
       <div class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden absolute z-10">
         <div 
           class="h-full bg-primary transition-all duration-75 ease-out" 
           :style="{ width: progressPercentage + '%' }"
-        ></div>
+        />
       </div>
       <div 
         class="absolute w-4 h-4 bg-white border-2 border-primary rounded-full z-10 shadow-md transition-all duration-75 ease-out pointer-events-none"
         :style="{ left: `calc(${progressPercentage}% - 8px)` }"
-      ></div>
+      />
     </div>
   </div>
 </template>
@@ -56,7 +59,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['update:modelValue']);
+const _emit = defineEmits(['update:modelValue']);
 
 const progressPercentage = computed(() => {
   return ((props.modelValue - props.min) / (props.max - props.min)) * 100;

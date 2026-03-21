@@ -2,45 +2,77 @@
   <div class="p-4 md:p-8 max-w-7xl mx-auto">
     <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold text-text-main">Spending Analysis</h1>
-        <p class="mt-1 text-sm text-text-sub">Analyze your expenses across different categories to understand your spending patterns.</p>
+        <h1 class="text-3xl font-bold text-text-main">
+          Spending Analysis
+        </h1>
+        <p class="mt-1 text-sm text-text-sub">
+          Analyze your expenses across different categories to understand your spending patterns.
+        </p>
       </div>
       <div class="flex items-center gap-4">
         <DateRangePicker 
-            :startDate="currentRange.startDate" 
-            :endDate="currentRange.endDate" 
-            @update:range="handleDateRangeUpdate" 
+          :start-date="currentRange.startDate" 
+          :end-date="currentRange.endDate" 
+          @update:range="handleDateRangeUpdate" 
         />
-        <Button icon="pi pi-refresh" severity="secondary" outlined @click="refreshData" />
+        <Button
+          icon="pi pi-refresh"
+          severity="secondary"
+          outlined
+          @click="refreshData"
+        />
       </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <!-- Spending Breakdown Card -->
       <Card>
-        <template #title>Spending Breakdown</template>
-        <template #subtitle>{{ breakdownDateRange }}</template>
+        <template #title>
+          Spending Breakdown
+        </template>
+        <template #subtitle>
+          {{ breakdownDateRange }}
+        </template>
         <template #content>
           <div class="mb-4">
-            <p class="text-3xl font-bold">{{ breakdownTotalAmount }}</p>
+            <p class="text-3xl font-bold">
+              {{ breakdownTotalAmount }}
+            </p>
           </div>
           <div class="h-64 relative">
-            <AppChart type="SpendingBar" :data="breakdownData" :loading="loading" />
+            <AppChart
+              type="SpendingBar"
+              :data="breakdownData"
+              :loading="loading"
+            />
           </div>
         </template>
       </Card>
 
       <!-- Spending Trend Card -->
       <Card>
-        <template #title>Spending Trend</template>
-        <template #subtitle>Last 12 Months</template>
+        <template #title>
+          Spending Trend
+        </template>
+        <template #subtitle>
+          Last 12 Months
+        </template>
         <template #content>
           <div class="mb-4 flex items-baseline gap-2">
-            <p class="text-3xl font-bold">{{ trendTotalAmount }}</p>
-            <Tag :value="trendPercentageChange" :severity="trendPercentageChangeSeverity" />
+            <p class="text-3xl font-bold">
+              {{ trendTotalAmount }}
+            </p>
+            <Tag
+              :value="trendPercentageChange"
+              :severity="trendPercentageChangeSeverity"
+            />
           </div>
           <div class="h-64 relative">
-            <AppChart type="SpendingLine" :data="trendData" :loading="loading" />
+            <AppChart
+              type="SpendingLine"
+              :data="trendData"
+              :loading="loading"
+            />
           </div>
         </template>
       </Card>
@@ -48,28 +80,42 @@
 
     <!-- Category Table -->
     <Card>
-        <template #content>
-            <DataTable :value="categoryData" :loading="loading" class="p-datatable-sm">
-                <Column field="categoryName" header="Category">
-                    <template #body="{ data }">
-                        <span class="capitalize">{{ data.categoryName }}</span>
-                    </template>
-                </Column>
-                <Column field="totalAmount" header="Amount">
-                    <template #body="{ data }">
-                        <span class="font-bold">{{ formatCurrency(data.totalAmount) }}</span>
-                    </template>
-                </Column>
-                <Column header="Percentage">
-                    <template #body="{ data }">
-                        <div class="flex items-center gap-2">
-                            <ProgressBar :value="calculatePercentage(data.totalAmount)" :showValue="false" style="height: 6px; flex-grow: 1" />
-                            <span class="text-xs text-text-sub w-12 text-right">{{ calculatePercentage(data.totalAmount).toFixed(1) }}%</span>
-                        </div>
-                    </template>
-                </Column>
-            </DataTable>
-        </template>
+      <template #content>
+        <DataTable
+          :value="categoryData"
+          :loading="loading"
+          class="p-datatable-sm"
+        >
+          <Column
+            field="categoryName"
+            header="Category"
+          >
+            <template #body="{ data }">
+              <span class="capitalize">{{ data.categoryName }}</span>
+            </template>
+          </Column>
+          <Column
+            field="totalAmount"
+            header="Amount"
+          >
+            <template #body="{ data }">
+              <span class="font-bold">{{ formatCurrency(data.totalAmount) }}</span>
+            </template>
+          </Column>
+          <Column header="Percentage">
+            <template #body="{ data }">
+              <div class="flex items-center gap-2">
+                <ProgressBar
+                  :value="calculatePercentage(data.totalAmount)"
+                  :show-value="false"
+                  style="height: 6px; flex-grow: 1"
+                />
+                <span class="text-xs text-text-sub w-12 text-right">{{ calculatePercentage(data.totalAmount).toFixed(1) }}%</span>
+              </div>
+            </template>
+          </Column>
+        </DataTable>
+      </template>
     </Card>
   </div>
 </template>
@@ -91,7 +137,6 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import ProgressBar from 'primevue/progressbar';
 import Tag from 'primevue/tag';
-import ProgressSpinner from 'primevue/progressspinner';
 
 const router = useRouter();
 const authStore = useAuthStore();

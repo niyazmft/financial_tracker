@@ -5,7 +5,7 @@
     
     <main class="main-content pt-16">
       <!-- Router View for page components like Dashboard, Transactions, etc. -->
-      <router-view></router-view>
+      <router-view />
     </main>
 
     <!-- PrimeVue Global Components -->

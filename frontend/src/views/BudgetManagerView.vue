@@ -1,65 +1,130 @@
 <template>
   <div class="p-4 md:p-8 max-w-7xl mx-auto">
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-text-main">Budget Management</h1>
-      <p class="mt-1 text-sm text-text-sub">Create and manage your budgets to stay on track.</p>
+      <h1 class="text-3xl font-bold text-text-main">
+        Budget Management
+      </h1>
+      <p class="mt-1 text-sm text-text-sub">
+        Create and manage your budgets to stay on track.
+      </p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <!-- Create Budget Form -->
       <Card>
-        <template #title>Create a New Budget</template>
+        <template #title>
+          Create a New Budget
+        </template>
         <template #content>
           <div class="flex flex-col gap-6">
             <template v-if="categories.length > 0">
               <div class="flex flex-col gap-2">
                 <label for="budget-category">Category</label>
-                <CategoryPicker v-model="createForm.categories_id" placeholder="Select a category" />
+                <CategoryPicker
+                  v-model="createForm.categories_id"
+                  placeholder="Select a category"
+                />
               </div>
             </template>
-            <div v-else class="flex flex-col gap-2">
+            <div
+              v-else
+              class="flex flex-col gap-2"
+            >
               <span class="text-sm font-medium text-text-sub">Category</span>
-              <Skeleton height="3rem"></Skeleton>
+              <Skeleton height="3rem" />
             </div>
             
             <div class="flex flex-col gap-2">
               <label for="budget-amount">Target Amount</label>
-              <InputNumber inputId="budget-amount" v-model="createForm.target_amount" mode="currency" :currency="currency" locale="tr-TR" class="w-full" />
+              <InputNumber
+                v-model="createForm.target_amount"
+                input-id="budget-amount"
+                mode="currency"
+                :currency="currency"
+                locale="tr-TR"
+                class="w-full"
+              />
             </div>
 
             <div class="flex flex-col gap-2">
               <label for="budget-start-date">Period</label>
               <div class="grid grid-cols-2 gap-2">
-                <DatePicker inputId="budget-start-date" v-model="createForm.start_date" placeholder="Start Date" dateFormat="yy-mm-dd" />
-                <DatePicker inputId="budget-end-date" v-model="createForm.end_date" placeholder="End Date" dateFormat="yy-mm-dd" aria-label="End Date" />
+                <DatePicker
+                  v-model="createForm.start_date"
+                  input-id="budget-start-date"
+                  placeholder="Start Date"
+                  date-format="yy-mm-dd"
+                />
+                <DatePicker
+                  v-model="createForm.end_date"
+                  input-id="budget-end-date"
+                  placeholder="End Date"
+                  date-format="yy-mm-dd"
+                  aria-label="End Date"
+                />
               </div>
             </div>
 
-            <Button label="Create Budget" icon="pi pi-plus" :loading="isCreating" @click="handleCreateBudget" class="w-full mt-2" />
+            <Button
+              label="Create Budget"
+              icon="pi pi-plus"
+              :loading="isCreating"
+              class="w-full mt-2"
+              @click="handleCreateBudget"
+            />
           </div>
         </template>
       </Card>
 
       <!-- Active Budgets List -->
       <Card>
-        <template #title>Your Current Budgets</template>
+        <template #title>
+          Your Current Budgets
+        </template>
         <template #content>
           <div class="flex flex-col gap-4 max-h-[60vh] overflow-y-auto pr-2">
-            <div v-if="loadingBudgets" class="text-center py-8">
+            <div
+              v-if="loadingBudgets"
+              class="text-center py-8"
+            >
               <ProgressSpinner style="width: 40px; height: 40px" />
             </div>
-            <div v-else-if="budgets.length === 0" class="text-center py-8 text-text-sub">
+            <div
+              v-else-if="budgets.length === 0"
+              class="text-center py-8 text-text-sub"
+            >
               No active budgets found.
             </div>
-            <div v-else v-for="budget in budgets" :key="budget.Id" class="p-4 bg-hover-bg rounded-lg border border-border-base">
+            <div
+              v-for="budget in budgets"
+              v-else
+              :key="budget.Id"
+              class="p-4 bg-hover-bg rounded-lg border border-border-base"
+            >
               <div class="flex justify-between items-start mb-4">
                 <div>
-                  <p class="font-bold text-lg capitalize">{{ getCategoryName(budget.categories_id) }}</p>
-                  <p class="text-xs text-text-sub">{{ formatDateRange(budget.start_date, budget.end_date) }}</p>
+                  <p class="font-bold text-lg capitalize">
+                    {{ getCategoryName(budget.categories_id) }}
+                  </p>
+                  <p class="text-xs text-text-sub">
+                    {{ formatDateRange(budget.start_date, budget.end_date) }}
+                  </p>
                 </div>
                 <div class="flex gap-1">
-                  <Button icon="pi pi-pencil" severity="secondary" text rounded @click="openEditModal(budget)" />
-                  <Button icon="pi pi-trash" severity="danger" text rounded @click="handleDeleteBudget(budget.Id)" />
+                  <Button
+                    icon="pi pi-pencil"
+                    severity="secondary"
+                    text
+                    rounded
+                    @click="openEditModal(budget)"
+                  />
+                  <Button
+                    icon="pi pi-trash"
+                    severity="danger"
+                    text
+                    rounded
+                    @click="handleDeleteBudget(budget.Id)"
+                  />
                 </div>
               </div>
               
@@ -67,8 +132,15 @@
                 <span class="font-medium">{{ formatCurrency(budget.spent_amount) }} Spent</span>
                 <span class="text-text-sub">Target: {{ formatCurrency(budget.target_amount) }}</span>
               </div>
-              <ProgressBar :value="calculatePercentage(budget)" :showValue="false" :severity="getProgressSeverity(budget)" style="height: 10px" />
-              <p class="text-right text-[10px] mt-1 text-text-mute">{{ Math.round(calculatePercentage(budget)) }}% used</p>
+              <ProgressBar
+                :value="calculatePercentage(budget)"
+                :show-value="false"
+                :severity="getProgressSeverity(budget)"
+                style="height: 10px"
+              />
+              <p class="text-right text-[10px] mt-1 text-text-mute">
+                {{ Math.round(calculatePercentage(budget)) }}% used
+              </p>
             </div>
           </div>
         </template>
@@ -76,30 +148,60 @@
     </div>
 
     <!-- Edit Budget Dialog -->
-    <Dialog v-model:visible="showEditModal" header="Edit Budget" modal :style="{ width: '400px' }">
-        <div class="flex flex-col gap-4 py-2">
-            <template v-if="categories.length > 0">
-                <div class="flex flex-col gap-2">
-                    <label for="edit-category">Category</label>
-                    <CategoryPicker v-model="editForm.categories_id" />
-                </div>
-            </template>
-            <div class="flex flex-col gap-2">
-                <label for="edit-amount">Target Amount</label>
-                <InputNumber inputId="edit-amount" v-model="editForm.target_amount" mode="currency" :currency="currency" locale="tr-TR" class="w-full" />
-            </div>
-            <div class="flex flex-col gap-2">
-                <label for="edit-start-date">Period</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <DatePicker inputId="edit-start-date" v-model="editForm.start_date" dateFormat="yy-mm-dd" />
-                    <DatePicker inputId="edit-end-date" v-model="editForm.end_date" dateFormat="yy-mm-dd" aria-label="End Date" />
-                </div>
-            </div>
-        </div>
-        <template #footer>
-            <Button label="Cancel" text severity="secondary" @click="showEditModal = false" />
-            <Button label="Save Changes" :loading="isUpdating" @click="handleUpdateBudget" />
+    <Dialog
+      v-model:visible="showEditModal"
+      header="Edit Budget"
+      modal
+      :style="{ width: '400px' }"
+    >
+      <div class="flex flex-col gap-4 py-2">
+        <template v-if="categories.length > 0">
+          <div class="flex flex-col gap-2">
+            <label for="edit-category">Category</label>
+            <CategoryPicker v-model="editForm.categories_id" />
+          </div>
         </template>
+        <div class="flex flex-col gap-2">
+          <label for="edit-amount">Target Amount</label>
+          <InputNumber
+            v-model="editForm.target_amount"
+            input-id="edit-amount"
+            mode="currency"
+            :currency="currency"
+            locale="tr-TR"
+            class="w-full"
+          />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="edit-start-date">Period</label>
+          <div class="grid grid-cols-2 gap-2">
+            <DatePicker
+              v-model="editForm.start_date"
+              input-id="edit-start-date"
+              date-format="yy-mm-dd"
+            />
+            <DatePicker
+              v-model="editForm.end_date"
+              input-id="edit-end-date"
+              date-format="yy-mm-dd"
+              aria-label="End Date"
+            />
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <Button
+          label="Cancel"
+          text
+          severity="secondary"
+          @click="showEditModal = false"
+        />
+        <Button
+          label="Save Changes"
+          :loading="isUpdating"
+          @click="handleUpdateBudget"
+        />
+      </template>
     </Dialog>
   </div>
 </template>
@@ -157,7 +259,7 @@ const fetchBudgets = async () => {
         if (data.success) {
             budgets.value = data.budgets;
         }
-    } catch (err) {
+    } catch {
         toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load budgets', life: 3000 });
     } finally {
         loadingBudgets.value = false;
@@ -216,7 +318,7 @@ const handleCreateBudget = async () => {
         fetchBudgets();
         createForm.categories_id = null;
         createForm.target_amount = 0;
-    } catch (err) {
+    } catch {
         toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to create budget', life: 3000 });
     } finally {
         isCreating.value = false;
@@ -244,7 +346,7 @@ const handleUpdateBudget = async () => {
         toast.add({ severity: 'success', summary: 'Success', detail: 'Budget updated', life: 3000 });
         showEditModal.value = false;
         fetchBudgets();
-    } catch (err) {
+    } catch {
         toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to update budget', life: 3000 });
     } finally {
         isUpdating.value = false;
@@ -262,7 +364,7 @@ const handleDeleteBudget = (id) => {
                 await api.deleteBudget(id);
                 fetchBudgets();
                 toast.add({ severity: 'success', summary: 'Success', detail: 'Budget deleted', life: 3000 });
-            } catch (err) {
+            } catch {
                 toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete', life: 3000 });
             }
         }

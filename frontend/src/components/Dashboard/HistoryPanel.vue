@@ -1,64 +1,98 @@
 <template>
-    <div>
-        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
-            <h2 class="text-xl font-bold">Cash Flow History</h2>
-            <DateRangePicker 
-                :startDate="currentRange.start" 
-                :endDate="currentRange.end" 
-                @update:range="handleDateRangeUpdate" 
-            />
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-            <Card>
-                <template #content>
-                    <p class="text-sm font-medium text-text-sub">Last Month Earnings</p>
-                    <p class="text-3xl font-bold mt-1">{{ history.salaryAmount }}</p>
-                    <p :class="['text-sm font-medium mt-1', getAmountClass(history.salaryChange)]">{{ history.salaryChange }}</p>
-                </template>
-            </Card>
-            <Card>
-                <template #content>
-                    <p class="text-sm font-medium text-text-sub">Cash Flow Overview</p>
-                    <div class="flex items-baseline gap-2 mt-1">
-                        <p class="text-3xl font-bold">{{ history.customRangeAmount }}</p>
-                        <p class="text-sm text-text-sub">{{ history.customRangeInfo }}</p>
-                    </div>
-                </template>
-            </Card>
-        </div>
-
-        <h2 class="text-xl font-bold mb-6">Spending Analysis</h2>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card>
-                <template #title>Monthly Spending</template>
-                <template #content>
-                    <div class="mb-4">
-                        <p class="text-3xl font-bold">{{ history.monthlySpendingAmount }}</p>
-                        <div class="flex items-center gap-2 text-sm">
-                            <span class="text-text-sub">This Month</span>
-                            <span :class="getExpenseTrendClass(history.monthlySpendingChange)">{{ history.monthlySpendingChange }}</span>
-                        </div>
-                    </div>
-                    <div class="h-80">
-                        <AppChart type="SpendingLine" :data="monthlySpendingRawData" :loading="isLoadingHistory" />
-                    </div>
-                </template>
-            </Card>
-            <Card>
-                <template #title>Spending by Category</template>
-                <template #content>
-                    <div class="mb-4">
-                        <p class="text-3xl font-bold">{{ history.categoryTotalAmount }}</p>
-                        <p class="text-sm text-text-sub">{{ history.categoryTotalInfo }}</p>
-                    </div>
-                    <div class="h-80">
-                        <AppChart type="SpendingBar" :data="categorySpendingRawData" :loading="isLoadingHistory" />
-                    </div>
-                </template>
-            </Card>
-        </div>
+  <div>
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+      <h2 class="text-xl font-bold">
+        Cash Flow History
+      </h2>
+      <DateRangePicker 
+        :start-date="currentRange.start" 
+        :end-date="currentRange.end" 
+        @update:range="handleDateRangeUpdate" 
+      />
     </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <Card>
+        <template #content>
+          <p class="text-sm font-medium text-text-sub">
+            Last Month Earnings
+          </p>
+          <p class="text-3xl font-bold mt-1">
+            {{ history.salaryAmount }}
+          </p>
+          <p :class="['text-sm font-medium mt-1', getAmountClass(history.salaryChange)]">
+            {{ history.salaryChange }}
+          </p>
+        </template>
+      </Card>
+      <Card>
+        <template #content>
+          <p class="text-sm font-medium text-text-sub">
+            Cash Flow Overview
+          </p>
+          <div class="flex items-baseline gap-2 mt-1">
+            <p class="text-3xl font-bold">
+              {{ history.customRangeAmount }}
+            </p>
+            <p class="text-sm text-text-sub">
+              {{ history.customRangeInfo }}
+            </p>
+          </div>
+        </template>
+      </Card>
+    </div>
+
+    <h2 class="text-xl font-bold mb-6">
+      Spending Analysis
+    </h2>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <Card>
+        <template #title>
+          Monthly Spending
+        </template>
+        <template #content>
+          <div class="mb-4">
+            <p class="text-3xl font-bold">
+              {{ history.monthlySpendingAmount }}
+            </p>
+            <div class="flex items-center gap-2 text-sm">
+              <span class="text-text-sub">This Month</span>
+              <span :class="getExpenseTrendClass(history.monthlySpendingChange)">{{ history.monthlySpendingChange }}</span>
+            </div>
+          </div>
+          <div class="h-80">
+            <AppChart
+              type="SpendingLine"
+              :data="monthlySpendingRawData"
+              :loading="isLoadingHistory"
+            />
+          </div>
+        </template>
+      </Card>
+      <Card>
+        <template #title>
+          Spending by Category
+        </template>
+        <template #content>
+          <div class="mb-4">
+            <p class="text-3xl font-bold">
+              {{ history.categoryTotalAmount }}
+            </p>
+            <p class="text-sm text-text-sub">
+              {{ history.categoryTotalInfo }}
+            </p>
+          </div>
+          <div class="h-80">
+            <AppChart
+              type="SpendingBar"
+              :data="categorySpendingRawData"
+              :loading="isLoadingHistory"
+            />
+          </div>
+        </template>
+      </Card>
+    </div>
+  </div>
 </template>
 
 <script setup>

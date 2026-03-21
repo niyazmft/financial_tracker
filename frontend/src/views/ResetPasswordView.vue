@@ -3,49 +3,108 @@
     <Card class="w-full max-w-md shadow-lg">
       <template #header>
         <div class="flex flex-col items-center gap-4 pt-8 pb-4">
-          <i class="pi pi-key text-primary text-5xl"></i>
-          <h1 class="text-3xl font-black tracking-tighter text-text-main">Set New Password</h1>
-          <p v-if="email" class="text-text-sub text-base text-center px-4">
+          <i class="pi pi-key text-primary text-5xl" />
+          <h1 class="text-3xl font-black tracking-tighter text-text-main">
+            Set New Password
+          </h1>
+          <p
+            v-if="email"
+            class="text-text-sub text-base text-center px-4"
+          >
             Resetting password for <span class="font-medium text-text-main">{{ email }}</span>
           </p>
         </div>
       </template>
       <template #content>
         <!-- Loading State -->
-        <div v-if="isVerifying" class="flex flex-col items-center justify-center p-8 gap-4">
-            <i class="pi pi-spinner pi-spin text-primary text-4xl"></i>
-            <span class="text-text-sub">Verifying security link...</span>
+        <div
+          v-if="isVerifying"
+          class="flex flex-col items-center justify-center p-8 gap-4"
+        >
+          <i class="pi pi-spinner pi-spin text-primary text-4xl" />
+          <span class="text-text-sub">Verifying security link...</span>
         </div>
 
         <!-- Error State -->
-        <div v-else-if="!isValidCode" class="flex flex-col items-center gap-4">
-            <Message severity="error" :closable="false" class="w-full">
-                <div class="flex flex-col gap-1">
-                    <span class="font-bold">Invalid Link</span>
-                    <span class="text-sm">{{ errorMessage }}</span>
-                </div>
-            </Message>
-            <router-link to="/forgot-password" class="w-full">
-                <Button label="Request New Link" class="w-full" outlined />
-            </router-link>
+        <div
+          v-else-if="!isValidCode"
+          class="flex flex-col items-center gap-4"
+        >
+          <Message
+            severity="error"
+            :closable="false"
+            class="w-full"
+          >
+            <div class="flex flex-col gap-1">
+              <span class="font-bold">Invalid Link</span>
+              <span class="text-sm">{{ errorMessage }}</span>
+            </div>
+          </Message>
+          <router-link
+            to="/forgot-password"
+            class="w-full"
+          >
+            <Button
+              label="Request New Link"
+              class="w-full"
+              outlined
+            />
+          </router-link>
         </div>
 
         <!-- Success Form State -->
-        <form v-else @submit.prevent="handleResetPassword" class="flex flex-col gap-4">
-          <Message v-if="message" :severity="messageType" class="mb-2">{{ message }}</Message>
+        <form
+          v-else
+          class="flex flex-col gap-4"
+          @submit.prevent="handleResetPassword"
+        >
+          <Message
+            v-if="message"
+            :severity="messageType"
+            class="mb-2"
+          >
+            {{ message }}
+          </Message>
           
           <div class="flex flex-col gap-2">
-            <label for="password" class="text-sm font-medium text-text-sub">New Password</label>
-            <Password id="password" v-model="password" :feedback="true" toggleMask class="w-full" inputClass="w-full" required />
+            <label
+              for="password"
+              class="text-sm font-medium text-text-sub"
+            >New Password</label>
+            <Password
+              id="password"
+              v-model="password"
+              :feedback="true"
+              toggle-mask
+              class="w-full"
+              input-class="w-full"
+              required
+            />
           </div>
 
           <div class="flex flex-col gap-2">
-            <label for="confirmPassword" class="text-sm font-medium text-text-sub">Confirm Password</label>
-            <Password id="confirmPassword" v-model="confirmPassword" :feedback="false" toggleMask class="w-full" inputClass="w-full" required />
+            <label
+              for="confirmPassword"
+              class="text-sm font-medium text-text-sub"
+            >Confirm Password</label>
+            <Password
+              id="confirmPassword"
+              v-model="confirmPassword"
+              :feedback="false"
+              toggle-mask
+              class="w-full"
+              input-class="w-full"
+              required
+            />
           </div>
 
           <div class="flex flex-col gap-3 mt-4">
-            <Button type="submit" label="Reset Password" :loading="isLoading" class="w-full" />
+            <Button
+              type="submit"
+              label="Reset Password"
+              :loading="isLoading"
+              class="w-full"
+            />
           </div>
         </form>
       </template>

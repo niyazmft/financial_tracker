@@ -1,51 +1,74 @@
 <template>
-    <div>
-        <Button 
-            icon="pi pi-calendar" 
-            :label="displayLabel" 
+  <div>
+    <Button 
+      icon="pi pi-calendar" 
+      :label="displayLabel" 
+      severity="secondary" 
+      outlined 
+      aria-haspopup="true" 
+      aria-controls="date_range_overlay" 
+      @click="togglePicker"
+    />
+
+    <Popover
+      id="date_range_overlay"
+      ref="op"
+      class="w-[450px]"
+    >
+      <div class="flex flex-col gap-4 p-2">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium">From</label>
+            <DatePicker
+              v-model="tempRange.start"
+              date-format="yy-mm-dd"
+              show-icon
+              fluid
+            />
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium">To</label>
+            <DatePicker
+              v-model="tempRange.end"
+              date-format="yy-mm-dd"
+              show-icon
+              fluid
+            />
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <Button 
+            v-for="preset in presets" 
+            :key="preset.label" 
+            :label="preset.label" 
             severity="secondary" 
-            outlined 
-            @click="togglePicker" 
-            aria-haspopup="true" 
-            aria-controls="date_range_overlay"
-        />
+            text 
+            size="small"
+            @click="applyPreset(preset)" 
+          />
+        </div>
 
-        <Popover ref="op" id="date_range_overlay" class="w-[450px]">
-            <div class="flex flex-col gap-4 p-2">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium">From</label>
-                        <DatePicker v-model="tempRange.start" dateFormat="yy-mm-dd" showIcon fluid />
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium">To</label>
-                        <DatePicker v-model="tempRange.end" dateFormat="yy-mm-dd" showIcon fluid />
-                    </div>
-                </div>
-
-                <div class="flex flex-wrap gap-2">
-                    <Button 
-                        v-for="preset in presets" 
-                        :key="preset.label" 
-                        :label="preset.label" 
-                        severity="secondary" 
-                        text 
-                        size="small"
-                        @click="applyPreset(preset)" 
-                    />
-                </div>
-
-                <div class="flex justify-end gap-2 pt-2 border-t border-surface-200 dark:border-surface-700">
-                    <Button label="Cancel" severity="secondary" text @click="closePicker" />
-                    <Button label="Apply" @click="applyRange" :disabled="!isValidRange" />
-                </div>
-            </div>
-        </Popover>
-    </div>
+        <div class="flex justify-end gap-2 pt-2 border-t border-surface-200 dark:border-surface-700">
+          <Button
+            label="Cancel"
+            severity="secondary"
+            text
+            @click="closePicker"
+          />
+          <Button
+            label="Apply"
+            :disabled="!isValidRange"
+            @click="applyRange"
+          />
+        </div>
+      </div>
+    </Popover>
+  </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, } from 'vue';
 import Button from 'primevue/button';
 import DatePicker from 'primevue/datepicker';
 import Popover from 'primevue/popover';

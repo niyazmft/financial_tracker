@@ -1,70 +1,160 @@
 <template>
-    <Dialog v-model:visible="visible" header="Manage Categories" modal :style="{ width: '35rem' }" @hide="resetForm">
-        <div class="flex flex-col gap-6 py-2">
-            <!-- List & Edit Section -->
-            <div class="flex flex-col gap-3">
-                <h3 class="text-lg font-semibold">Existing Categories</h3>
-                <div class="max-h-60 overflow-y-auto border border-border-base rounded-lg">
-                    <DataTable :value="financeStore.categories" class="p-datatable-sm">
-                        <Column field="category_name" header="Name">
-                            <template #body="{ data }">
-                                <span class="capitalize">{{ data.category_name }}</span>
-                            </template>
-                        </Column>
-                        <Column field="type" header="Type">
-                            <template #body="{ data }">
-                                <Tag :value="data.type" :severity="getTypeSeverity(data.type)" />
-                            </template>
-                        </Column>
-                        <Column header="Actions" class="w-24">
-                            <template #body="{ data }">
-                                <div class="flex gap-1">
-                                    <Button icon="pi pi-pencil" text rounded severity="secondary" @click="startEdit(data)" />
-                                    <Button icon="pi pi-trash" text rounded severity="danger" @click="confirmDelete(data)" />
-                                </div>
-                            </template>
-                        </Column>
-                    </DataTable>
+  <Dialog
+    v-model:visible="visible"
+    header="Manage Categories"
+    modal
+    :style="{ width: '35rem' }"
+    @hide="resetForm"
+  >
+    <div class="flex flex-col gap-6 py-2">
+      <!-- List & Edit Section -->
+      <div class="flex flex-col gap-3">
+        <h3 class="text-lg font-semibold">
+          Existing Categories
+        </h3>
+        <div class="max-h-60 overflow-y-auto border border-border-base rounded-lg">
+          <DataTable
+            :value="financeStore.categories"
+            class="p-datatable-sm"
+          >
+            <Column
+              field="category_name"
+              header="Name"
+            >
+              <template #body="{ data }">
+                <span class="capitalize">{{ data.category_name }}</span>
+              </template>
+            </Column>
+            <Column
+              field="type"
+              header="Type"
+            >
+              <template #body="{ data }">
+                <Tag
+                  :value="data.type"
+                  :severity="getTypeSeverity(data.type)"
+                />
+              </template>
+            </Column>
+            <Column
+              header="Actions"
+              class="w-24"
+            >
+              <template #body="{ data }">
+                <div class="flex gap-1">
+                  <Button
+                    icon="pi pi-pencil"
+                    text
+                    rounded
+                    severity="secondary"
+                    @click="startEdit(data)"
+                  />
+                  <Button
+                    icon="pi pi-trash"
+                    text
+                    rounded
+                    severity="danger"
+                    @click="confirmDelete(data)"
+                  />
                 </div>
-            </div>
-
-            <Divider />
-
-            <!-- Add / Edit Form -->
-            <div class="flex flex-col gap-4">
-                <h3 class="text-lg font-semibold">{{ editingId ? 'Edit Category' : 'Add New Category' }}</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-2">
-                        <label for="cat-name" class="text-sm">Category Name</label>
-                        <InputText id="cat-name" v-model="form.name" placeholder="e.g. Shopping" />
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label for="cat-type" class="text-sm">Type</label>
-                        <Select id="cat-type" v-model="form.type" :options="typeOptions" optionLabel="label" optionValue="value" placeholder="Select Type" />
-                    </div>
-                </div>
-                <div class="flex justify-end gap-2 mt-2">
-                    <Button v-if="editingId" label="Cancel Edit" text severity="secondary" @click="resetForm" />
-                    <Button :label="editingId ? 'Update Category' : 'Add Category'" :icon="editingId ? 'pi pi-save' : 'pi pi-plus'" :loading="loading" @click="saveCategory" />
-                </div>
-            </div>
+              </template>
+            </Column>
+          </DataTable>
         </div>
+      </div>
 
-        <!-- Merge Confirmation Dialog (Nested) -->
-        <Dialog v-model:visible="showDeleteConfirm" header="Delete & Merge" modal :style="{ width: '25rem' }">
-            <div class="py-2">
-                <p class="mb-4 text-sm">Deleting <b>{{ catToDelete?.category_name }}</b> will orphan its transactions. Please select a category to merge them into:</p>
-                <div class="flex flex-col gap-2">
-                    <label class="text-xs font-bold">Merge into:</label>
-                    <Select v-model="targetCategoryId" :options="otherCategories" optionLabel="category_name" optionValue="Id" placeholder="Select Target Category" class="w-full" />
-                </div>
-            </div>
-            <template #footer>
-                <Button label="Cancel" text severity="secondary" @click="showDeleteConfirm = false" />
-                <Button label="Confirm Delete" severity="danger" :loading="loading" :disabled="!targetCategoryId" @click="handleDelete" />
-            </template>
-        </Dialog>
+      <Divider />
+
+      <!-- Add / Edit Form -->
+      <div class="flex flex-col gap-4">
+        <h3 class="text-lg font-semibold">
+          {{ editingId ? 'Edit Category' : 'Add New Category' }}
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="flex flex-col gap-2">
+            <label
+              for="cat-name"
+              class="text-sm"
+            >Category Name</label>
+            <InputText
+              id="cat-name"
+              v-model="form.name"
+              placeholder="e.g. Shopping"
+            />
+          </div>
+          <div class="flex flex-col gap-2">
+            <label
+              for="cat-type"
+              class="text-sm"
+            >Type</label>
+            <Select
+              id="cat-type"
+              v-model="form.type"
+              :options="typeOptions"
+              option-label="label"
+              option-value="value"
+              placeholder="Select Type"
+            />
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 mt-2">
+          <Button
+            v-if="editingId"
+            label="Cancel Edit"
+            text
+            severity="secondary"
+            @click="resetForm"
+          />
+          <Button
+            :label="editingId ? 'Update Category' : 'Add Category'"
+            :icon="editingId ? 'pi pi-save' : 'pi pi-plus'"
+            :loading="loading"
+            @click="saveCategory"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Merge Confirmation Dialog (Nested) -->
+    <Dialog
+      v-model:visible="showDeleteConfirm"
+      header="Delete & Merge"
+      modal
+      :style="{ width: '25rem' }"
+    >
+      <div class="py-2">
+        <p class="mb-4 text-sm">
+          Deleting <b>{{ catToDelete?.category_name }}</b> will orphan its transactions. Please select a category to merge them into:
+        </p>
+        <div class="flex flex-col gap-2">
+          <label class="text-xs font-bold">Merge into:</label>
+          <Select
+            v-model="targetCategoryId"
+            :options="otherCategories"
+            option-label="category_name"
+            option-value="Id"
+            placeholder="Select Target Category"
+            class="w-full"
+          />
+        </div>
+      </div>
+      <template #footer>
+        <Button
+          label="Cancel"
+          text
+          severity="secondary"
+          @click="showDeleteConfirm = false"
+        />
+        <Button
+          label="Confirm Delete"
+          severity="danger"
+          :loading="loading"
+          :disabled="!targetCategoryId"
+          @click="handleDelete"
+        />
+      </template>
     </Dialog>
+  </Dialog>
 </template>
 
 <script setup>
@@ -179,7 +269,7 @@ const handleDelete = async () => {
         await financeStore.deleteCategory(catToDelete.value.Id, targetCategoryId.value);
         toast.add({ severity: 'success', summary: 'Deleted', detail: 'Category removed and records merged', life: 3000 });
         showDeleteConfirm.value = false;
-    } catch (err) {
+    } catch {
         toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete', life: 3000 });
     } finally {
         loading.value = false;

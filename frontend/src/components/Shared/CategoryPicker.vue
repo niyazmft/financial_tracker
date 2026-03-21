@@ -1,30 +1,40 @@
 <template>
-    <div class="flex flex-col gap-1">
-        <Select 
-            v-model="selectedId" 
-            :options="options" 
-            optionLabel="category_name" 
-            optionValue="Id" 
-            :placeholder="placeholder"
-            class="w-full"
-            filter
-            @change="handleChange"
+  <div class="flex flex-col gap-1">
+    <Select 
+      v-model="selectedId" 
+      :options="options" 
+      option-label="category_name" 
+      option-value="Id" 
+      :placeholder="placeholder"
+      class="w-full"
+      filter
+      @change="handleChange"
+    >
+      <template #option="slotProps">
+        <div
+          v-if="slotProps.option.isAction"
+          class="flex items-center gap-2 text-primary font-bold py-1 border-t border-border-base mt-1"
         >
-            <template #option="slotProps">
-                <div v-if="slotProps.option.isAction" class="flex items-center gap-2 text-primary font-bold py-1 border-t border-border-base mt-1">
-                    <i :class="slotProps.option.icon"></i>
-                    <span>{{ slotProps.option.category_name }}</span>
-                </div>
-                <div v-else class="flex items-center justify-between w-full">
-                    <span class="capitalize">{{ slotProps.option.category_name }}</span>
-                    <Tag :value="slotProps.option.type" :severity="getTypeSeverity(slotProps.option.type)" class="scale-75 origin-right" />
-                </div>
-            </template>
-        </Select>
+          <i :class="slotProps.option.icon" />
+          <span>{{ slotProps.option.category_name }}</span>
+        </div>
+        <div
+          v-else
+          class="flex items-center justify-between w-full"
+        >
+          <span class="capitalize">{{ slotProps.option.category_name }}</span>
+          <Tag
+            :value="slotProps.option.type"
+            :severity="getTypeSeverity(slotProps.option.type)"
+            class="scale-75 origin-right"
+          />
+        </div>
+      </template>
+    </Select>
 
-        <!-- The actual management dialog -->
-        <CategoryManagerDialog v-model="showManager" />
-    </div>
+    <!-- The actual management dialog -->
+    <CategoryManagerDialog v-model="showManager" />
+  </div>
 </template>
 
 <script setup>
@@ -37,7 +47,10 @@ import Select from 'primevue/select';
 import Tag from 'primevue/tag';
 
 const props = defineProps({
-    modelValue: [Number, String], // Can be ID (Number) or Name (String) for legacy support
+    modelValue: {
+        type: [Number, String],
+        default: null
+    },
     placeholder: {
         type: String,
         default: 'Select Category'

@@ -23,20 +23,27 @@ FinTrack is a comprehensive, modern personal finance management application. Bui
 Understanding how FinTrack processes your data helps you get the most out of the application.
 
 ### 🏷️ Transaction Categorization & Tagging
+
 FinTrack uses a two-tier approach to organize your spending:
+
 - **Manual Categories**: Every transaction is assigned to a category (e.g., "Groceries", "Salary"). Categories are either typed as `earning` or `spending`.
 - **Intelligent Tagging Rules**: You can create custom rules (e.g., "If description contains 'Amazon', set category to 'Shopping'"). When you import transactions, these rules are applied automatically to save time.
 
 ### 💰 Monthly Income Estimation
+
 The application automatically calculates your "Estimated Monthly Income" by averaging all `earning` category transactions from the last 6 months. This estimate is used as the baseline for your dashboard's balance forecasting.
 
 ### 📊 Budget Management
+
 Budgets are set per category for a specific date range. FinTrack tracks your real-time spending against these targets.
+
 - **Spent Amount**: Only negative transactions within the budget's category and date range are counted.
 - **Visual Progress**: Progress bars turn from green to red as you approach or exceed your limits.
 
 ### 🕵️ Anomaly Detection
+
 The system monitors your spending patterns to identify unusual activity:
+
 - **Logic**: It compares recent transactions (last 30 days) against your historical average (90-day window) for each category.
 - **Sensitivity**: If a transaction is `X` times higher than your average (where `X` is your sensitivity setting), it triggers an alert.
 
@@ -68,6 +75,7 @@ FinTrack follows a clean, modular architecture separating the frontend, backend,
 - **Testing**:
   - **Backend**: Mocha + Sinon + Supertest
   - **Frontend**: Vitest + Vue Test Utils
+- **Code Quality**: Project-wide linting via **ESLint** (JS, Vue, JSON), **Stylelint** (CSS/Tailwind v4), and **Markdownlint**. Unified under `pnpm run lint:all`.
 
 ## 🤖 AI-Ready Development
 
@@ -82,99 +90,100 @@ FinTrack utilizes NocoDB to manage its data. Ensure the following tables are set
 
 ### Core Tables
 
-1.  **bank\_statments (Transactions)**
-    *   `Id`: Primary Key
-    *   `user_id`: Text (User's Firebase UID)
-    *   `date`: Date
-    *   `amount`: Number (Negative for expenses, positive for income)
-    *   `bank`: Text
-    *   `description`: Text
-    *   `ref_no`: Text (Reference number for bank transactions)
-    *   `categories_id`: Link to categories table
-    *   `is_deleted`: Boolean
+1. **bank\_statments (Transactions)**
+    - `Id`: Primary Key
+    - `user_id`: Text (User's Firebase UID)
+    - `date`: Date
+    - `amount`: Number (Negative for expenses, positive for income)
+    - `bank`: Text
+    - `description`: Text
+    - `ref_no`: Text (Reference number for bank transactions)
+    - `categories_id`: Link to categories table
+    - `is_deleted`: Boolean
 
-2.  **categories**
-    *   `Id`: Primary Key
-    *   `user_id`: Text (User's Firebase UID)
-    *   `category_name`: Text
-    *   `type`: Text (e.g., 'spending', 'earning')
-    *   `is_deleted`: Boolean
+2. **categories**
+    - `Id`: Primary Key
+    - `user_id`: Text (User's Firebase UID)
+    - `category_name`: Text
+    - `type`: Text (e.g., 'spending', 'earning')
+    - `is_deleted`: Boolean
 
-3.  **subscriptions**
-    *   `Id`: Primary Key
-    *   `user_id`: Text (User's Firebase UID)
-    *   `name`: Text
-    *   `amount`: Number
-    *   `currency`: Text (Default: 'TRY')
-    *   `billing_cycle`: Text (e.g., 'monthly', 'weekly', 'bi-weekly')
-    *   `status`: Text (e.g., 'Active', 'Inactive')
-    *   `start_date`: Date
-    *   `next_payment_date`: Date
-    *   `auto_renewal`: Boolean
-    *   `notes`: Long Text
-    *   `categories_id`: Link to categories table
+3. **subscriptions**
+    - `Id`: Primary Key
+    - `user_id`: Text (User's Firebase UID)
+    - `name`: Text
+    - `amount`: Number
+    - `currency`: Text (Default: 'TRY')
+    - `billing_cycle`: Text (e.g., 'monthly', 'weekly', 'bi-weekly')
+    - `status`: Text (e.g., 'Active', 'Inactive')
+    - `start_date`: Date
+    - `next_payment_date`: Date
+    - `auto_renewal`: Boolean
+    - `notes`: Long Text
+    - `categories_id`: Link to categories table
 
-4.  **items**
-    *   `Id`: Primary Key
-    *   `user_id`: Text (User's Firebase UID)
-    *   `item_name`: Text
-    *   `categories_id`: Link to categories table
-    *   `is_deleted`: Boolean
+4. **items**
+    - `Id`: Primary Key
+    - `user_id`: Text (User's Firebase UID)
+    - `item_name`: Text
+    - `categories_id`: Link to categories table
+    - `is_deleted`: Boolean
 
 ### Financial Planning & Management
 
-5.  **saving\_goals**
-    *   `Id`: Primary Key
-    *   `user_id`: Text (User's Firebase UID)
-    *   `goal_name`: Text
-    *   `target_amount`: Number
-    *   `priority`: Number (Integer)
-    *   `target_date`: Date
-    *   *(Note: `current_amount` is dynamically calculated by the application.)*
+1. **saving\_goals**
+    - `Id`: Primary Key
+    - `user_id`: Text (User's Firebase UID)
+    - `goal_name`: Text
+    - `target_amount`: Number
+    - `priority`: Number (Integer)
+    - `target_date`: Date
+    - *(Note: `current_amount` is dynamically calculated by the application.)*
 
-6.  **budget\_manager**
-    *   `Id`: Primary Key
-    *   `user_id`: Text (User's Firebase UID)
-    *   `target_amount`: Number
-    *   `start_date`: Date
-    *   `end_date`: Date
-    *   `is_active`: Boolean
-    *   `categories_id`: Link to categories table
+2. **budget\_manager**
+    - `Id`: Primary Key
+    - `user_id`: Text (User's Firebase UID)
+    - `target_amount`: Number
+    - `start_date`: Date
+    - `end_date`: Date
+    - `is_active`: Boolean
+    - `categories_id`: Link to categories table
 
-7.  **installments\_per\_record**
-    *   `Id`: Primary Key
-    *   `user_id`: Text (User's Firebase UID)
-    *   `installment_payment`: Number
-    *   `start_date`: Date
-    *   `paid`: Boolean
-    *   `items_id`: Link to items table
-    *   `categories_id`: Link to categories table
-    *   `is_deleted`: Boolean
+3. **installments\_per\_record**
+    - `Id`: Primary Key
+    - `user_id`: Text (User's Firebase UID)
+    - `installment_payment`: Number
+    - `start_date`: Date
+    - `paid`: Boolean
+    - `items_id`: Link to items table
+    - `categories_id`: Link to categories table
+    - `is_deleted`: Boolean
 
-8.  **tagging\_rules**
-    *   `Id`: Primary Key
-    *   `user_id`: Text (User's Firebase UID)
-    *   `keyword`: Text
-    *   `type`: Text (e.g., 'contains')
-    *   `categories_id`: Link to categories table
+4. **tagging\_rules**
+    - `Id`: Primary Key
+    - `user_id`: Text (User's Firebase UID)
+    - `keyword`: Text
+    - `type`: Text (e.g., 'contains')
+    - `categories_id`: Link to categories table
 
-9.  **user\_settings**
-    *   `Id`: Primary Key
-    *   `user_id`: Text (User's Firebase UID)
-    *   `name`: Text
-    *   `email`: Text (Email format)
-    *   `monthly_income_estimate`: Number
-    *   `currency`: Text (e.g., 'TRY')
-    *   `time_zone`: Text
-    *   `warning_threshold`: Number
-    *   `anomaly_detection_enabled`: Boolean
-    *   `anomaly_detection_sensitivity`: Number
-    *   `dismissed_warnings`: JSON
-    *   `onboarding_completed`: Boolean
+5. **user\_settings**
+    - `Id`: Primary Key
+    - `user_id`: Text (User's Firebase UID)
+    - `name`: Text
+    - `email`: Text (Email format)
+    - `monthly_income_estimate`: Number
+    - `currency`: Text (e.g., 'TRY')
+    - `time_zone`: Text
+    - `warning_threshold`: Number
+    - `anomaly_detection_enabled`: Boolean
+    - `anomaly_detection_sensitivity`: Number
+    - `dismissed_warnings`: JSON
+    - `onboarding_completed`: Boolean
 
 ## 🏁 Getting Started
 
 ### Prerequisites
+
 - Node.js (v18 or higher)
 - Docker & Docker Compose
 - A Firebase Project (for Auth & Analytics)
@@ -182,19 +191,23 @@ FinTrack utilizes NocoDB to manage its data. Ensure the following tables are set
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/niyazmft/financial_tracker.git
    cd financial_tracker
    ```
 
 2. **Configuration**
-   *   Copy the example environment file:
+   - Copy the example environment file:
+
        ```bash
        cp .env.example .env
        ```
-   *   Open `.env` and fill in your **Firebase** credentials and **NocoDB** tokens.
-   *   Place your Firebase Service Account JSON file in the root directory (e.g., `service-account.json`).
-   *   **Associate your Firebase Project**:
+
+   - Open `.env` and fill in your **Firebase** credentials and **NocoDB** tokens.
+   - Place your Firebase Service Account JSON file in the root directory (e.g., `service-account.json`).
+   - **Associate your Firebase Project**:
+
        ```bash
        firebase use --add
        ```
@@ -203,45 +216,59 @@ FinTrack utilizes NocoDB to manage its data. Ensure the following tables are set
    This project uses a hybrid workflow: **Docker** handles the infrastructure (Database, NocoDB), while the **FinTrack App** runs locally on your machine for rapid development.
 
    ### Step 1: Start Infrastructure & Setup Database
+
    Spin up Postgres and NocoDB using Docker Compose:
+
    ```bash
    cd infrastructure/docker
    docker-compose up -d
    cd ../..
    ```
-   *   **NocoDB Dashboard:** [http://localhost:8080](http://localhost:8080)
+
+   - **NocoDB Dashboard:** [http://localhost:8080](http://localhost:8080)
 
    #### 🗄️ Automatic Database Setup
+
    Instead of creating tables manually, run the automated setup script. This will create all necessary tables, columns, and relationships in your NocoDB project.
 
-   1.  Login to NocoDB and create a new **Project/Base** (e.g., "FinTrack").
-   2.  Get your **API Token** (My Settings -> API Tokens) and **Base ID** (Project Settings).
-   3.  Update your `.env` file with `NOCODB_API_TOKEN` and `NOCODB_PROJECT_ID`.
-   4.  Run the setup script from the root directory:
+   1. Login to NocoDB and create a new **Project/Base** (e.g., "FinTrack").
+   2. Get your **API Token** (My Settings -> API Tokens) and **Base ID** (Project Settings).
+   3. Update your `.env` file with `NOCODB_API_TOKEN` and `NOCODB_PROJECT_ID`.
+   4. Run the setup script from the root directory:
+
        ```bash
        pnpm run db:setup
        ```
+
        *Note: If the script detects existing tables, it will abort to prevent data loss. Use `pnpm run db:setup -- --force` to override this safeguard.*
-    5.  The script will output the created **Table IDs**. Copy them into your `.env` file to finalize the configuration.
+   5. The script will output the created **Table IDs**. Copy them into your `.env` file to finalize the configuration.
 
    #### 🛠️ Development Utility Scripts
+
    The following scripts are available in `backend/scripts/` to help with development and debugging:
 
    - **Seed Data**: Populates your database with realistic dummy data for testing.
+
      ```bash
      pnpm run db:seed -- <USER_ID>
      ```
+
    - **Check Data**: A diagnostic tool to verify the existence and integrity of a user's data.
+
      ```bash
      pnpm run db:check -- <USER_ID>
      ```
+
    - **Email Diagnostic**: Interactively verify your SMTP configuration by sending a test email.
+
      ```bash
      pnpm run test:email
      ```
 
    ### Step 2: Start the Application
+
    Run the frontend and backend locally from the root directory:
+
    ```bash
    # Install dependencies
    pnpm install
@@ -249,14 +276,17 @@ FinTrack utilizes NocoDB to manage its data. Ensure the following tables are set
    # Development Mode (Hot Reload)
    pnpm run dev
    ```
-   *   **FinTrack App:** [http://localhost:3000](http://localhost:3000)
+
+   - **FinTrack App:** [http://localhost:3000](http://localhost:3000)
 
    > **Note:** Ensure your `.env` file is configured with the correct `NOCODB_API_TOKEN` after you set up your NocoDB account in Step 1.
 
    ### 🚀 Production Deployment
+
    For production environments, the app is configured for process management via **PM2**. This ensures the application stays alive indefinitely and restarts automatically if it crashes.
 
    **Run with PM2:**
+
    ```bash
    pnpm run pm2:start
    ```
@@ -291,22 +321,26 @@ The backend provides a RESTful API. Key endpoints include:
 ## 🤝 Contributing
 
 Contributions are welcome! To ensure stability and high code quality, please follow these steps:
-1.  Fork the repository.
-2.  Create a feature branch (`git checkout -b feature/AmazingFeature`).
-3.  **Lint-First Rule**: If your feature introduces a new language or framework, ensure its linter is configured and added to `pnpm run lint:all` before implementation.
-4.  **Run local tests** to ensure no regressions:
+
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`).
+3. **Lint-First Rule**: If your feature introduces a new language or framework, ensure its linter is configured and added to `pnpm run lint:all` before implementation.
+4. **Run local tests** to ensure no regressions:
+
     ```bash
     pnpm test          # Backend tests
     pnpm run test:ui   # Frontend tests
     pnpm run lint:all  # Code quality audit
     ```
-5.  Commit your changes (`git commit -m 'feat: Add some AmazingFeature'`).
-6.  Push to the branch (`git push origin feature/AmazingFeature`).
-7.  Open a Pull Request.
+
+5. Commit your changes (`git commit -m 'feat: Add some AmazingFeature'`).
+6. Push to the branch (`git push origin feature/AmazingFeature`).
+7. Open a Pull Request.
 
 ## 💎 Credits
 
 This project was developed with the help of modern AI and design tools:
+
 - **[Gemini CLI](https://github.com/google-gemini/gemini-cli)**: For autonomous coding, refactoring, and project management.
 - **[Google Stitch](https://stitch.withgoogle.com/)**: For visual design and UI components.
 

@@ -1,12 +1,22 @@
 <template>
   <div class="mb-4">
-    <Tabs v-model:value="activeTab" @update:value="onTabChange">
-        <TabList>
-            <Tab v-for="tab in tabs" :key="tab.id" :value="tab.id">
-                <i :class="tab.icon" class="mr-2"></i>
-                <span>{{ tab.label }}</span>
-            </Tab>
-        </TabList>
+    <Tabs
+      v-model:value="activeTab"
+      @update:value="onTabChange"
+    >
+      <TabList>
+        <Tab
+          v-for="tab in tabs"
+          :key="tab.id"
+          :value="tab.id"
+        >
+          <i
+            :class="tab.icon"
+            class="mr-2"
+          />
+          <span>{{ tab.label }}</span>
+        </Tab>
+      </TabList>
     </Tabs>
   </div>
 </template>

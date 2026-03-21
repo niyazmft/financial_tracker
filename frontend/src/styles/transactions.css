@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import url("tailwindcss");
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -129,7 +129,7 @@
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
+@media (width <= 768px) {
     .transaction-month-header {
         @apply px-4 py-3;
     }
@@ -177,11 +177,12 @@
 
     .transactions-table td::before {
         content: attr(data-label); /* Display data-label as content */
+
         @apply absolute left-4 w-20 text-left font-semibold text-slate-500 dark:text-slate-400; /* Style the label */
     }
 }
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
     .transactions-table th,
     .transactions-table td {
         @apply px-3 py-2;

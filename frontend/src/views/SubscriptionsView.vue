@@ -2,49 +2,98 @@
   <div class="p-4 md:p-8 max-w-7xl mx-auto">
     <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold text-text-main">Subscription Tracker</h1>
-        <p class="mt-1 text-sm text-text-sub">Identify and manage your recurring payments.</p>
+        <h1 class="text-3xl font-bold text-text-main">
+          Subscription Tracker
+        </h1>
+        <p class="mt-1 text-sm text-text-sub">
+          Identify and manage your recurring payments.
+        </p>
       </div>
-      <Button label="Add Subscription" icon="pi pi-plus" @click="openModal()" />
+      <Button
+        label="Add Subscription"
+        icon="pi pi-plus"
+        @click="openModal()"
+      />
     </div>
 
     <!-- Active Subscriptions Section -->
     <div class="mb-12">
-      <h2 class="text-xl font-bold text-text-main mb-4">Active Subscriptions</h2>
+      <h2 class="text-xl font-bold text-text-main mb-4">
+        Active Subscriptions
+      </h2>
       
-      <div v-if="loading" class="text-center py-8">
+      <div
+        v-if="loading"
+        class="text-center py-8"
+      >
         <ProgressSpinner style="width: 40px; height: 40px" />
       </div>
       
-      <div v-else-if="activeSubscriptions.length === 0" class="py-12 text-center border-2 border-dashed border-border-base rounded-xl bg-hover-bg/50">
-        <i class="pi pi-sync text-4xl text-text-mute mb-2"></i>
-        <p class="text-text-sub">No active subscriptions being tracked.</p>
+      <div
+        v-else-if="activeSubscriptions.length === 0"
+        class="py-12 text-center border-2 border-dashed border-border-base rounded-xl bg-hover-bg/50"
+      >
+        <i class="pi pi-sync text-4xl text-text-mute mb-2" />
+        <p class="text-text-sub">
+          No active subscriptions being tracked.
+        </p>
       </div>
 
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card v-for="sub in activeSubscriptions" :key="sub.Id" class="relative group h-full">
+      <div
+        v-else
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        <Card
+          v-for="sub in activeSubscriptions"
+          :key="sub.Id"
+          class="relative group h-full"
+        >
           <template #title>
             <div class="flex justify-between items-start">
-              <span class="font-bold truncate" v-tooltip="sub.name">{{ sub.name }}</span>
+              <span
+                v-tooltip="sub.name"
+                class="font-bold truncate"
+              >{{ sub.name }}</span>
               <span class="text-lg font-bold text-primary">{{ formatCurrency(sub.amount, sub.currency) }}</span>
             </div>
           </template>
           <template #subtitle>
             <div class="flex items-center gap-2 mt-1">
-                <Tag :value="sub.billing_cycle" severity="info" class="capitalize text-[10px]" />
-                <Tag v-if="sub.auto_renewal" icon="pi pi-refresh" severity="secondary" v-tooltip="'Auto-renewal enabled'" />
+              <Tag
+                :value="sub.billing_cycle"
+                severity="info"
+                class="capitalize text-[10px]"
+              />
+              <Tag
+                v-if="sub.auto_renewal"
+                v-tooltip="'Auto-renewal enabled'"
+                icon="pi pi-refresh"
+                severity="secondary"
+              />
             </div>
           </template>
           <template #content>
             <div class="flex flex-col gap-4 mt-2">
-                <div class="flex items-center gap-2 text-sm text-text-sub">
-                    <i class="pi pi-calendar text-xs"></i>
-                    <span>Next: <b>{{ formatDateDisplay(sub.next_payment_date) }}</b></span>
-                </div>
-                <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                    <Button icon="pi pi-pencil" severity="secondary" text rounded @click="openModal(sub)" />
-                    <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(sub.Id)" />
-                </div>
+              <div class="flex items-center gap-2 text-sm text-text-sub">
+                <i class="pi pi-calendar text-xs" />
+                <span>Next: <b>{{ formatDateDisplay(sub.next_payment_date) }}</b></span>
+              </div>
+              <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                <Button
+                  icon="pi pi-pencil"
+                  severity="secondary"
+                  text
+                  rounded
+                  @click="openModal(sub)"
+                />
+                <Button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  text
+                  rounded
+                  @click="confirmDelete(sub.Id)"
+                />
+              </div>
             </div>
           </template>
         </Card>
@@ -54,24 +103,40 @@
     <!-- Suggestions Section -->
     <div v-if="suggestedSubscriptions.length > 0">
       <h2 class="text-xl font-bold text-text-main mb-4 flex items-center gap-2">
-        <i class="pi pi-lightbulb text-warning"></i>
+        <i class="pi pi-lightbulb text-warning" />
         Suggested from Transactions
       </h2>
       
       <div class="flex flex-col gap-4">
-        <Card v-for="(sub, index) in suggestedSubscriptions" :key="index">
+        <Card
+          v-for="(sub, index) in suggestedSubscriptions"
+          :key="index"
+        >
           <template #content>
             <div class="flex flex-wrap items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <Avatar icon="pi pi-lightbulb" severity="warn" shape="circle" size="large" />
-                    <div>
-                        <p class="font-bold text-lg">{{ sub.description }}</p>
-                        <p class="text-sm text-text-sub">
-                            Appears to occur <b>{{ sub.recurrence }}</b> • Est. {{ formatCurrency(sub.amount) }}
-                        </p>
-                    </div>
+              <div class="flex items-center gap-4">
+                <Avatar
+                  icon="pi pi-lightbulb"
+                  severity="warn"
+                  shape="circle"
+                  size="large"
+                />
+                <div>
+                  <p class="font-bold text-lg">
+                    {{ sub.description }}
+                  </p>
+                  <p class="text-sm text-text-sub">
+                    Appears to occur <b>{{ sub.recurrence }}</b> • Est. {{ formatCurrency(sub.amount) }}
+                  </p>
                 </div>
-                <Button label="Track This" severity="secondary" outlined size="small" @click="openModal(sub, true)" />
+              </div>
+              <Button
+                label="Track This"
+                severity="secondary"
+                outlined
+                size="small"
+                @click="openModal(sub, true)"
+              />
             </div>
           </template>
         </Card>
@@ -79,49 +144,98 @@
     </div>
 
     <!-- Subscription Dialog -->
-    <Dialog v-model:visible="showModal" :header="modalTitle" modal :style="{ width: '450px' }">
-        <div class="flex flex-col gap-4 py-2">
-            <div class="flex flex-col gap-2">
-                <label for="sub-name">Name</label>
-                <InputText id="sub-name" v-model="form.name" required />
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="flex flex-col gap-2">
-                    <label for="sub-amount">Amount</label>
-                    <InputNumber id="sub-amount" v-model="form.amount" mode="currency" :currency="form.currency" locale="tr-TR" />
-                </div>
-                <div class="flex flex-col gap-2">
-                    <label for="sub-currency">Currency</label>
-                    <Select id="sub-currency" v-model="form.currency" :options="CURRENCIES" optionLabel="label" optionValue="value" />
-                </div>
-            </div>
-            <div class="flex flex-col gap-2">
-                <label for="sub-category">Category</label>
-                <CategoryPicker id="sub-category" v-model="form.category_id" placeholder="Select Category" />
-            </div>
-            <div class="flex flex-col gap-2">
-                <label for="sub-cycle">Billing Cycle</label>
-                <Select id="sub-cycle" v-model="form.billing_cycle" :options="CYCLES" optionLabel="label" optionValue="value" />
-            </div>
-            <div class="flex flex-col gap-2">
-                <label for="sub-date">Next Payment Date</label>
-                <DatePicker id="sub-date" v-model="form.next_payment_date" dateFormat="yy-mm-dd" />
-            </div>
-            <div class="flex items-center gap-2 mt-2">
-                <Checkbox v-model="form.auto_renewal" :binary="true" inputId="auto-renewal" />
-                <label for="auto-renewal">Auto Renewal</label>
-            </div>
+    <Dialog
+      v-model:visible="showModal"
+      :header="modalTitle"
+      modal
+      :style="{ width: '450px' }"
+    >
+      <div class="flex flex-col gap-4 py-2">
+        <div class="flex flex-col gap-2">
+          <label for="sub-name">Name</label>
+          <InputText
+            id="sub-name"
+            v-model="form.name"
+            required
+          />
         </div>
-        <template #footer>
-            <Button label="Cancel" text severity="secondary" @click="closeModal" />
-            <Button label="Save" :loading="saving" @click="handleFormSubmit" :disabled="!form.category_id" />
-        </template>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="flex flex-col gap-2">
+            <label for="sub-amount">Amount</label>
+            <InputNumber
+              id="sub-amount"
+              v-model="form.amount"
+              mode="currency"
+              :currency="form.currency"
+              locale="tr-TR"
+            />
+          </div>
+          <div class="flex flex-col gap-2">
+            <label for="sub-currency">Currency</label>
+            <Select
+              id="sub-currency"
+              v-model="form.currency"
+              :options="CURRENCIES"
+              option-label="label"
+              option-value="value"
+            />
+          </div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="sub-category">Category</label>
+          <CategoryPicker
+            id="sub-category"
+            v-model="form.category_id"
+            placeholder="Select Category"
+          />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="sub-cycle">Billing Cycle</label>
+          <Select
+            id="sub-cycle"
+            v-model="form.billing_cycle"
+            :options="CYCLES"
+            option-label="label"
+            option-value="value"
+          />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="sub-date">Next Payment Date</label>
+          <DatePicker
+            id="sub-date"
+            v-model="form.next_payment_date"
+            date-format="yy-mm-dd"
+          />
+        </div>
+        <div class="flex items-center gap-2 mt-2">
+          <Checkbox
+            v-model="form.auto_renewal"
+            :binary="true"
+            input-id="auto-renewal"
+          />
+          <label for="auto-renewal">Auto Renewal</label>
+        </div>
+      </div>
+      <template #footer>
+        <Button
+          label="Cancel"
+          text
+          severity="secondary"
+          @click="closeModal"
+        />
+        <Button
+          label="Save"
+          :loading="saving"
+          :disabled="!form.category_id"
+          @click="handleFormSubmit"
+        />
+      </template>
     </Dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useFinanceStore } from '../stores/finance';
@@ -205,7 +319,7 @@ const fetchSubscriptions = async () => {
     const response = await api.fetchSubscriptions();
     activeSubscriptions.value = (response.data.subscriptions || []).map(normalizeSubscription);
     suggestedSubscriptions.value = response.data.suggestions || [];
-  } catch (err) {
+  } catch {
     toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load subscriptions', life: 3000 });
   } finally {
     loading.value = false;
@@ -293,7 +407,7 @@ const handleFormSubmit = async () => {
     
     closeModal();
     toast.add({ severity: 'success', summary: 'Success', detail: 'Subscription saved', life: 3000 });
-  } catch (err) {
+  } catch {
     toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save subscription', life: 3000 });
   } finally {
     saving.value = false;
@@ -311,7 +425,7 @@ const confirmDelete = (id) => {
                 await api.deleteSubscription(id);
                 fetchSubscriptions();
                 toast.add({ severity: 'success', summary: 'Success', detail: 'Removed', life: 3000 });
-            } catch (err) {
+            } catch {
                 toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete', life: 3000 });
             }
         }

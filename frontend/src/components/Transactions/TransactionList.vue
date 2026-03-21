@@ -1,96 +1,112 @@
 <template>
-    <div class="block md:hidden">
-        <!-- Mobile Search & Filter -->
-        <div class="flex gap-3 mb-4">
-            <div class="relative flex-grow">
-                <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"></i>
-                <input 
-                    v-model="filters.global.value"
-                    placeholder="Search..." 
-                    class="w-full pl-10 pr-4 py-2 bg-input-bg border border-border-input rounded-lg text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                />
-            </div>
-            <button 
-                @click="$emit('toggle-filters')" 
-                class="p-2 bg-input-bg border border-border-input rounded-lg text-text-muted hover:text-text-main"
-            >
-                <i class="pi pi-filter"></i>
-            </button>
-        </div>
-
-        <div v-if="loading" class="text-center py-8">
-            <i class="pi pi-spin pi-spinner text-2xl"></i>
-        </div>
-        <div v-else-if="paginatedTransactions.length === 0" class="text-center py-8 text-text-sub">
-            No transactions found.
-        </div>
-        <div 
-            v-else
-            class="space-y-3"
+  <div class="block md:hidden">
+    <!-- Mobile Search & Filter -->
+    <div class="flex gap-3 mb-4">
+      <div class="relative flex-grow">
+        <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+        <input 
+          :value="filters.global.value"
+          placeholder="Search..."
+          class="w-full pl-10 pr-4 py-2 bg-input-bg border border-border-input rounded-lg text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" 
+          @input="$emit('update:filters', { ...filters, global: { ...filters.global, value: $event.target.value } })"
         >
-            <div 
-                v-for="transaction in paginatedTransactions" 
-                :key="transaction.id" 
-                class="p-4 bg-card-bg border border-border-base rounded-xl shadow-sm"
-            >
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex flex-col">
-                        <span class="text-xs text-text-sub font-medium">{{ formatDate(transaction.date) }}</span>
-                        <span class="text-text-main font-medium text-base mt-0.5">{{ transaction.description }}</span>
-                    </div>
-                    <span 
-                        class="text-lg font-bold whitespace-nowrap"
-                        :class="transaction.amount < 0 ? 'text-danger' : 'text-success'"
-                    >
-                        {{ formatCurrency(transaction.amount) }}
-                    </span>
-                </div>
-
-                <div class="flex justify-between items-center mt-3 pt-3 border-t border-border-base">
-                    <div class="flex gap-2">
-                        <span class="px-2 py-1 text-[10px] font-medium rounded bg-hover-bg text-text-sub border border-border-base">
-                            {{ transaction.bank }}
-                        </span>
-                        <span class="px-2 py-1 text-[10px] font-medium rounded bg-hover-bg text-text-sub border border-border-base">
-                            {{ transaction.category }}
-                        </span>
-                    </div>
-                    
-                    <div class="flex gap-3">
-                        <button @click="$emit('edit', transaction)" class="text-text-muted hover:text-primary p-1">
-                            <i class="pi pi-pencil text-sm"></i> 
-                        </button>
-                        <button @click="$emit('delete', transaction)" class="text-text-muted hover:text-danger p-1">
-                            <i class="pi pi-trash text-sm"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mobile Pagination -->
-        <div class="flex justify-between items-center mt-4 px-2" v-if="totalPages > 1">
-            <button 
-                @click="handlePageChange(currentPage - 1)" 
-                :disabled="currentPage === 1"
-                class="px-3 py-2 bg-input-bg border border-border-base text-text-main rounded-lg disabled:opacity-50 text-sm"
-            >
-                Previous
-            </button>
-            
-            <span class="text-text-sub text-sm">
-                Page {{ currentPage }} of {{ totalPages }}
-            </span>
-
-            <button 
-                @click="handlePageChange(currentPage + 1)" 
-                :disabled="currentPage === totalPages"
-                class="px-3 py-2 bg-input-bg border border-border-base text-text-main rounded-lg disabled:opacity-50 text-sm"
-            >
-                Next
-            </button>
-        </div>
+      </div>
+      <button 
+        class="p-2 bg-input-bg border border-border-input rounded-lg text-text-muted hover:text-text-main" 
+        @click="$emit('toggle-filters')"
+      >
+        <i class="pi pi-filter" />
+      </button>
     </div>
+
+    <div
+      v-if="loading"
+      class="text-center py-8"
+    >
+      <i class="pi pi-spin pi-spinner text-2xl" />
+    </div>
+    <div
+      v-else-if="paginatedTransactions.length === 0"
+      class="text-center py-8 text-text-sub"
+    >
+      No transactions found.
+    </div>
+    <div 
+      v-else
+      class="space-y-3"
+    >
+      <div 
+        v-for="transaction in paginatedTransactions" 
+        :key="transaction.id" 
+        class="p-4 bg-card-bg border border-border-base rounded-xl shadow-sm"
+      >
+        <div class="flex justify-between items-start mb-2">
+          <div class="flex flex-col">
+            <span class="text-xs text-text-sub font-medium">{{ formatDate(transaction.date) }}</span>
+            <span class="text-text-main font-medium text-base mt-0.5">{{ transaction.description }}</span>
+          </div>
+          <span 
+            class="text-lg font-bold whitespace-nowrap"
+            :class="transaction.amount < 0 ? 'text-danger' : 'text-success'"
+          >
+            {{ formatCurrency(transaction.amount) }}
+          </span>
+        </div>
+
+        <div class="flex justify-between items-center mt-3 pt-3 border-t border-border-base">
+          <div class="flex gap-2">
+            <span class="px-2 py-1 text-[10px] font-medium rounded bg-hover-bg text-text-sub border border-border-base">
+              {{ transaction.bank }}
+            </span>
+            <span class="px-2 py-1 text-[10px] font-medium rounded bg-hover-bg text-text-sub border border-border-base">
+              {{ transaction.category }}
+            </span>
+          </div>
+                    
+          <div class="flex gap-3">
+            <button
+              class="text-text-muted hover:text-primary p-1"
+              @click="$emit('edit', transaction)"
+            >
+              <i class="pi pi-pencil text-sm" /> 
+            </button>
+            <button
+              class="text-text-muted hover:text-danger p-1"
+              @click="$emit('delete', transaction)"
+            >
+              <i class="pi pi-trash text-sm" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Pagination -->
+    <div
+      v-if="totalPages > 1"
+      class="flex justify-between items-center mt-4 px-2"
+    >
+      <button 
+        :disabled="currentPage === 1" 
+        class="px-3 py-2 bg-input-bg border border-border-base text-text-main rounded-lg disabled:opacity-50 text-sm"
+        @click="handlePageChange(currentPage - 1)"
+      >
+        Previous
+      </button>
+            
+      <span class="text-text-sub text-sm">
+        Page {{ currentPage }} of {{ totalPages }}
+      </span>
+
+      <button 
+        :disabled="currentPage === totalPages" 
+        class="px-3 py-2 bg-input-bg border border-border-base text-text-main rounded-lg disabled:opacity-50 text-sm"
+        @click="handlePageChange(currentPage + 1)"
+      >
+        Next
+      </button>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -113,7 +129,7 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(['toggle-filters', 'edit', 'delete', 'update:filters']);
+const _emit = defineEmits(['toggle-filters', 'edit', 'delete', 'update:filters']);
 
 const { formatCurrency } = useFinance();
 

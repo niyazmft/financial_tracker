@@ -1,55 +1,118 @@
 <template>
-    <div>
-        <Card>
-            <template #header>
-            <div class="flex justify-between items-center px-4 pt-4">
-                <div>
-                <h3 class="text-lg font-bold">Tagging Rules</h3>
-                <p class="text-sm text-text-sub">Automatically categorize transactions based on keywords. (Max 3 rules)</p>
-                </div>
-                <Button label="Add Rule" icon="pi pi-plus" size="small" :disabled="rules.length >= 3" @click="openAddRuleModal" />
+  <div>
+    <Card>
+      <template #header>
+        <div class="flex justify-between items-center px-4 pt-4">
+          <div>
+            <h3 class="text-lg font-bold">
+              Tagging Rules
+            </h3>
+            <p class="text-sm text-text-sub">
+              Automatically categorize transactions based on keywords. (Max 3 rules)
+            </p>
+          </div>
+          <Button
+            label="Add Rule"
+            icon="pi pi-plus"
+            size="small"
+            :disabled="rules.length >= 3"
+            @click="openAddRuleModal"
+          />
+        </div>
+      </template>
+      <template #content>
+        <div class="flex flex-col gap-3">
+          <div
+            v-if="loadingRules"
+            class="text-center py-4"
+          >
+            <i class="pi pi-spin pi-spinner text-2xl" />
+          </div>
+          <div
+            v-else-if="rules.length === 0"
+            class="text-center py-4 text-text-sub"
+          >
+            No tagging rules found.
+          </div>
+          <div
+            v-for="rule in rules"
+            :key="rule.Id"
+            class="flex items-center justify-between p-3 bg-hover-bg rounded-lg border border-border-base"
+          >
+            <div class="flex items-center gap-3">
+              <span class="text-sm font-medium">"{{ rule.keyword }}"</span>
+              <i class="pi pi-arrow-right text-text-mute text-xs" />
+              <Tag
+                :value="rule.categories?.category_name || 'Unknown'"
+                severity="info"
+              />
             </div>
-            </template>
-            <template #content>
-            <div class="flex flex-col gap-3">
-                <div v-if="loadingRules" class="text-center py-4">
-                <i class="pi pi-spin pi-spinner text-2xl"></i>
-                </div>
-                <div v-else-if="rules.length === 0" class="text-center py-4 text-text-sub">No tagging rules found.</div>
-                <div v-for="rule in rules" :key="rule.Id" class="flex items-center justify-between p-3 bg-hover-bg rounded-lg border border-border-base">
-                    <div class="flex items-center gap-3">
-                        <span class="text-sm font-medium">"{{ rule.keyword }}"</span>
-                        <i class="pi pi-arrow-right text-text-mute text-xs"></i>
-                        <Tag :value="rule.categories?.category_name || 'Unknown'" severity="info" />
-                    </div>
-                    <div class="flex gap-2">
-                        <Button icon="pi pi-pencil" severity="secondary" text rounded @click="openEditRuleModal(rule)" />
-                        <Button icon="pi pi-trash" severity="danger" text rounded @click="deleteRule(rule.Id)" />
-                    </div>
-                </div>
+            <div class="flex gap-2">
+              <Button
+                icon="pi pi-pencil"
+                severity="secondary"
+                text
+                rounded
+                @click="openEditRuleModal(rule)"
+              />
+              <Button
+                icon="pi pi-trash"
+                severity="danger"
+                text
+                rounded
+                @click="deleteRule(rule.Id)"
+              />
             </div>
-            </template>
-        </Card>
+          </div>
+        </div>
+      </template>
+    </Card>
 
-        <!-- Tagging Rule Modal -->
-        <Dialog v-model:visible="showRuleModal" :header="editingRuleId ? 'Edit Tagging Rule' : 'Add New Tagging Rule'" modal :style="{ width: '450px' }">
-            <div class="flex flex-col gap-4 py-2">
-                <div class="flex flex-col gap-2">
-                    <label for="rule-keyword">Keyword</label>
-                    <InputText id="rule-keyword" v-model="ruleForm.keyword" placeholder="e.g. Netflix" />
-                </div>
-                <div class="flex flex-col gap-2">
-                    <label for="rule-category">Category</label>
-                    <Select id="rule-category" v-model="ruleForm.categories_id" :options="availableCategories" optionLabel="category_name" optionValue="Id" placeholder="Select Category" />
-                </div>
-                <small v-if="ruleError" class="p-error">{{ ruleError }}</small>
-            </div>
-            <template #footer>
-                <Button label="Cancel" text @click="closeRuleModal" />
-                <Button label="Save Rule" @click="saveRule" />
-            </template>
-        </Dialog>
-    </div>
+    <!-- Tagging Rule Modal -->
+    <Dialog
+      v-model:visible="showRuleModal"
+      :header="editingRuleId ? 'Edit Tagging Rule' : 'Add New Tagging Rule'"
+      modal
+      :style="{ width: '450px' }"
+    >
+      <div class="flex flex-col gap-4 py-2">
+        <div class="flex flex-col gap-2">
+          <label for="rule-keyword">Keyword</label>
+          <InputText
+            id="rule-keyword"
+            v-model="ruleForm.keyword"
+            placeholder="e.g. Netflix"
+          />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="rule-category">Category</label>
+          <Select
+            id="rule-category"
+            v-model="ruleForm.categories_id"
+            :options="availableCategories"
+            option-label="category_name"
+            option-value="Id"
+            placeholder="Select Category"
+          />
+        </div>
+        <small
+          v-if="ruleError"
+          class="p-error"
+        >{{ ruleError }}</small>
+      </div>
+      <template #footer>
+        <Button
+          label="Cancel"
+          text
+          @click="closeRuleModal"
+        />
+        <Button
+          label="Save Rule"
+          @click="saveRule"
+        />
+      </template>
+    </Dialog>
+  </div>
 </template>
 
 <script setup>

@@ -1,8 +1,12 @@
 <template>
   <div class="p-4 md:p-8 max-w-4xl mx-auto">
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-text-main">Settings</h1>
-      <p class="mt-2 text-text-sub">Manage your account settings and preferences.</p>
+      <h1 class="text-3xl font-bold text-text-main">
+        Settings
+      </h1>
+      <p class="mt-2 text-text-sub">
+        Manage your account settings and preferences.
+      </p>
     </div>
 
     <div class="flex flex-col gap-8">
@@ -10,16 +14,27 @@
       <ProfileSettings v-model="userForm" />
       
       <Card>
-        <template #title>Category Management</template>
-        <template #subtitle>Organize how you track your income and expenses</template>
+        <template #title>
+          Category Management
+        </template>
+        <template #subtitle>
+          Organize how you track your income and expenses
+        </template>
         <template #content>
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm">Manage, rename, or merge your transaction categories.</p>
-                </div>
-                <Button label="Manage Categories" icon="pi pi-tags" outlined @click="showCategoryManager = true" />
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm">
+                Manage, rename, or merge your transaction categories.
+              </p>
             </div>
-            <CategoryManagerDialog v-model="showCategoryManager" />
+            <Button
+              label="Manage Categories"
+              icon="pi pi-tags"
+              outlined
+              @click="showCategoryManager = true"
+            />
+          </div>
+          <CategoryManagerDialog v-model="showCategoryManager" />
         </template>
       </Card>
 
@@ -27,33 +42,66 @@
 
       <!-- Preferences (Kept inline as it's small) -->
       <Card>
-        <template #title>Preferences</template>
+        <template #title>
+          Preferences
+        </template>
         <template #content>
-            <div class="flex flex-col gap-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h4 class="text-sm font-bold">Anomaly Detection</h4>
-                        <p class="text-sm text-text-sub">Get notified about unusual spending activity</p>
-                    </div>
-                    <ToggleButton v-model="anomalyDetection.enabled" onIcon="pi pi-check" offIcon="pi pi-times" class="w-20" />
-                </div>
-                
-                <div v-if="anomalyDetection.enabled" class="flex flex-col gap-2">
-                    <label class="text-sm font-medium">Sensitivity Threshold: {{ anomalyDetection.sensitivity }}</label>
-                    <Slider v-model="anomalyDetection.sensitivity" :min="2" :max="10" :step="0.5" class="w-full mt-2" />
-                    <p class="text-xs text-text-mute">Lower values are more sensitive.</p>
-                </div>
-
-                <Divider />
-
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h4 class="text-sm font-bold">Theme</h4>
-                        <p class="text-sm text-text-sub">Choose your preferred appearance</p>
-                    </div>
-                    <Select v-model="selectedTheme" :options="themeOptions" optionLabel="label" optionValue="value" @change="handleThemeChange" class="w-32" />
-                </div>
+          <div class="flex flex-col gap-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-sm font-bold">
+                  Anomaly Detection
+                </h4>
+                <p class="text-sm text-text-sub">
+                  Get notified about unusual spending activity
+                </p>
+              </div>
+              <ToggleButton
+                v-model="anomalyDetection.enabled"
+                on-icon="pi pi-check"
+                off-icon="pi pi-times"
+                class="w-20"
+              />
             </div>
+                
+            <div
+              v-if="anomalyDetection.enabled"
+              class="flex flex-col gap-2"
+            >
+              <label class="text-sm font-medium">Sensitivity Threshold: {{ anomalyDetection.sensitivity }}</label>
+              <Slider
+                v-model="anomalyDetection.sensitivity"
+                :min="2"
+                :max="10"
+                :step="0.5"
+                class="w-full mt-2"
+              />
+              <p class="text-xs text-text-mute">
+                Lower values are more sensitive.
+              </p>
+            </div>
+
+            <Divider />
+
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-sm font-bold">
+                  Theme
+                </h4>
+                <p class="text-sm text-text-sub">
+                  Choose your preferred appearance
+                </p>
+              </div>
+              <Select
+                v-model="selectedTheme"
+                :options="themeOptions"
+                option-label="label"
+                option-value="value"
+                class="w-32"
+                @change="handleThemeChange"
+              />
+            </div>
+          </div>
         </template>
       </Card>
 
@@ -61,7 +109,13 @@
 
       <!-- Global Save Button -->
       <div class="flex justify-end pt-4 mb-20">
-        <Button label="Save All Changes" icon="pi pi-save" size="large" :loading="saving" @click="saveAllSettings" />
+        <Button
+          label="Save All Changes"
+          icon="pi pi-save"
+          size="large"
+          :loading="saving"
+          @click="saveAllSettings"
+        />
       </div>
     </div>
   </div>
@@ -169,7 +223,7 @@ const saveAllSettings = async () => {
         });
         
         toast.add({ severity: 'success', summary: 'Success', detail: 'All settings saved', life: 3000 });
-    } catch (err) {
+    } catch {
         toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save settings', life: 3000 });
     } finally {
         saving.value = false;

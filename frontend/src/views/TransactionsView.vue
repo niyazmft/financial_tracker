@@ -3,26 +3,42 @@
     <!-- Header Section -->
     <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
       <div class="flex flex-col gap-1">
-        <h1 class="text-3xl font-bold text-text-main">Transactions</h1>
-        <p class="text-sm text-text-sub">Track and analyze your financial transactions</p>
+        <h1 class="text-3xl font-bold text-text-main">
+          Transactions
+        </h1>
+        <p class="text-sm text-text-sub">
+          Track and analyze your financial transactions
+        </p>
       </div>
       <div class="flex items-center gap-4">
         <div class="hidden lg:flex items-center gap-6 mr-4">
           <div class="text-right">
-            <p class="text-xs font-bold uppercase tracking-wider text-text-sub">Total Count</p>
-            <p class="text-lg font-bold">{{ totalTransactions }}</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-text-sub">
+              Total Count
+            </p>
+            <p class="text-lg font-bold">
+              {{ totalTransactions }}
+            </p>
           </div>
           <div class="text-right">
-            <p class="text-xs font-bold uppercase tracking-wider text-text-sub">Total Net</p>
-            <p :class="['text-lg font-bold', totalAmount >= 0 ? 'text-success' : 'text-danger']">{{ formatCurrency(totalAmount) }}</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-text-sub">
+              Total Net
+            </p>
+            <p :class="['text-lg font-bold', totalAmount >= 0 ? 'text-success' : 'text-danger']">
+              {{ formatCurrency(totalAmount) }}
+            </p>
           </div>
         </div>
         <DateRangePicker 
-            :startDate="currentRange.start" 
-            :endDate="currentRange.end" 
-            @update:range="handleDateRangeUpdate" 
+          :start-date="currentRange.start" 
+          :end-date="currentRange.end" 
+          @update:range="handleDateRangeUpdate" 
         />
-        <Button label="Add Transactions" icon="pi pi-plus" @click="showImportModal = true" />
+        <Button
+          label="Add Transactions"
+          icon="pi pi-plus"
+          @click="showImportModal = true"
+        />
       </div>
     </div>
 
@@ -31,65 +47,101 @@
       <template #content>
         <!-- Desktop View -->
         <div class="hidden md:block">
-            <TransactionTable 
-                v-model:filters="filters"
-                :transactions="transactions"
-                :loading="loading"
-                :categories="categories"
-                :unique-banks="uniqueBanks"
-                @edit="openEditModal"
-                @delete="confirmDeleteTransaction"
-            />
+          <TransactionTable 
+            v-model:filters="filters"
+            :transactions="transactions"
+            :loading="loading"
+            :categories="categories"
+            :unique-banks="uniqueBanks"
+            @edit="openEditModal"
+            @delete="confirmDeleteTransaction"
+          />
         </div>
 
         <!-- Mobile View -->
         <TransactionList 
-            :transactions="transactions"
-            :loading="loading"
-            :filters="filters"
-            @toggle-filters="showMobileFilters = true"
-            @edit="openEditModal"
-            @delete="confirmDeleteTransaction"
+          :transactions="transactions"
+          :loading="loading"
+          :filters="filters"
+          @toggle-filters="showMobileFilters = true"
+          @edit="openEditModal"
+          @delete="confirmDeleteTransaction"
         />
       </template>
     </Card>
 
     <!-- Modals -->
     <TransactionImportDialog 
-        v-model="showImportModal"
-        :categories="categories"
+      v-model="showImportModal"
+      :categories="categories"
     />
 
     <TransactionEditDialog
-        v-model="showEditModal"
-        :transaction="selectedTransaction"
-        :categories="categories"
+      v-model="showEditModal"
+      :transaction="selectedTransaction"
+      :categories="categories"
     />
 
     <!-- Mobile Filter Sidebar -->
-    <Sidebar v-model:visible="showMobileFilters" position="right" class="!w-full md:!w-80" header="Filter Transactions">
-        <div class="flex flex-col gap-4 py-2 h-full">
-            <!-- Removed redundant date filter as we have the global picker -->
-            <div class="flex flex-col gap-2">
-                <label class="font-medium text-sm text-text-sub">Bank</label>
-                <Select v-model="filters.bank.value" :options="uniqueBanks" placeholder="All Banks" showClear fluid />
-            </div>
-
-            <div class="flex flex-col gap-2">
-                <label class="font-medium text-sm text-text-sub">Category</label>
-                <Select v-model="filters.category.value" :options="categories" optionLabel="category_name" optionValue="category_name" placeholder="All Categories" showClear fluid />
-            </div>
-
-            <div class="flex flex-col gap-2">
-                <label class="font-medium text-sm text-text-sub">Amount</label>
-                <InputNumber v-model="filters.amount.constraints[0].value" mode="currency" :currency="currency" locale="tr-TR" placeholder="Exact Amount" fluid />
-            </div>
-
-            <div class="flex flex-col gap-3 mt-auto pb-8">
-                <Button label="Show Results" class="w-full" @click="showMobileFilters = false" />
-                <Button label="Clear All" severity="secondary" text class="w-full" @click="clearFilters" />
-            </div>
+    <Sidebar
+      v-model:visible="showMobileFilters"
+      position="right"
+      class="!w-full md:!w-80"
+      header="Filter Transactions"
+    >
+      <div class="flex flex-col gap-4 py-2 h-full">
+        <!-- Removed redundant date filter as we have the global picker -->
+        <div class="flex flex-col gap-2">
+          <label class="font-medium text-sm text-text-sub">Bank</label>
+          <Select
+            v-model="filters.bank.value"
+            :options="uniqueBanks"
+            placeholder="All Banks"
+            show-clear
+            fluid
+          />
         </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="font-medium text-sm text-text-sub">Category</label>
+          <Select
+            v-model="filters.category.value"
+            :options="categories"
+            option-label="category_name"
+            option-value="category_name"
+            placeholder="All Categories"
+            show-clear
+            fluid
+          />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="font-medium text-sm text-text-sub">Amount</label>
+          <InputNumber
+            v-model="filters.amount.constraints[0].value"
+            mode="currency"
+            :currency="currency"
+            locale="tr-TR"
+            placeholder="Exact Amount"
+            fluid
+          />
+        </div>
+
+        <div class="flex flex-col gap-3 mt-auto pb-8">
+          <Button
+            label="Show Results"
+            class="w-full"
+            @click="showMobileFilters = false"
+          />
+          <Button
+            label="Clear All"
+            severity="secondary"
+            text
+            class="w-full"
+            @click="clearFilters"
+          />
+        </div>
+      </div>
     </Sidebar>
   </div>
 </template>
@@ -177,7 +229,7 @@ const confirmDeleteTransaction = (data) => {
             try {
                 await financeStore.deleteTransaction(data.id);
                 toast.add({ severity: 'success', summary: 'Confirmed', detail: 'Record deleted', life: 3000 });
-            } catch (err) {
+            } catch {
                 toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete', life: 3000 });
             }
         }
