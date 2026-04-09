@@ -23,8 +23,10 @@ export function useFinance() {
     if (value === 'N/A' || value === null) return 'hidden';
     if (typeof value === 'string' && value.includes('%')) {
       const num = parseFloat(value);
-      if (isNaN(num)) return '';
-      return num >= 0 ? 'text-success' : 'text-danger';
+      if (isNaN(num)) return 'text-text-sub';
+      if (num > 0) return 'text-success';
+      if (num < 0) return 'text-danger';
+      return 'text-text-sub';
     }
 
     const num = parseFloat(value);
@@ -41,7 +43,7 @@ export function useFinance() {
   const getExpenseTrendClass = (value) => {
     if (value === 'N/A' || value === null) return 'hidden';
     const num = parseFloat(String(value).replace(/[^0-9.-]+/g, ""));
-    if (isNaN(num)) return '';
+    if (isNaN(num)) return 'text-text-sub';
     if (num > 0) return 'text-danger'; // Increased spending is bad
     if (num < 0) return 'text-success'; // Decreased spending is good
     return 'text-text-sub';

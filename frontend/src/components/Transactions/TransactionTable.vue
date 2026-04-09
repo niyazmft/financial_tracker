@@ -147,12 +147,14 @@
         <div class="flex gap-2">
           <Button
             icon="pi pi-pencil"
+            aria-label="Edit transaction"
             text
             class="text-gray-400 hover:text-blue-500 transition-colors"
             @click="$emit('edit', slotProps.data)"
           />
           <Button
             icon="pi pi-trash"
+            aria-label="Delete transaction"
             text
             class="text-gray-400 hover:text-red-500 transition-colors"
             @click="$emit('delete', slotProps.data)"
@@ -202,9 +204,6 @@ const { formatCurrency } = useFinance();
 
 const currency = computed(() => settingsStore.currency);
 
-// Two-way binding for filters manually if defineModel is not used (Vue < 3.4)
-// However, since filters is an object, mutation inside DataTable usually propagates.
-// Ideally we emit update:filters.
 const filters = computed({
     get: () => props.filters,
     set: (value) => emit('update:filters', value)
