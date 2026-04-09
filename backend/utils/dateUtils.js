@@ -1,6 +1,8 @@
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-// Helper function to get date range for a specified number of days
+/**
+ * Helper function to get date range for a specified number of days.
+ */
 function getLookaheadDates(durationDays = 30) {
     const start = new Date();
     // Use UTC methods for consistency
@@ -13,6 +15,9 @@ function getLookaheadDates(durationDays = 30) {
     };
 }
 
+/**
+ * Format date for display in the UI.
+ */
 function formatDateForDisplay(dateInput) {
     const date = (dateInput instanceof Date) ? dateInput : new Date(dateInput);
     if (isNaN(date.getTime())) { // Check for invalid date

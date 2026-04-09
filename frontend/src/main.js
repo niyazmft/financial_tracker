@@ -10,17 +10,6 @@ import DialogService from 'primevue/dialogservice';
 import App from './App.vue';
 import router from './router';
 
-// Register Service Worker - Disabled for development stability
-// if ('serviceWorker' in navigator) {
-//     window.addEventListener('load', () => {
-//         navigator.serviceWorker.register('/sw.js').then(registration => {
-//             console.log('ServiceWorker registration successful with scope: ', registration.scope);
-//         }, err => {
-//             console.log('ServiceWorker registration failed: ', err);
-//         });
-//     });
-// }
-
 // Mount the Vue App
 const appContainer = document.getElementById('app');
 if (appContainer) {
