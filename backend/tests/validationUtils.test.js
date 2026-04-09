@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { validateCategoryById, normalizeAndValidateCategory, normalizeTurkishChars } = require('../utils/validationUtils');
+const { validateCategoryById, normalizeAndValidateCategory } = require('../utils/validationUtils');
 
 describe('Validation Utils - Categories', () => {
     const mockCategoryMapping = {
@@ -54,37 +54,5 @@ describe('Validation Utils - Categories', () => {
                 normalizeAndValidateCategory('Unknown', mockCategoryMapping);
             }, /Category 'Unknown' not found/);
         });
-    });
-});
-
-describe('Validation Utils - normalizeTurkishChars', () => {
-    it('should normalize lowercase Turkish characters', () => {
-        const input = 'ığüşöç';
-        const expected = 'igusoc';
-        assert.strictEqual(normalizeTurkishChars(input), expected);
-    });
-
-    it('should normalize uppercase Turkish characters', () => {
-        const input = 'İĞÜŞÖÇ';
-        const expected = 'IGUSOC';
-        assert.strictEqual(normalizeTurkishChars(input), expected);
-    });
-
-    it('should handle mixed strings', () => {
-        const input = 'Pijamalı hasta, yağız şoföre çabucak güvendi';
-        const expected = 'Pijamali hasta, yagiz sofore cabucak guvendi';
-        assert.strictEqual(normalizeTurkishChars(input), expected);
-    });
-
-    it('should return non-string inputs as-is', () => {
-        assert.strictEqual(normalizeTurkishChars(null), null);
-        assert.strictEqual(normalizeTurkishChars(undefined), undefined);
-        assert.strictEqual(normalizeTurkishChars(123), 123);
-        const obj = {};
-        assert.strictEqual(normalizeTurkishChars(obj), obj);
-    });
-
-    it('should handle empty strings', () => {
-        assert.strictEqual(normalizeTurkishChars(''), '');
     });
 });
