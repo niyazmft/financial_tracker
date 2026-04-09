@@ -7,8 +7,28 @@ const categoryCache = new Map();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 /**
+ * Legacy wrapper.
+ */
+async function getCategories() {
+    try {
+        const tableId = NOCODB.TABLES.CATEGORIES;
+        if (!tableId) {
+            console.warn('Missing CATEGORIES_TABLE_ID, using fallback.');
+            return [];
+        }
+        const response = await nocodbService.getRecords(tableId, { limit: 1000 });
+        return response.list || [];
+    } catch (error) {
+        console.error('Error fetching categories:', error.message);
+        throw error;
+    }
+}
+
+/**
  * Fetch categories dynamically from NocoDB for a specific user.
  * This is the core data retrieval function; other functions in this service should use its output.
+ * @param {string} verifiedUserId - The ID of the user.
+ * @returns {Promise<Object|null>} The mapped categories and lists.
  */
 async function fetchCategoriesFromDB(verifiedUserId) {
     // Return cached data if available and not expired
@@ -103,6 +123,7 @@ function clearCategoryCache() {
 }
 
 module.exports = {
+    getCategories,
     fetchCategoriesFromDB,
     getCategoryMapping,
     getSpendingCategoryIds,

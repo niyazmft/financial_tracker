@@ -8,20 +8,30 @@ const { getCategoryMapping } = require('./categoryService');
 async function fetchAllTransactions(userId) {
     const tableId = env.NOCODB.TABLES.BANK_STATEMENTS;
     const whereClause = `(user_id,eq,${userId})`;
-    let allRecords = [];
-    let currentOffset = 0;
     const pageSize = 1000;
+    const response = await nocodbService.getRecords(tableId, {
+        limit: pageSize,
+        offset: 0,
+        where: whereClause
+    });
 
-    while (true) {
-        const response = await nocodbService.getRecords(tableId, { 
-            limit: pageSize, 
-            offset: currentOffset, 
-            where: whereClause 
-        });
-        const list = response.list || [];
-        allRecords = allRecords.concat(list);
-        if (list.length < pageSize) break;
-        currentOffset += pageSize;
+    let allRecords = response.list || [];
+    const totalRows = response.pageInfo?.totalRows || allRecords.length;
+
+    if (totalRows > pageSize) {
+        const promises = [];
+        for (let offset = pageSize; offset < totalRows; offset += pageSize) {
+            promises.push(nocodbService.getRecords(tableId, {
+                limit: pageSize,
+                offset,
+                where: whereClause
+            }));
+        }
+
+        const responses = await Promise.all(promises);
+        for (const res of responses) {
+            allRecords = allRecords.concat(res.list || []);
+        }
     }
     return allRecords;
 }
