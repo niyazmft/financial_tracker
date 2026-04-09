@@ -29,7 +29,9 @@ describe('catchAsync Utils', () => {
         };
 
         const wrappedFn = catchAsync(mockFn);
-        await wrappedFn('mockReq', 'mockRes', mockNext);
+        wrappedFn('mockReq', 'mockRes', mockNext);
+        // Yield to the microtask queue to allow the .catch(next) block to execute
+        await Promise.resolve();
 
         assert.strictEqual(nextCalledWithError, mockError);
     });
