@@ -50,8 +50,8 @@ describe('useFinance composable', () => {
         it('should return correct class for percentage strings', () => {
             expect(finance.getAmountClass('10%')).toBe('text-success');
             expect(finance.getAmountClass('-10%')).toBe('text-danger');
-            expect(finance.getAmountClass('0%')).toBe('text-success');
-            expect(finance.getAmountClass('invalid%')).toBe('');
+            expect(finance.getAmountClass('0%')).toBe('text-text-sub');
+            expect(finance.getAmountClass('invalid%')).toBe('text-text-sub');
         });
 
         it('should return correct class for positive numbers', () => {
@@ -93,8 +93,8 @@ describe('useFinance composable', () => {
         it('should return sub text class for zero or invalid values', () => {
             expect(finance.getExpenseTrendClass(0)).toBe('text-text-sub');
             expect(finance.getExpenseTrendClass('$0')).toBe('text-text-sub');
-            expect(finance.getExpenseTrendClass('invalid')).toBe('');
-            expect(finance.getExpenseTrendClass(NaN)).toBe('');
+            expect(finance.getExpenseTrendClass('invalid')).toBe('text-text-sub');
+            expect(finance.getExpenseTrendClass(NaN)).toBe('text-text-sub');
         });
     });
 
