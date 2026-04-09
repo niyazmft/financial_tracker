@@ -18,6 +18,9 @@ describe('dateUtils', () => {
                         super(...args);
                     }
                 }
+                getFullYear() { return this.getUTCFullYear(); }
+                getMonth() { return this.getUTCMonth(); }
+                getDate() { return this.getUTCDate(); }
             }
 
             MockDate.now = () => fixedTime;
