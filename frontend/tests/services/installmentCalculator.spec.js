@@ -202,12 +202,12 @@ describe('installmentCalculator', () => {
     });
 
     it('subtracts from remaining amounts with remainder (negative)', () => {
-       // [60, 60] -> sum = 120. Target = 99.99. To distribute = -20.01
-       // count = 2. baseAddition = -10.01 (floor of -20.01/2 is -10.01)
-       const result = rebalanceAfterDeletion([60, 60], 99.99);
+      // [60, 60] -> sum = 120. Target = 99.99. To distribute = -20.01
+      // count = 2. baseAddition = -10.01 (floor of -20.01/2 is -10.01)
+      const result = rebalanceAfterDeletion([60, 60], 99.99);
 
-       // The sum must equal 99.99
-       expect(result[0] + result[1]).toBeCloseTo(99.99, 2);
+      // The sum must equal 99.99
+      expect(result).toEqual([50, 49.99]);
     });
   });
 });
