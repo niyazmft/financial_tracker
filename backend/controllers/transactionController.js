@@ -33,10 +33,6 @@ const getTransactionById = catchAsync(async (req, res, next) => {
 
     const transaction = await nocodbService.getRecordById(bankStatementsTableId, id);
 
-    if (!transaction || Object.keys(transaction).length === 0) {
-        return next(new AppError('Transaction not found.', 404));
-    }
-
     if (transaction.user_id != verifiedUserId) {
         return next(new AppError('Forbidden: You do not have permission to view this transaction.', 403));
     }
@@ -121,10 +117,6 @@ const updateTransaction = catchAsync(async (req, res, next) => {
     // First, verify the transaction belongs to the user
     const existingRecord = await nocodbService.getRecordById(bankStatementsTableId, id);
 
-    if (!existingRecord || Object.keys(existingRecord).length === 0) {
-        return next(new AppError('Transaction not found.', 404));
-    }
-
     if (existingRecord.user_id != verifiedUserId) {
         return next(new AppError('Forbidden: You do not have permission to edit this transaction.', 403));
     }
@@ -156,10 +148,6 @@ const deleteTransaction = catchAsync(async (req, res, next) => {
 
     // First, verify the transaction belongs to the user
     const existingRecord = await nocodbService.getRecordById(bankStatementsTableId, id);
-
-    if (!existingRecord || Object.keys(existingRecord).length === 0) {
-        return next(new AppError('Transaction not found.', 404));
-    }
 
     if (existingRecord.user_id != verifiedUserId) {
         return next(new AppError('Forbidden: You do not have permission to delete this transaction.', 403));
@@ -367,11 +355,11 @@ const importTransactionsCsv = catchAsync(async (req, res, next) => {
                     }
                 })
                 .on('end', () => {
-                    fs.promises.unlink(req.file.path).catch(err => console.error('Failed to delete temp file:', err));
+                    fs.unlinkSync(req.file.path);
                     resolve({ results, errors, rowIndex });
                 })
                 .on('error', (error) => {
-                    fs.promises.unlink(req.file.path).catch(err => console.error('Failed to delete temp file:', err));
+                    fs.unlinkSync(req.file.path);
                     reject(error);
                 });
         });
@@ -450,8 +438,8 @@ const importTransactionsCsv = catchAsync(async (req, res, next) => {
         });
         
     } catch (error) {
-        if (req.file) {
-            fs.promises.unlink(req.file.path).catch(err => console.error('Failed to delete temp file:', err));
+        if (req.file && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
         }
         
         // Pass to global error handler

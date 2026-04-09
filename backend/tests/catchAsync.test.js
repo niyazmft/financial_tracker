@@ -19,7 +19,7 @@ describe('catchAsync Utils', () => {
 
     it('should catch errors and pass them to next()', async () => {
         const mockError = new Error('Test Error');
-        const mockFn = async (req, res, next) => {
+        const mockFn = async () => {
             throw mockError;
         };
 
@@ -29,16 +29,14 @@ describe('catchAsync Utils', () => {
         };
 
         const wrappedFn = catchAsync(mockFn);
-        wrappedFn('mockReq', 'mockRes', mockNext);
-        // Yield to the microtask queue to allow the .catch(next) block to execute
-        await Promise.resolve();
+        await wrappedFn('mockReq', 'mockRes', mockNext);
 
         assert.strictEqual(nextCalledWithError, mockError);
     });
 
     it('should handle rejected promises', async () => {
         const mockError = new Error('Promise Rejected');
-        const mockFn = (req, res, next) => {
+        const mockFn = () => {
             return Promise.reject(mockError);
         };
 
