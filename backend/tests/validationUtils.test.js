@@ -1,6 +1,5 @@
 const assert = require('assert');
-const { validateCategoryById, normalizeAndValidateCategory, validateAndFormatDate } = require('../utils/validationUtils');
-
+const { validateCategoryById, normalizeAndValidateCategory, validateAndFormatDate, validateAndFormatAmount } = require('../utils/validationUtils');
 
 describe('Validation Utils - Dates', () => {
     describe('validateAndFormatDate', () => {
@@ -118,7 +117,6 @@ describe('Validation Utils - Categories', () => {
         });
     });
 });
-
 
 describe('Validation Utils - Amount', () => {
     describe('validateAndFormatAmount', () => {
