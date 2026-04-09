@@ -39,6 +39,7 @@ describe('Transaction Controller', () => {
 
             // Verify next was called
             assert.strictEqual(next.calledOnce, true, 'next should be called once');
+            assert.strictEqual(res.json.called, false, 'res.json should not be called');
 
             // Verify the argument passed to next
             const errorArg = next.firstCall.args[0];
