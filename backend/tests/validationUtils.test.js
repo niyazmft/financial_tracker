@@ -19,6 +19,11 @@ describe('Validation Utils - Dates', () => {
             assert.strictEqual(result, '2023-05-15');
         });
 
+        it('should format MM/DD/YYYY correctly', () => {
+            const result = validateAndFormatDate('05/15/2023');
+            assert.strictEqual(result, '2023-05-15');
+        });
+
         it('should format DD-MM-YYYY correctly', () => {
             const result = validateAndFormatDate('15-05-2023');
             assert.strictEqual(result, '2023-05-15');
