@@ -1,0 +1,3 @@
+🎯 **What:** The `emailService.js` functionality was completely untested and lacked automated test coverage, relying previously on a manual script.
+📊 **Coverage:** Added automated tests using Mocha, Sinon, and Proxyquire. Tests cover the Happy Path (successful email compilation and sending), missing sender contexts, simulated failures in template compilation or SMTP transport, and proper fallback behavior in development mode (using Ethereal mail).
+✨ **Result:** Test coverage for `backend/services/emailService.js` is significantly improved. The `manual_email_test.js` script was safely removed as automated tests now ensure reliability.
