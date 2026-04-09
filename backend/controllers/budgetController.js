@@ -56,6 +56,10 @@ const updateBudget = catchAsync(async (req, res, next) => {
     // 2. Verify ownership
     const existingRecord = await nocodbService.getRecordById(budgetsTableId, id);
 
+    if (!existingRecord || Object.keys(existingRecord).length === 0) {
+        return next(new AppError('Budget not found.', 404));
+    }
+
     if (existingRecord.user_id !== userId) {
         return next(new AppError('Forbidden: You do not have permission to edit this budget.', 403));
     }
@@ -81,6 +85,10 @@ const deleteBudget = catchAsync(async (req, res, next) => {
 
     // 2. Verify ownership
     const existingRecord = await nocodbService.getRecordById(budgetsTableId, id);
+
+    if (!existingRecord || Object.keys(existingRecord).length === 0) {
+        return next(new AppError('Budget not found.', 404));
+    }
 
     if (existingRecord.user_id !== userId) {
         return next(new AppError('Forbidden: You do not have permission to delete this budget.', 403));
@@ -108,26 +116,43 @@ const getActiveBudgets = catchAsync(async (req, res, _next) => {
         return res.json({ success: true, budgets: [] });
     }
 
-    // 2. For each budget, fetch the corresponding transactions to calculate spending
-    const budgetPromises = activeBudgets.map(async (budget) => {
-        const spendingQuery = `(user_id,eq,${userId})~and(categories_id,eq,${budget.categories_id})~and(date,ge,exactDate,${budget.start_date})~and(date,le,exactDate,${budget.end_date})`;
-        
-        const statementsResponse = await nocodbService.getRecords(statementsTableId, { where: spendingQuery });
-        const transactions = statementsResponse.list;
+    // 2. Fetch all relevant transactions in a single query to avoid N+1 problem
+    let minDateStr = activeBudgets[0].start_date;
+    let maxDateStr = activeBudgets[0].end_date;
 
-        const spentAmount = transactions.reduce((sum, transaction) => {
-            const amount = parseFloat(transaction.amount);
-            // Only sum negative amounts as spending
-            return amount < 0 ? sum + Math.abs(amount) : sum;
-        }, 0);
+    for (const budget of activeBudgets) {
+        if (budget.start_date < minDateStr) minDateStr = budget.start_date;
+        if (budget.end_date > maxDateStr) maxDateStr = budget.end_date;
+    }
+
+    const spendingQuery = `(user_id,eq,${userId})~and(date,ge,exactDate,${minDateStr})~and(date,le,exactDate,${maxDateStr})`;
+    const statementsResponse = await nocodbService.getRecords(statementsTableId, { where: spendingQuery, limit: 10000 });
+    const allTransactions = statementsResponse.list || [];
+
+    // 3. Calculate spent amount per budget in memory
+    const budgetsWithSpending = activeBudgets.map((budget) => {
+        let spentAmount = 0;
+
+        for (const transaction of allTransactions) {
+            // Check if transaction belongs to this budget's category and date range
+            if (
+                Number(transaction.categories_id) === Number(budget.categories_id) &&
+                transaction.date >= budget.start_date &&
+                transaction.date <= budget.end_date
+            ) {
+                const amount = parseFloat(transaction.amount);
+                // Only sum negative amounts as spending
+                if (amount < 0) {
+                    spentAmount += Math.abs(amount);
+                }
+            }
+        }
 
         return {
             ...budget,
             spent_amount: spentAmount,
         };
     });
-
-    const budgetsWithSpending = await Promise.all(budgetPromises);
 
     res.json({ success: true, budgets: budgetsWithSpending });
 });
