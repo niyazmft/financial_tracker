@@ -95,9 +95,17 @@ async function getEarningCategoryIds(verifiedUserId) {
     return categoriesData ? categoriesData.earningCategories : [];
 }
 
+/**
+ * Clear the category cache (mainly for testing purposes).
+ */
+function clearCategoryCache() {
+    categoryCache.clear();
+}
+
 module.exports = {
     fetchCategoriesFromDB,
     getCategoryMapping,
     getSpendingCategoryIds,
     getEarningCategoryIds,
+    clearCategoryCache,
 };
