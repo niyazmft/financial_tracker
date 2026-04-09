@@ -75,13 +75,23 @@ describe('DateRangePicker.vue', () => {
             await applyBtn.trigger('click');
 
             const emitted = wrapper.emitted('update:range');
-            const { start, _end } = emitted[emitted.length - 1][0];
+            const { start, end } = emitted[emitted.length - 1][0];
 
             // This is the critical check: Can the utility process the emitted object?
             // If the bug reported (n.toISOString is not a function) is present, this will fail.
             expect(typeof start.toISOString).toBe('function');
+            expect(typeof end.toISOString).toBe('function');
             expect(() => utils.formatDateForInput(start)).not.toThrow();
+            expect(() => utils.formatDateForInput(end)).not.toThrow();
             expect(utils.formatDateForInput(start)).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        }
+
+        // Simulate user clicking on a preset that sets an invalid date object
+        // If the bug reported (n.toISOString is not a function) is present, this will fail.
+        try {
+            await wrapper.vm.selectPreset('thisMonth');
+        } catch (e) {
+            expect(e.message).not.toContain('toISOString');
         }
     });
 });

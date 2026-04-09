@@ -39,6 +39,9 @@ export const createDateUTC = (year, month, day, hours = 12) => {
 export const formatDateForInput = (date) => {
     if (!date) return '';
     if (typeof date === 'string') return date.split('T')[0];
+    if (typeof date.toISOString !== 'function') {
+        return new Date(date).toISOString().split('T')[0];
+    }
     return date.toISOString().split('T')[0];
 };
 
