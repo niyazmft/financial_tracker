@@ -150,7 +150,7 @@ describe('installmentCalculator', () => {
       // original was 33.33, reduces by 5 -> 28.33
       expect(result[1].amount).toBe(28.33);
       // original was 33.34, reduces by 5 -> 28.34
-      expect(result[2].amount).toBeCloseTo(28.34, 2);
+      expect(result[2]).toMatchObject({ amount: 28.34 });
     });
 
     it('distributes remainder correctly when remaining is positive', () => {
