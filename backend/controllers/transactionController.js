@@ -34,7 +34,7 @@ const getTransactionById = catchAsync(async (req, res, next) => {
     const transaction = await nocodbService.getRecordById(bankStatementsTableId, id);
 
     if (!transaction) {
-        return next(new AppError('Transaction not found.', 404));
+        return next(new AppError('Transaction not found', 404));
     }
 
     if (transaction.user_id != verifiedUserId) {
@@ -122,7 +122,7 @@ const updateTransaction = catchAsync(async (req, res, next) => {
     const existingRecord = await nocodbService.getRecordById(bankStatementsTableId, id);
 
     if (!existingRecord) {
-        return next(new AppError('Transaction not found.', 404));
+        return next(new AppError('Transaction not found', 404));
     }
 
     if (existingRecord.user_id != verifiedUserId) {
@@ -158,7 +158,7 @@ const deleteTransaction = catchAsync(async (req, res, next) => {
     const existingRecord = await nocodbService.getRecordById(bankStatementsTableId, id);
 
     if (!existingRecord) {
-        return next(new AppError('Transaction not found.', 404));
+        return next(new AppError('Transaction not found', 404));
     }
 
     if (existingRecord.user_id != verifiedUserId) {
