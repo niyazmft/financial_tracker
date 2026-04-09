@@ -128,7 +128,7 @@ const getActiveBudgets = catchAsync(async (req, res, _next) => {
         for (const transaction of allTransactions) {
             // Check if transaction belongs to this budget's category and date range
             if (
-                transaction.categories_id == budget.categories_id &&
+                Number(transaction.categories_id) === Number(budget.categories_id) &&
                 transaction.date >= budget.start_date &&
                 transaction.date <= budget.end_date
             ) {
