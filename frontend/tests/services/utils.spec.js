@@ -108,6 +108,7 @@ describe('utils.js', () => {
 
     afterEach(() => {
       vi.useRealTimers();
+      vi.restoreAllMocks();
     });
 
     it('returns correct range for ytd', () => {
