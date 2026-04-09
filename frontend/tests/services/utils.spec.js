@@ -108,7 +108,6 @@ describe('utils.js', () => {
 
     afterEach(() => {
       vi.useRealTimers();
-      vi.restoreAllMocks();
     });
 
     it('returns correct range for ytd', () => {
@@ -247,13 +246,14 @@ describe('utils.js', () => {
   describe('getCssVariableValue', () => {
     it('returns mocked css variable value', () => {
       // Mock getComputedStyle
-    it('returns mocked css variable value', () => {
-      vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      const originalGetComputedStyle = window.getComputedStyle;
+      window.getComputedStyle = vi.fn().mockReturnValue({
         getPropertyValue: vi.fn().mockReturnValue(' #ff0000 ')
       });
 
       expect(getCssVariableValue('--primary-color')).toBe('#ff0000');
-    });
+
+      window.getComputedStyle = originalGetComputedStyle;
     });
   });
 
