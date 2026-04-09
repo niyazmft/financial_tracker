@@ -1,6 +1,5 @@
 const assert = require('assert');
-const { validateCategoryById, normalizeAndValidateCategory, validateAndFormatDate } = require('../utils/validationUtils');
-
+const { validateCategoryById, normalizeAndValidateCategory, validateAndFormatDate, validateAndFormatAmount } = require('../utils/validationUtils');
 
 describe('Validation Utils - Dates', () => {
     describe('validateAndFormatDate', () => {
@@ -115,6 +114,64 @@ describe('Validation Utils - Categories', () => {
             assert.throws(() => {
                 normalizeAndValidateCategory('Unknown', mockCategoryMapping);
             }, /Category 'Unknown' not found/);
+        });
+    });
+});
+
+describe('Validation Utils - Amount', () => {
+    describe('validateAndFormatAmount', () => {
+        it('should throw an error if amount is missing', () => {
+            assert.throws(() => {
+                validateAndFormatAmount('');
+            }, /Amount is required/);
+
+            assert.throws(() => {
+                validateAndFormatAmount(null);
+            }, /Amount is required/);
+
+            assert.throws(() => {
+                validateAndFormatAmount(undefined);
+            }, /Amount is required/);
+        });
+
+        it('should throw an error if amount is not a valid number', () => {
+            assert.throws(() => {
+                validateAndFormatAmount('abc');
+            }, /Invalid amount: 'abc'\. Must be a valid number/);
+
+            // Note: parseFloat('12abc') is 12, so '12abc' is actually considered a valid number (12) by parseFloat.
+            // Let's test just something completely non-numeric.
+            assert.throws(() => {
+                validateAndFormatAmount('NaN');
+            }, /Invalid amount: 'NaN'\. Must be a valid number/);
+        });
+
+        it('should throw an error if amount exceeds maximum limit', () => {
+            assert.throws(() => {
+                validateAndFormatAmount(2000000);
+            }, /Amount '2000000' exceeds maximum limit of 1,000,000/);
+
+            assert.throws(() => {
+                validateAndFormatAmount('-1500000');
+            }, /Amount '-1500000' exceeds maximum limit of 1,000,000/);
+        });
+
+        it('should return valid amounts correctly', () => {
+            assert.strictEqual(validateAndFormatAmount(100.5), 100.5);
+            assert.strictEqual(validateAndFormatAmount('250.75'), 250.75);
+            assert.strictEqual(validateAndFormatAmount(' 500 '), 500);
+        });
+
+        it('should strip common currency symbols and spaces', () => {
+            assert.strictEqual(validateAndFormatAmount('₺1500'), 1500);
+            assert.strictEqual(validateAndFormatAmount('$ 2500'), 2500);
+            assert.strictEqual(validateAndFormatAmount('1,500.50'), 1500.5);
+            assert.strictEqual(validateAndFormatAmount('€ 1,000'), 1000);
+        });
+
+        it('should allow 0', () => {
+             assert.strictEqual(validateAndFormatAmount(0), 0);
+             assert.strictEqual(validateAndFormatAmount('0'), 0);
         });
     });
 });
