@@ -355,11 +355,11 @@ const importTransactionsCsv = catchAsync(async (req, res, next) => {
                     }
                 })
                 .on('end', () => {
-                    fs.unlinkSync(req.file.path);
+                    fs.promises.unlink(req.file.path).catch(err => console.error('Failed to delete temp file:', err));
                     resolve({ results, errors, rowIndex });
                 })
                 .on('error', (error) => {
-                    fs.unlinkSync(req.file.path);
+                    fs.promises.unlink(req.file.path).catch(err => console.error('Failed to delete temp file:', err));
                     reject(error);
                 });
         });
@@ -439,7 +439,7 @@ const importTransactionsCsv = catchAsync(async (req, res, next) => {
         
     } catch (error) {
         if (req.file && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
+            fs.promises.unlink(req.file.path).catch(err => console.error('Failed to delete temp file:', err));
         }
         
         // Pass to global error handler
