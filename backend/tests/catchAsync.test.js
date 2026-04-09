@@ -1,75 +1,53 @@
 const assert = require('assert');
 const catchAsync = require('../utils/catchAsync');
 
-describe('catchAsync utility', () => {
-    it('should call next with the error when the async function rejects', async () => {
-        const error = new Error('Async error');
-        const asyncFn = async () => {
-            throw error;
+describe('catchAsync Utils', () => {
+    it('should call the original function with req, res, next', async () => {
+        let called = false;
+        const mockFn = async (req, res, next) => {
+            called = true;
+            assert.strictEqual(req, 'mockReq');
+            assert.strictEqual(res, 'mockRes');
+            assert.strictEqual(next, 'mockNext');
         };
 
-        const wrappedFn = catchAsync(asyncFn);
-        const req = {};
-        const res = {};
+        const wrappedFn = catchAsync(mockFn);
+        await wrappedFn('mockReq', 'mockRes', 'mockNext');
+
+        assert.strictEqual(called, true);
+    });
+
+    it('should catch errors and pass them to next()', async () => {
+        const mockError = new Error('Test Error');
+        const mockFn = async () => {
+            throw mockError;
+        };
 
         let nextCalledWithError = null;
-        const next = (err) => {
+        const mockNext = (err) => {
             nextCalledWithError = err;
         };
 
-        // Call the wrapped function. It catches internally so no throw here.
-        // Wait for next tick to ensure the catch block executes
-        wrappedFn(req, res, next);
+        const wrappedFn = catchAsync(mockFn);
+        await wrappedFn('mockReq', 'mockRes', mockNext);
 
-        // Wait for any microtasks to finish
-        await new Promise(resolve => setTimeout(resolve, 0));
-
-        // Verify next was called with the correct error
-        assert.strictEqual(nextCalledWithError, error);
+        assert.strictEqual(nextCalledWithError, mockError);
     });
 
-    it('should not call next with an error when the async function resolves successfully', async () => {
-        const asyncFn = async () => {
-            return 'success';
+    it('should handle rejected promises', async () => {
+        const mockError = new Error('Promise Rejected');
+        const mockFn = () => {
+            return Promise.reject(mockError);
         };
 
-        const wrappedFn = catchAsync(asyncFn);
-        const req = {};
-        const res = {};
-
-        let nextCalled = false;
-        const next = () => {
-            nextCalled = true;
+        let nextCalledWithError = null;
+        const mockNext = (err) => {
+            nextCalledWithError = err;
         };
 
-        wrappedFn(req, res, next);
+        const wrappedFn = catchAsync(mockFn);
+        await wrappedFn('mockReq', 'mockRes', mockNext);
 
-        await new Promise(resolve => setTimeout(resolve, 0));
-
-        assert.strictEqual(nextCalled, false);
-    });
-
-    it('should pass req, res, and next to the wrapped function', async () => {
-        const expectedReq = { id: 1 };
-        const expectedRes = { status: () => {} };
-        const expectedNext = () => {};
-
-        let actualReq, actualRes, actualNext;
-
-        const asyncFn = async (req, res, next) => {
-            actualReq = req;
-            actualRes = res;
-            actualNext = next;
-        };
-
-        const wrappedFn = catchAsync(asyncFn);
-
-        wrappedFn(expectedReq, expectedRes, expectedNext);
-
-        await new Promise(resolve => setTimeout(resolve, 0));
-
-        assert.strictEqual(actualReq, expectedReq);
-        assert.strictEqual(actualRes, expectedRes);
-        assert.strictEqual(actualNext, expectedNext);
+        assert.strictEqual(nextCalledWithError, mockError);
     });
 });

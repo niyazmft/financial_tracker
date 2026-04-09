@@ -105,6 +105,7 @@ export const calculateMonthsDifference = (startDate, endDate) => {
     try {
         const start = new Date(startDate);
         const end = new Date(endDate);
+        if (isNaN(start) || isNaN(end)) return 1;
         const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
         return months < 1 ? 1 : months;
     } catch {
