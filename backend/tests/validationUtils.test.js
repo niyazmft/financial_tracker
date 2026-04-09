@@ -1,5 +1,67 @@
 const assert = require('assert');
-const { validateCategoryById, normalizeAndValidateCategory, validateAndFormatAmount } = require('../utils/validationUtils');
+const { validateCategoryById, normalizeAndValidateCategory, validateAndFormatDate } = require('../utils/validationUtils');
+
+
+describe('Validation Utils - Dates', () => {
+    describe('validateAndFormatDate', () => {
+        it('should format YYYY-MM-DD correctly', () => {
+            const result = validateAndFormatDate('2023-05-15');
+            assert.strictEqual(result, '2023-05-15');
+        });
+
+        it('should format YYYY-M-D correctly with padding', () => {
+            const result = validateAndFormatDate('2023-5-5');
+            assert.strictEqual(result, '2023-05-05');
+        });
+
+        it('should format DD/MM/YYYY correctly', () => {
+            const result = validateAndFormatDate('15/05/2023');
+            assert.strictEqual(result, '2023-05-15');
+        });
+
+        it('should format MM/DD/YYYY correctly', () => {
+            const result = validateAndFormatDate('05/15/2023');
+            assert.strictEqual(result, '2023-05-15');
+        });
+
+        it('should format DD-MM-YYYY correctly', () => {
+            const result = validateAndFormatDate('15-05-2023');
+            assert.strictEqual(result, '2023-05-15');
+        });
+
+        it('should handle unicode minus signs', () => {
+            const result = validateAndFormatDate('2023—05—15'); // em dash
+            assert.strictEqual(result, '2023-05-15');
+        });
+
+        it('should throw an error for missing date', () => {
+            assert.throws(() => validateAndFormatDate(null), /Date is required/);
+            assert.throws(() => validateAndFormatDate(''), /Date is required/);
+        });
+
+        it('should throw an error for non-string input', () => {
+            assert.throws(() => validateAndFormatDate(20230515), /Date is required/);
+        });
+
+        it('should throw an error for invalid format', () => {
+            assert.throws(() => validateAndFormatDate('05 Jan 2023'), /Invalid date format/);
+        });
+
+        it('should throw an error for invalid date components', () => {
+            assert.throws(() => validateAndFormatDate('2023-13-15'), /Invalid date:/);
+        });
+
+        it('should throw an error for date outside acceptable past range', () => {
+            const pastYear = new Date().getFullYear() - 11;
+            assert.throws(() => validateAndFormatDate(`${pastYear}-01-01`), /is outside acceptable range/);
+        });
+
+        it('should throw an error for date outside acceptable future range', () => {
+            const futureYear = new Date().getFullYear() + 2;
+            assert.throws(() => validateAndFormatDate(`${futureYear}-01-01`), /is outside acceptable range/);
+        });
+    });
+});
 
 describe('Validation Utils - Categories', () => {
     const mockCategoryMapping = {
