@@ -33,6 +33,10 @@ const getTransactionById = catchAsync(async (req, res, next) => {
 
     const transaction = await nocodbService.getRecordById(bankStatementsTableId, id);
 
+    if (!transaction) {
+        return next(new AppError('Transaction not found.', 404));
+    }
+
     if (transaction.user_id != verifiedUserId) {
         return next(new AppError('Forbidden: You do not have permission to view this transaction.', 403));
     }
@@ -117,6 +121,10 @@ const updateTransaction = catchAsync(async (req, res, next) => {
     // First, verify the transaction belongs to the user
     const existingRecord = await nocodbService.getRecordById(bankStatementsTableId, id);
 
+    if (!existingRecord) {
+        return next(new AppError('Transaction not found.', 404));
+    }
+
     if (existingRecord.user_id != verifiedUserId) {
         return next(new AppError('Forbidden: You do not have permission to edit this transaction.', 403));
     }
@@ -148,6 +156,10 @@ const deleteTransaction = catchAsync(async (req, res, next) => {
 
     // First, verify the transaction belongs to the user
     const existingRecord = await nocodbService.getRecordById(bankStatementsTableId, id);
+
+    if (!existingRecord) {
+        return next(new AppError('Transaction not found.', 404));
+    }
 
     if (existingRecord.user_id != verifiedUserId) {
         return next(new AppError('Forbidden: You do not have permission to delete this transaction.', 403));
