@@ -18,9 +18,6 @@ describe('dateUtils', () => {
                         super(...args);
                     }
                 }
-                getFullYear() { return this.getUTCFullYear(); }
-                getMonth() { return this.getUTCMonth(); }
-                getDate() { return this.getUTCDate(); }
             }
 
             MockDate.now = () => fixedTime;
@@ -58,6 +55,7 @@ describe('dateUtils', () => {
         });
 
         it('should handle month boundaries correctly', () => {
+            global.Date = OriginalDate;
             const OriginalDateLocal = OriginalDate;
             const fixedTime = new OriginalDateLocal('2023-01-31T12:00:00Z').getTime();
             class MockDate extends OriginalDateLocal {
@@ -78,6 +76,7 @@ describe('dateUtils', () => {
         });
 
         it('should handle leap years correctly', () => {
+            global.Date = OriginalDate;
             const OriginalDateLocal = OriginalDate;
             const fixedTime = new OriginalDateLocal('2024-02-28T12:00:00Z').getTime();
             class MockDate extends OriginalDateLocal {
