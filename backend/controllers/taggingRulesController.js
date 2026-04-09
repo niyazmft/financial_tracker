@@ -65,7 +65,12 @@ exports.deleteRule = catchAsync(async (req, res, next) => {
 
     // Verify ownership
     const ruleToDelete = await nocodbService.getRecordById(TAGGING_RULES_TABLE_ID, id);
-    if (!ruleToDelete || ruleToDelete.user_id !== req.user.uid) {
+
+    if (!ruleToDelete) {
+        return next(new AppError('Rule not found', 404));
+    }
+
+    if (ruleToDelete.user_id !== req.user.uid) {
         return next(new AppError('Forbidden: You do not have permission to delete this rule.', 403));
     }
     
@@ -87,7 +92,12 @@ exports.updateRule = catchAsync(async (req, res, next) => {
 
     // Verify ownership
     const ruleToUpdate = await nocodbService.getRecordById(TAGGING_RULES_TABLE_ID, id);
-    if (!ruleToUpdate || ruleToUpdate.user_id !== req.user.uid) {
+
+    if (!ruleToUpdate) {
+        return next(new AppError('Rule not found', 404));
+    }
+
+    if (ruleToUpdate.user_id !== req.user.uid) {
         return next(new AppError('Forbidden: You do not have permission to update this rule.', 403));
     }
 
