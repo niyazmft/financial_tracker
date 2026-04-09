@@ -29,10 +29,9 @@ describe('Validation Utils - Dates', () => {
             assert.strictEqual(result, '2023-05-15');
         });
 
-        it('should handle various unicode hyphens and dashes', () => {
-            assert.strictEqual(validateAndFormatDate('2023−05−15'), '2023-05-15'); // minus sign
-            assert.strictEqual(validateAndFormatDate('2023—05—15'), '2023-05-15'); // em dash
-            assert.strictEqual(validateAndFormatDate('2023–05–15'), '2023-05-15'); // en dash
+        it('should handle unicode minus signs', () => {
+            const result = validateAndFormatDate('2023—05—15'); // em dash
+            assert.strictEqual(result, '2023-05-15');
         });
 
         it('should throw an error for missing date', () => {

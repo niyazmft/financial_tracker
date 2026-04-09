@@ -53,12 +53,20 @@ function validateAndFormatDate(dateString) {
         const day = parts[2].padStart(2, '0');
         formattedDate = `${year}-${month}-${day}`;
     }
-    // DD/MM/YYYY or DD-MM-YYYY
+    // DD/MM/YYYY or MM/DD/YYYY or DD-MM-YYYY or MM-DD-YYYY
     else if (/^\d{1,2}[/-]\d{1,2}[/-]\d{4}$/.test(trimmed)) {
         const parts = trimmed.split(/[/-]/);
-        const day = parts[0].padStart(2, '0');
-        const month = parts[1].padStart(2, '0');
+        let day = parts[0].padStart(2, '0');
+        let month = parts[1].padStart(2, '0');
         const year = parts[2];
+
+        // If month > 12, it must be MM/DD/YYYY format
+        if (parseInt(month, 10) > 12 && parseInt(day, 10) <= 12) {
+            const temp = day;
+            day = month;
+            month = temp;
+        }
+
         formattedDate = `${year}-${month}-${day}`;
     }
     else {
