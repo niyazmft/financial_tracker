@@ -56,6 +56,10 @@ const updateBudget = catchAsync(async (req, res, next) => {
     // 2. Verify ownership
     const existingRecord = await nocodbService.getRecordById(budgetsTableId, id);
 
+    if (!existingRecord || Object.keys(existingRecord).length === 0) {
+        return next(new AppError('Budget not found.', 404));
+    }
+
     if (existingRecord.user_id !== userId) {
         return next(new AppError('Forbidden: You do not have permission to edit this budget.', 403));
     }
@@ -81,6 +85,10 @@ const deleteBudget = catchAsync(async (req, res, next) => {
 
     // 2. Verify ownership
     const existingRecord = await nocodbService.getRecordById(budgetsTableId, id);
+
+    if (!existingRecord || Object.keys(existingRecord).length === 0) {
+        return next(new AppError('Budget not found.', 404));
+    }
 
     if (existingRecord.user_id !== userId) {
         return next(new AppError('Forbidden: You do not have permission to delete this budget.', 403));
