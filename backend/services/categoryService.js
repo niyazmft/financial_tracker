@@ -3,11 +3,23 @@ const env = require('../config/env');
 
 const { NOCODB } = env;
 
+const categoryCache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
+
 /**
  * Fetch categories dynamically from NocoDB for a specific user.
  * This is the core data retrieval function; other functions in this service should use its output.
  */
 async function fetchCategoriesFromDB(verifiedUserId) {
+    // Return cached data if available and not expired
+    const cacheKey = verifiedUserId || 'global';
+    const cachedEntry = categoryCache.get(cacheKey);
+    const now = Date.now();
+
+    if (cachedEntry && (now - cachedEntry.timestamp < CACHE_TTL)) {
+        return cachedEntry.data;
+    }
+
     try {
         const categoriesTableId = NOCODB.TABLES.CATEGORIES;
         if (!categoriesTableId) {
@@ -38,12 +50,20 @@ async function fetchCategoriesFromDB(verifiedUserId) {
             }
         }
         
-        return {
+        const result = {
             mapping: categoryMapping,
             spendingCategories,
             earningCategories,
             allCategories: categories,
         };
+
+        // Cache the successful result
+        categoryCache.set(cacheKey, {
+            data: result,
+            timestamp: now,
+        });
+
+        return result;
         
     } catch (error) {
         console.error('Error fetching categories dynamically:', error.message);
@@ -75,9 +95,17 @@ async function getEarningCategoryIds(verifiedUserId) {
     return categoriesData ? categoriesData.earningCategories : [];
 }
 
+/**
+ * Clear the category cache (mainly for testing purposes).
+ */
+function clearCategoryCache() {
+    categoryCache.clear();
+}
+
 module.exports = {
     fetchCategoriesFromDB,
     getCategoryMapping,
     getSpendingCategoryIds,
     getEarningCategoryIds,
+    clearCategoryCache,
 };

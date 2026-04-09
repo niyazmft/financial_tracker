@@ -43,20 +43,9 @@ exports.createGoal = catchAsync(async (req, res, next) => {
     });
 });
 
-exports.updateGoal = catchAsync(async (req, res, next) => {
+exports.updateGoal = catchAsync(async (req, res, _next) => {
     const { id } = req.params;
     const { goal_name, target_amount, priority, target_date } = req.body;
-
-    // Verify ownership
-    const existingGoal = await nocodbService.getRecordById(SAVINGS_GOALS_TABLE_ID, id);
-
-    if (!existingGoal) {
-        return next(new AppError('Savings goal not found', 404));
-    }
-
-    if (existingGoal.user_id !== req.user.uid) {
-        return next(new AppError('Forbidden: You do not have permission to update this goal.', 403));
-    }
 
     const updatedGoal = await nocodbService.updateRecord(SAVINGS_GOALS_TABLE_ID, {
         Id: id,
@@ -74,19 +63,8 @@ exports.updateGoal = catchAsync(async (req, res, next) => {
     });
 });
 
-exports.deleteGoal = catchAsync(async (req, res, next) => {
+exports.deleteGoal = catchAsync(async (req, res, _next) => {
     const { id } = req.params;
-
-    // Verify ownership
-    const existingGoal = await nocodbService.getRecordById(SAVINGS_GOALS_TABLE_ID, id);
-
-    if (!existingGoal) {
-        return next(new AppError('Savings goal not found', 404));
-    }
-
-    if (existingGoal.user_id !== req.user.uid) {
-        return next(new AppError('Forbidden: You do not have permission to delete this goal.', 403));
-    }
     
     await nocodbService.deleteRecord(SAVINGS_GOALS_TABLE_ID, id);
 
