@@ -8,6 +8,7 @@ describe('Category Service', () => {
 
     beforeEach(() => {
         getRecordsStub = sinon.stub(nocodbService, 'getRecords');
+        categoryService.clearCategoryCache();
     });
 
     afterEach(() => {
