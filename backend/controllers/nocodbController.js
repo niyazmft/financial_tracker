@@ -9,10 +9,7 @@ const getCategories = catchAsync(async (req, res, _next) => {
 
     const categoriesTableId = env.NOCODB.TABLES.CATEGORIES;
     
-    const includeGlobal = req.query.includeGlobal === 'true';
-    const filters = [`(user_id,eq,${verifiedUserId})`];
-    if (includeGlobal) filters.push('(user_id,isnull)');
-    const whereClause = filters.join('~or');
+    const whereClause = `(user_id,eq,${verifiedUserId})${(req.query.includeGlobal ? '~or(user_id,isnull)' : '')}`;
     
     const response = await nocodbService.getRecords(categoriesTableId, { where: whereClause });
     const categories = response.list || [];
