@@ -500,7 +500,51 @@ const importTransactionsCsv = catchAsync(async (req, res, next) => {
             });
         }
         
-        const { successful, failed } = await insertCsvRecords(results, bankStatementsTableId, verifiedUserId);
+        const successful = [];
+        const failed = [];
+
+        // NocoDB bulk insert has a strict limit of 100 records per request
+        const batchSize = 100;
+        
+        for (let i = 0; i < results.length; i += batchSize) {
+            const batch = results.slice(i, i + batchSize);
+            
+            try {
+                const batchData = batch.map(row => ({
+                    date: row.date,
+                    amount: row.amount,
+                    bank: row.bank,
+                    categories_id: parseInt(row.category.id),
+                    description: row.description,
+                    ref_no: row.ref_no,
+                    user_id: verifiedUserId
+                }));
+
+                const response = await nocodbService.createRecord(bankStatementsTableId, batchData);
+
+                // NocoDB bulk insert returns an array of records
+                successful.push(...batch.map((row, j) => ({
+                    row: row.index,
+                    transaction: {
+                        id: response[j] ? response[j].Id : null,
+                        date: batchData[j].date,
+                        amount: batchData[j].amount,
+                        bank: batchData[j].bank,
+                        category: row.category.name,
+                        description: batchData[j].description
+                    }
+                })));
+            } catch (error) {
+                const errorMessage = error.response?.data?.message || error.message;
+                batch.forEach((row) => {
+                    failed.push({
+                        row: row.index,
+                        data: row,
+                        error: errorMessage
+                    });
+                });
+            }
+        }
         
         res.json({
             success: true,
