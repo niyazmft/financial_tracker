@@ -23,6 +23,10 @@ exports.createGoal = catchAsync(async (req, res, next) => {
         return next(new AppError('Goal name, target amount, priority, and target date are required', 400));
     }
 
+    // Free tier check (optional implementation later, for now allow creation)
+    // We could check if (goals.length >= 1) here if we wanted to enforce the single goal limit strictly on backend.
+    // But as discussed, we are building the multi-goal backend now.
+
     const newGoal = await nocodbService.createRecord(SAVINGS_GOALS_TABLE_ID, {
         user_id: verifiedUserId,
         goal_name,
