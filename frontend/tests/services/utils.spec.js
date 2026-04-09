@@ -247,14 +247,13 @@ describe('utils.js', () => {
   describe('getCssVariableValue', () => {
     it('returns mocked css variable value', () => {
       // Mock getComputedStyle
-      const originalGetComputedStyle = window.getComputedStyle;
-      window.getComputedStyle = vi.fn().mockReturnValue({
+    it('returns mocked css variable value', () => {
+      vi.spyOn(window, 'getComputedStyle').mockReturnValue({
         getPropertyValue: vi.fn().mockReturnValue(' #ff0000 ')
       });
 
       expect(getCssVariableValue('--primary-color')).toBe('#ff0000');
-
-      window.getComputedStyle = originalGetComputedStyle;
+    });
     });
   });
 
