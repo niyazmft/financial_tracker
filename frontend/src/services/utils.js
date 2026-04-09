@@ -115,8 +115,9 @@ export const calculateMonthsDifference = (startDate, endDate) => {
 export const capitalizeWords = (text) => {
     if (!text || typeof text !== 'string') return text;
     // Split by whitespace to handle Unicode words correctly (fixes "Eğlence" -> "EğLence" bug)
+    // Uses Turkish locale to correctly handle dotted/dotless I/i
     return text.split(/\s+/).map(word => 
-        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        word.charAt(0).toLocaleUpperCase('tr-TR') + word.slice(1).toLocaleLowerCase('tr-TR')
     ).join(' ');
 };
 
