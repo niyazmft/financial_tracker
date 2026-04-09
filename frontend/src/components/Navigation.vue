@@ -66,6 +66,7 @@
         <div class="flex items-center gap-2">
           <Button
             icon="pi pi-bell"
+            aria-label="Notifications"
             severity="secondary"
             text
             rounded
