@@ -4,6 +4,7 @@
 This PR introduces unit tests for the `backend/utils/dateUtils.js` module, which previously lacked testing. It verifies the behavior of `getLookaheadDates` and `formatDateForDisplay` functions. It also fixes test environment setup by adding `cross-env` to correctly pass required dummy variables in order for `pnpm run test` to work correctly.
 
 📊 **Coverage:** What scenarios are now tested
+
 - `getLookaheadDates`: Tests default duration (30 days), specified durations, string inputs, and negative durations.
 - `formatDateForDisplay`: Tests valid Date objects, valid date strings, strings without time, timestamps, invalid date strings, and null/undefined values.
 
