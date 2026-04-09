@@ -270,6 +270,207 @@ const importTransactionsJson = catchAsync(async (req, res, next) => {
     });
 });
 
+
+/**
+ * Fetch tagging rules for a user.
+ *
+ * @param {string} userId - The user ID.
+ * @returns {Promise<Array>} Array of tagging rules.
+ */
+async function fetchTaggingRules(userId) {
+    let taggingRules = [];
+    try {
+        const rulesResponse = await nocodbService.getRecords(env.NOCODB.TABLES.TAGGING_RULES, {
+            where: `(user_id,eq,${userId})`
+        });
+        taggingRules = rulesResponse.list || [];
+    } catch (error) {
+        console.warn('Failed to fetch tagging rules during import:', error.message);
+        // Continue without tagging rules
+    }
+    return taggingRules;
+}
+
+
+/**
+ * Apply tagging rules to a raw transaction row.
+ *
+ * @param {Object} rawRow - The raw transaction row.
+ * @param {Array} taggingRules - The tagging rules.
+ * @param {Object} categoryMapping - The category mapping.
+ */
+function applyTaggingRules(rawRow, taggingRules, categoryMapping) {
+    if (!rawRow.category && rawRow.description) {
+        const descriptionLower = rawRow.description.toLowerCase();
+        const matchedRule = taggingRules.find(rule => {
+            if (!rule.keyword) return false;
+            const keyword = rule.keyword.toLowerCase();
+            if (rule.type === 'exact') {
+                return descriptionLower === keyword;
+            }
+            return descriptionLower.includes(keyword); // Default to 'contains'
+        });
+
+        if (matchedRule) {
+            const categoryName = categoryMapping[matchedRule.categories_id];
+            if (categoryName) {
+                rawRow.category = categoryName;
+            }
+        }
+    }
+}
+
+
+/**
+ * Process a single CSV row, apply tagging rules, and validate.
+ *
+ * @param {Object} data - The raw data from CSV row.
+ * @param {number} rowIndex - The current row index.
+ * @param {Array} taggingRules - The tagging rules.
+ * @param {Object} categoryMapping - The category mapping.
+ * @returns {Object} { validatedRow, rowErrors, rawRow }
+ */
+function processCsvRow(data, rowIndex, taggingRules, categoryMapping) {
+    const rawRow = {
+        index: rowIndex,
+        date: data.date?.trim(),
+        amount: data.amount?.trim(),
+        bank: data.bank?.trim(),
+        category: data.category?.trim(),
+        description: data.description?.trim() || null,
+        ref_no: data.ref_no?.trim() || null
+    };
+
+    applyTaggingRules(rawRow, taggingRules, categoryMapping);
+
+    let validatedRow = null;
+    const rowErrors = [];
+
+    try {
+        const validatedDate = validateAndFormatDate(rawRow.date);
+        const validatedAmount = validateAndFormatAmount(rawRow.amount);
+        const validatedBank = normalizeAndValidateBank(rawRow.bank);
+        const validatedCategory = normalizeAndValidateCategory(rawRow.category, categoryMapping);
+
+        validatedRow = {
+            index: rowIndex,
+            date: validatedDate,
+            amount: validatedAmount,
+            bank: validatedBank,
+            category: validatedCategory,
+            description: rawRow.description,
+            ref_no: rawRow.ref_no
+        };
+    } catch (validationError) {
+        rowErrors.push(validationError.message);
+    }
+
+    return { validatedRow, rowErrors, rawRow };
+}
+
+
+/**
+ * Insert validated CSV records into NocoDB in batches.
+ *
+ * @param {Array} results - The validated records.
+ * @param {string} bankStatementsTableId - The NocoDB table ID.
+ * @param {string} verifiedUserId - The user ID.
+ * @returns {Promise<Object>} { successful, failed }
+ */
+async function insertCsvRecords(results, bankStatementsTableId, verifiedUserId) {
+    const successful = [];
+    const failed = [];
+    const batchSize = 10;
+
+    for (let i = 0; i < results.length; i += batchSize) {
+        const batch = results.slice(i, i + batchSize);
+
+        await Promise.all(batch.map(async (row) => {
+            try {
+                const transactionData = {
+                    date: row.date,
+                    amount: row.amount,
+                    bank: row.bank,
+                    categories_id: parseInt(row.category.id),
+                    description: row.description,
+                    ref_no: row.ref_no,
+                    user_id: verifiedUserId
+                };
+
+                const response = await nocodbService.createRecord(bankStatementsTableId, transactionData);
+
+                successful.push({
+                    row: row.index,
+                    transaction: {
+                        id: response.Id,
+                        date: transactionData.date,
+                        amount: transactionData.amount,
+                        bank: transactionData.bank,
+                        category: row.category.name,
+                        description: transactionData.description
+                    }
+                });
+
+            } catch (error) {
+                failed.push({
+                    row: row.index,
+                    data: row,
+                    error: error.response?.data?.message || error.message
+                });
+            }
+        }));
+
+        if (i + batchSize < results.length) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+    }
+
+    return { successful, failed };
+}
+
+
+/**
+ * Process a CSV file stream and parse transactions.
+ *
+ * @param {string} filePath - Path to the CSV file.
+ * @param {Array} taggingRules - The tagging rules.
+ * @param {Object} categoryMapping - The category mapping.
+ * @returns {Promise<Object>} { results, errors, rowIndex }
+ */
+function processCsvFile(filePath, taggingRules, categoryMapping) {
+    return new Promise((resolve, reject) => {
+        const results = [];
+        const errors = [];
+        let rowIndex = 0;
+
+        fs.createReadStream(filePath)
+            .pipe(csv())
+            .on('data', (data) => {
+                rowIndex++;
+
+                const { validatedRow, rowErrors, rawRow } = processCsvRow(data, rowIndex, taggingRules, categoryMapping);
+
+                if (rowErrors.length > 0) {
+                    errors.push({
+                        row: rowIndex,
+                        data: rawRow,
+                        errors: rowErrors
+                    });
+                } else if (validatedRow) {
+                    results.push(validatedRow);
+                }
+            })
+            .on('end', () => {
+                fs.promises.unlink(filePath).catch(err => console.error('Failed to delete temp file:', err));
+                resolve({ results, errors, rowIndex });
+            })
+            .on('error', (error) => {
+                fs.promises.unlink(filePath).catch(err => console.error('Failed to delete temp file:', err));
+                reject(error);
+            });
+    });
+}
+
 const importTransactionsCsv = catchAsync(async (req, res, next) => {
     try {
         const verifiedUserId = req.user.uid;
@@ -282,99 +483,9 @@ const importTransactionsCsv = catchAsync(async (req, res, next) => {
         
         const categoryMapping = await getCategoryMapping(verifiedUserId);
 
-        // Fetch tagging rules
-        let taggingRules = [];
-        try {
-            const rulesResponse = await nocodbService.getRecords(env.NOCODB.TABLES.TAGGING_RULES, { 
-                where: `(user_id,eq,${verifiedUserId})` 
-            });
-            taggingRules = rulesResponse.list || [];
-        } catch (error) {
-            console.warn('Failed to fetch tagging rules during import:', error.message);
-            // Continue without tagging rules
-        }
+        const taggingRules = await fetchTaggingRules(verifiedUserId);
         
-        const { results, errors, rowIndex } = await new Promise((resolve, reject) => {
-            const results = [];
-            const errors = [];
-            let rowIndex = 0;
-
-            fs.createReadStream(req.file.path)
-                .pipe(csv())
-                .on('data', (data) => {
-                    rowIndex++;
-                    
-                    const rawRow = {
-                        index: rowIndex,
-                        date: data.date?.trim(),
-                        amount: data.amount?.trim(),
-                        bank: data.bank?.trim(),
-                        category: data.category?.trim(),
-                        description: data.description?.trim() || null,
-                        ref_no: data.ref_no?.trim() || null
-                    };
-
-                    // Apply Tagging Rules if category is missing
-                    if (!rawRow.category && rawRow.description) {
-                        const descriptionLower = rawRow.description.toLowerCase();
-                        const matchedRule = taggingRules.find(rule => {
-                            if (!rule.keyword) return false;
-                            const keyword = rule.keyword.toLowerCase();
-                            if (rule.type === 'exact') {
-                                return descriptionLower === keyword;
-                            }
-                            return descriptionLower.includes(keyword); // Default to 'contains'
-                        });
-
-                        if (matchedRule) {
-                            const categoryName = categoryMapping[matchedRule.categories_id];
-                            if (categoryName) {
-                                rawRow.category = categoryName;
-                            }
-                        }
-                    }
-                    
-                    let validatedRow = null;
-                    const rowErrors = [];
-                    
-                    try {
-                        const validatedDate = validateAndFormatDate(rawRow.date);
-                        const validatedAmount = validateAndFormatAmount(rawRow.amount);
-                        const validatedBank = normalizeAndValidateBank(rawRow.bank);
-                        const validatedCategory = normalizeAndValidateCategory(rawRow.category, categoryMapping);
-                        
-                        validatedRow = {
-                            index: rowIndex,
-                            date: validatedDate,
-                            amount: validatedAmount,
-                            bank: validatedBank,
-                            category: validatedCategory,
-                            description: rawRow.description,
-                            ref_no: rawRow.ref_no
-                        };
-                    } catch (validationError) {
-                        rowErrors.push(validationError.message);
-                    }
-                    
-                    if (rowErrors.length > 0) {
-                        errors.push({
-                            row: rowIndex,
-                            data: rawRow,
-                            errors: rowErrors
-                        });
-                    } else if (validatedRow) {
-                        results.push(validatedRow);
-                    }
-                })
-                .on('end', () => {
-                    fs.promises.unlink(req.file.path).catch(err => console.error('Failed to delete temp file:', err));
-                    resolve({ results, errors, rowIndex });
-                })
-                .on('error', (error) => {
-                    fs.promises.unlink(req.file.path).catch(err => console.error('Failed to delete temp file:', err));
-                    reject(error);
-                });
-        });
+        const { results, errors, rowIndex } = await processCsvFile(req.file.path, taggingRules, categoryMapping);
 
         if (results.length === 0) {
             return res.json({
@@ -389,52 +500,7 @@ const importTransactionsCsv = catchAsync(async (req, res, next) => {
             });
         }
         
-        const successful = [];
-        const failed = [];
-        const batchSize = 10;
-        
-        for (let i = 0; i < results.length; i += batchSize) {
-            const batch = results.slice(i, i + batchSize);
-            
-            await Promise.all(batch.map(async (row) => {
-                try {
-                    const transactionData = {
-                        date: row.date,
-                        amount: row.amount,
-                        bank: row.bank,
-                        categories_id: parseInt(row.category.id),
-                        description: row.description,
-                        ref_no: row.ref_no,
-                        user_id: verifiedUserId
-                    };
-                    
-                    const response = await nocodbService.createRecord(bankStatementsTableId, transactionData);
-                    
-                    successful.push({
-                        row: row.index,
-                        transaction: {
-                            id: response.Id,
-                            date: transactionData.date,
-                            amount: transactionData.amount,
-                            bank: transactionData.bank,
-                            category: row.category.name,
-                            description: transactionData.description
-                        }
-                    });
-                    
-                } catch (error) {
-                    failed.push({
-                        row: row.index,
-                        data: row,
-                        error: error.response?.data?.message || error.message
-                    });
-                }
-            }));
-            
-            if (i + batchSize < results.length) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
-        }
+        const { successful, failed } = await insertCsvRecords(results, bankStatementsTableId, verifiedUserId);
         
         res.json({
             success: true,
