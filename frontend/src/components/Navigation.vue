@@ -92,9 +92,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
+import { useBreakpoints } from '../composables/useBreakpoints';
 import Menubar from 'primevue/menubar';
 import Avatar from 'primevue/avatar';
 import Button from 'primevue/button';
@@ -104,19 +105,7 @@ const router = useRouter();
 const authStore = useAuthStore();
 
 const userMenu = ref(null);
-const windowWidth = ref(window.innerWidth);
-
-const updateWidth = () => {
-    windowWidth.value = window.innerWidth;
-};
-
-onMounted(() => {
-    window.addEventListener('resize', updateWidth);
-});
-
-onUnmounted(() => {
-    window.removeEventListener('resize', updateWidth);
-});
+const { isTablet } = useBreakpoints();
 
 const allItems = [
     { label: 'Dashboard', icon: 'pi pi-home', route: '/dashboard' },
@@ -133,9 +122,7 @@ const items = computed(() => {
     // 1. Mobile (< 768px): Hamburger menu triggered. We want a flat list inside it.
     // 2. Tablet (768px - 1200px): Horizontal bar. Space is limited, so we use "More" dropdown.
     // 3. Desktop (>= 1200px): All links in a single row.
-    if (windowWidth.value < 768 || windowWidth.value >= 1200) { 
-        return allItems;
-    } else {
+    if (isTablet.value) {
         // Group last 3 items under "More" for intermediate tablet widths
         return [
             ...allItems.slice(0, 4),
@@ -146,6 +133,7 @@ const items = computed(() => {
             }
         ];
     }
+    return allItems;
 });
 
 const userMenuItems = ref([
