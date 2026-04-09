@@ -202,9 +202,6 @@ const { formatCurrency } = useFinance();
 
 const currency = computed(() => settingsStore.currency);
 
-// Two-way binding for filters manually if defineModel is not used (Vue < 3.4)
-// However, since filters is an object, mutation inside DataTable usually propagates.
-// Ideally we emit update:filters.
 const filters = computed({
     get: () => props.filters,
     set: (value) => emit('update:filters', value)
