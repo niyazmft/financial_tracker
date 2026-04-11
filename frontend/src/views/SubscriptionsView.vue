@@ -81,7 +81,6 @@
               <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
                 <Button
                   icon="pi pi-pencil"
-                  aria-label="Edit subscription"
                   severity="secondary"
                   text
                   rounded
@@ -89,7 +88,6 @@
                 />
                 <Button
                   icon="pi pi-trash"
-                  aria-label="Delete subscription"
                   severity="danger"
                   text
                   rounded
