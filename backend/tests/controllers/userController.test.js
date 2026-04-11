@@ -3,14 +3,17 @@ const sinon = require('sinon');
 const proxyquire = require('proxyquire');
 const AppError = require('../../utils/AppError');
 
-describe('userController.proxyProfileImage', () => {
+describe('userController', () => {
     let userController;
-    let req, res, next;
+    let req;
+    let res;
+    let next;
     let axiosStub;
 
     beforeEach(() => {
-        req = { query: {} };
+        req = { query: {}, body: {}, user: { uid: 'user123', email: 'test@example.com' } };
         res = {
+            json: sinon.spy(),
             setHeader: sinon.spy(),
             status: sinon.stub().returnsThis(),
             send: sinon.spy(),
@@ -20,15 +23,23 @@ describe('userController.proxyProfileImage', () => {
 
         userController = proxyquire('../../controllers/userController', {
             'axios': axiosStub,
-            // Mock dependencies we don't need for this specific test
-            '../services/transactionService': {},
-            '../services/nocodbService': {},
-            '../services/emailService': {},
-            '../config/firebase': {},
-            '../config/env': {
-                NOCODB: { TABLES: { USER_SETTINGS: 'test' } },
-                FIREBASE: { CLIENT_CONFIG: {} }
-            }
+            '../utils/catchAsync': (fn) => fn,
+            '../services/transactionService': {
+                calculateMonthlyIncome: sinon.stub().resolves(5000),
+            },
+            '../services/nocodbService': {
+                getRecords: sinon.stub().resolves({ list: [] }),
+                createRecord: sinon.stub().resolves({ Id: 1 }),
+                updateRecord: sinon.stub().resolves({ Id: 1 }),
+            },
+            '../services/emailService': {
+                sendEmail: sinon.stub().resolves(),
+            },
+            '../config/firebase': {
+                auth: () => ({
+                    generatePasswordResetLink: sinon.stub().resolves('https://example.com/reset'),
+                }),
+            },
         });
     });
 
@@ -36,78 +47,75 @@ describe('userController.proxyProfileImage', () => {
         sinon.restore();
     });
 
-    const runProxyProfileImage = async () => {
-        return new Promise((resolve) => {
-            const nextWrapper = (err) => resolve(err || undefined);
-            res.send = sinon.spy(() => resolve());
-            res.status = sinon.stub().returns(res);
-            res.json = sinon.spy(() => resolve());
-
-            userController.proxyProfileImage(req, res, nextWrapper);
+    describe('proxyProfileImage', () => {
+        it('should block missing URLs', async () => {
+            await userController.proxyProfileImage(req, res, next);
+            assert.strictEqual(next.calledOnce, true);
+            assert.strictEqual(next.firstCall.args[0] instanceof AppError, true);
+            assert.strictEqual(next.firstCall.args[0].statusCode, 400);
+            assert.strictEqual(next.firstCall.args[0].message, 'Image URL is required');
         });
-    };
 
-    it('should return AppError 400 if url is missing', async () => {
-        const result = await runProxyProfileImage();
-        assert.ok(result instanceof AppError);
-        assert.strictEqual(result.statusCode, 400);
-        assert.strictEqual(result.message, 'Image URL is required');
-    });
-
-    it('should return AppError 403 for unauthorized domains', async () => {
-        req.query.url = 'https://attackergoogleusercontent.com/image.jpg';
-        const result = await runProxyProfileImage();
-        assert.ok(result instanceof AppError);
-        assert.strictEqual(result.statusCode, 403);
-        assert.strictEqual(result.message, 'Unauthorized image domain');
-    });
-
-    it('should return AppError 403 for domains with incorrect suffix', async () => {
-        req.query.url = 'https://attacker-lh3.googleusercontent.com.evil.com/image.jpg';
-        const result = await runProxyProfileImage();
-        assert.ok(result instanceof AppError);
-        assert.strictEqual(result.statusCode, 403);
-    });
-
-    it('should call axios for exactly matching domain', async () => {
-        req.query.url = 'https://googleusercontent.com/image.jpg';
-
-        let pipeCalled = false;
-        const resultPromise = new Promise(resolve => {
-            axiosStub.resolves({ headers: {}, data: { pipe: () => { pipeCalled = true; resolve(); } } });
-            userController.proxyProfileImage(req, res, next);
+        it('should block malformed URLs', async () => {
+            req.query.url = 'not-a-url';
+            await userController.proxyProfileImage(req, res, next);
+            assert.strictEqual(next.calledOnce, true);
+            assert.strictEqual(next.firstCall.args[0] instanceof AppError, true);
+            assert.strictEqual(next.firstCall.args[0].statusCode, 400);
+            assert.strictEqual(next.firstCall.args[0].message, 'Invalid image URL format');
         });
-        await resultPromise;
 
-        assert.ok(axiosStub.calledOnce);
-        assert.ok(pipeCalled);
-    });
-
-    it('should call axios for valid subdomain', async () => {
-        req.query.url = 'https://lh3.googleusercontent.com/image.jpg';
-
-        let pipeCalled = false;
-        const resultPromise = new Promise(resolve => {
-            axiosStub.resolves({ headers: {}, data: { pipe: () => { pipeCalled = true; resolve(); } } });
-            userController.proxyProfileImage(req, res, next);
+        it('should block invalid protocols', async () => {
+            req.query.url = 'file:///etc/passwd';
+            await userController.proxyProfileImage(req, res, next);
+            assert.strictEqual(next.calledOnce, true);
+            assert.strictEqual(next.firstCall.args[0] instanceof AppError, true);
+            assert.strictEqual(next.firstCall.args[0].statusCode, 400);
+            assert.strictEqual(next.firstCall.args[0].message, 'Invalid image URL protocol');
         });
-        await resultPromise;
 
-        assert.ok(axiosStub.calledOnce);
-        assert.ok(pipeCalled);
-    });
-
-    it('should call axios for nested valid subdomain', async () => {
-        req.query.url = 'https://foo.lh3.googleusercontent.com/image.jpg';
-
-        let pipeCalled = false;
-        const resultPromise = new Promise(resolve => {
-            axiosStub.resolves({ headers: {}, data: { pipe: () => { pipeCalled = true; resolve(); } } });
-            userController.proxyProfileImage(req, res, next);
+        it('should block attacker domains mimicking allowed domains', async () => {
+            req.query.url = 'https://attacker-googleusercontent.com/image.jpg';
+            await userController.proxyProfileImage(req, res, next);
+            assert.strictEqual(next.calledOnce, true);
+            assert.strictEqual(next.firstCall.args[0] instanceof AppError, true);
+            assert.strictEqual(next.firstCall.args[0].statusCode, 403);
+            assert.strictEqual(next.firstCall.args[0].message, 'Unauthorized image domain');
         });
-        await resultPromise;
 
-        assert.ok(axiosStub.calledOnce);
-        assert.ok(pipeCalled);
+        it('should block unauthorized domains', async () => {
+            req.query.url = 'https://attacker.com/image.jpg';
+            await userController.proxyProfileImage(req, res, next);
+            assert.strictEqual(next.calledOnce, true);
+            assert.strictEqual(next.firstCall.args[0] instanceof AppError, true);
+            assert.strictEqual(next.firstCall.args[0].statusCode, 403);
+            assert.strictEqual(next.firstCall.args[0].message, 'Unauthorized image domain');
+        });
+
+        it('should allow valid root domains', async () => {
+            req.query.url = 'https://googleusercontent.com/image.jpg';
+            const stream = { pipe: sinon.spy() };
+            axiosStub.resolves({ headers: { 'content-type': 'image/jpeg' }, data: stream });
+
+            await userController.proxyProfileImage(req, res, next);
+
+            assert.strictEqual(next.called, false);
+            assert.strictEqual(axiosStub.calledOnce, true);
+            assert.strictEqual(res.setHeader.calledWith('Content-Type', 'image/jpeg'), true);
+            assert.strictEqual(stream.pipe.calledWith(res), true);
+        });
+
+        it('should allow valid subdomains', async () => {
+            req.query.url = 'https://lh3.googleusercontent.com/image.jpg';
+            const stream = { pipe: sinon.spy() };
+            axiosStub.resolves({ headers: { 'content-type': 'image/jpeg' }, data: stream });
+
+            await userController.proxyProfileImage(req, res, next);
+
+            assert.strictEqual(next.called, false);
+            assert.strictEqual(axiosStub.calledOnce, true);
+            assert.strictEqual(res.setHeader.calledWith('Content-Type', 'image/jpeg'), true);
+            assert.strictEqual(stream.pipe.calledWith(res), true);
+        });
     });
 });
