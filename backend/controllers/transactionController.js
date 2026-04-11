@@ -462,7 +462,7 @@ function processCsvFile(filePath, taggingRules, categoryMapping) {
             })
             .on('end', () => {
                 // Performance: use async unlink to avoid blocking the event loop
-                fs.promises.unlink(filePath).catch(err => console.error('Failed to delete temp file:', err));
+                fs.unlink(filePath, (err) => { if (err) console.error('Failed to delete temp file:', err) });
                 resolve({ results, errors, rowIndex });
             })
             .on('error', (error) => {
@@ -564,7 +564,7 @@ const importTransactionsCsv = catchAsync(async (req, res, next) => {
     } catch (error) {
         if (req.file) {
             // Performance: use async unlink to avoid blocking the event loop
-            fs.promises.unlink(req.file.path).catch(err => console.error('Failed to delete temp file:', err));
+            fs.unlink(req.file.path, (err) => { if (err) console.error('Failed to delete temp file:', err) });
         }
         
         // Pass to global error handler

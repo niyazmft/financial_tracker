@@ -50,7 +50,6 @@
             <div class="flex gap-2">
               <Button
                 icon="pi pi-pencil"
-                aria-label="Edit rule"
                 severity="secondary"
                 text
                 rounded
@@ -58,7 +57,6 @@
               />
               <Button
                 icon="pi pi-trash"
-                aria-label="Delete rule"
                 severity="danger"
                 text
                 rounded
