@@ -83,7 +83,6 @@ describe('installmentProcessor', () => {
       expect(emptyInst.categoryName).toBe('Uncategorized');
     });
 
-
     it('sorts groups by year and then by month', () => {
       const mockUnsorted = [
         { paid: false, start_date: '2024-01-15T00:00:00Z', installment_payment: 100 },
@@ -133,22 +132,11 @@ describe('installmentProcessor', () => {
           start_date: '2023-12-15T00:00:00Z',
           items: { item_name: 'Test' },
           // missing installment_payment entirely
-        },
-        {
-          id: 101,
-          paid: true,
-          start_date: '2023-12-15T00:00:00Z',
-          items: { item_name: 'Test' },
-          // missing installment_payment entirely
         }
       ];
 
       const resultUpcoming = processUpcomingPayments(mockWithMissingPayments);
       expect(resultUpcoming[0].installments[0].amount).toBeUndefined();
-
-      const resultAll = processAllPlans(mockWithMissingPayments);
-      expect(resultAll[0].totalAmount).toBe(0);
-      expect(resultAll[0].amountPaid).toBe(0);
     });
 
     it('handles empty installments array', () => {
@@ -216,6 +204,29 @@ describe('installmentProcessor', () => {
       const result = processAllPlans(zeroMock);
       expect(result[0].totalAmount).toBe(0);
       expect(result[0].progress).toBe(0);
+    });
+
+    it('handles null/undefined installment payments correctly', () => {
+      const mockWithMissingPayments = [
+        {
+          id: 100,
+          paid: false,
+          start_date: '2023-12-15T00:00:00Z',
+          items: { item_name: 'Test' },
+          // missing installment_payment entirely
+        },
+        {
+          id: 101,
+          paid: true,
+          start_date: '2023-12-15T00:00:00Z',
+          items: { item_name: 'Test' },
+          // missing installment_payment entirely
+        }
+      ];
+
+      const resultAll = processAllPlans(mockWithMissingPayments);
+      expect(resultAll[0].totalAmount).toBe(0);
+      expect(resultAll[0].amountPaid).toBe(0);
     });
 
     it('handles empty array', () => {
