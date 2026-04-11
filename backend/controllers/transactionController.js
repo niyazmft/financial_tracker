@@ -423,6 +423,67 @@ function processCsvRow(data, rowIndex, taggingRules, categoryMapping) {
     return { validatedRow, rowErrors, rawRow };
 }
 
+
+/**
+ * Insert validated CSV records into NocoDB in batches.
+ *
+ * @param {Array} results - The validated records.
+ * @param {string} bankStatementsTableId - The NocoDB table ID.
+ * @param {string} verifiedUserId - The user ID.
+ * @returns {Promise<Object>} { successful, failed }
+ */
+async function _insertCsvRecords(results, bankStatementsTableId, verifiedUserId) {
+    const successful = [];
+    const failed = [];
+    const batchSize = 10;
+
+    for (let i = 0; i < results.length; i += batchSize) {
+        const batch = results.slice(i, i + batchSize);
+
+        await Promise.all(batch.map(async (row) => {
+            try {
+                const transactionData = {
+                    date: row.date,
+                    amount: row.amount,
+                    bank: row.bank,
+                    categories_id: parseInt(row.category.id),
+                    description: row.description,
+                    ref_no: row.ref_no,
+                    user_id: verifiedUserId
+                };
+
+                const response = await nocodbService.createRecord(bankStatementsTableId, transactionData);
+
+                successful.push({
+                    row: row.index,
+                    transaction: {
+                        id: response.Id,
+                        date: transactionData.date,
+                        amount: transactionData.amount,
+                        bank: transactionData.bank,
+                        category: row.category.name,
+                        description: transactionData.description
+                    }
+                });
+
+            } catch (error) {
+                failed.push({
+                    row: row.index,
+                    data: row,
+                    error: error.response?.data?.message || error.message
+                });
+            }
+        }));
+
+        if (i + batchSize < results.length) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+    }
+
+    return { successful, failed };
+}
+
+
 /**
  * Process a CSV file stream and parse transactions.
  *
