@@ -83,6 +83,74 @@ describe('installmentProcessor', () => {
       expect(emptyInst.categoryName).toBe('Uncategorized');
     });
 
+
+    it('sorts groups by year and then by month', () => {
+      const mockUnsorted = [
+        { paid: false, start_date: '2024-01-15T00:00:00Z', installment_payment: 100 },
+        { paid: false, start_date: '2023-12-15T00:00:00Z', installment_payment: 100 },
+        { paid: false, start_date: '2023-10-15T00:00:00Z', installment_payment: 100 },
+        { paid: false, start_date: '2024-03-15T00:00:00Z', installment_payment: 100 }
+      ];
+      const result = processUpcomingPayments(mockUnsorted);
+
+      expect(result).toHaveLength(4);
+      expect(result[0].year).toBe(2023);
+      expect(result[0].month).toBe(10);
+
+      expect(result[1].year).toBe(2023);
+      expect(result[1].month).toBe(12);
+
+      expect(result[2].year).toBe(2024);
+      expect(result[2].month).toBe(1);
+
+      expect(result[3].year).toBe(2024);
+      expect(result[3].month).toBe(3);
+    });
+
+    it('handles arrays with missing name properties', () => {
+      const mockWithMissingNames = [
+        {
+          id: 99,
+          paid: false,
+          start_date: '2023-12-15T00:00:00Z',
+          installment_payment: 100,
+          items: [{}], // missing item_name
+          categories: [{}] // missing category_name
+        }
+      ];
+
+      const result = processUpcomingPayments(mockWithMissingNames);
+      expect(result).toHaveLength(1);
+      expect(result[0].installments[0].planName).toBe('Unknown Plan');
+      expect(result[0].installments[0].categoryName).toBe('Uncategorized');
+    });
+
+    it('handles null/undefined installment payments correctly', () => {
+      const mockWithMissingPayments = [
+        {
+          id: 100,
+          paid: false,
+          start_date: '2023-12-15T00:00:00Z',
+          items: { item_name: 'Test' },
+          // missing installment_payment entirely
+        },
+        {
+          id: 101,
+          paid: true,
+          start_date: '2023-12-15T00:00:00Z',
+          items: { item_name: 'Test' },
+          // missing installment_payment entirely
+        }
+      ];
+
+      const resultUpcoming = processUpcomingPayments(mockWithMissingPayments);
+      expect(resultUpcoming[0].installments[0].amount).toBeUndefined();
+
+      const resultAll = processAllPlans(mockWithMissingPayments);
+      expect(resultAll[0].totalAmount).toBe(0);
+      expect(resultAll[0].amountPaid).toBe(0);
+    });
+
     it('handles empty installments array', () => {
       const result = processUpcomingPayments([]);
       expect(result).toEqual([]);
