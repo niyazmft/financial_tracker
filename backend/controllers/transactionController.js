@@ -377,7 +377,7 @@ function processCsvRow(data, rowIndex, taggingRules, categoryMapping) {
  * @param {string} verifiedUserId - The user ID.
  * @returns {Promise<Object>} { successful, failed }
  */
-async function insertCsvRecords(results, bankStatementsTableId, verifiedUserId) {
+async function _insertCsvRecords(results, bankStatementsTableId, verifiedUserId) {
     const successful = [];
     const failed = [];
     const batchSize = 10;
