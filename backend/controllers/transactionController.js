@@ -33,6 +33,7 @@ const getTransactionById = catchAsync(async (req, res, next) => {
 
     const transaction = await nocodbService.getRecordById(bankStatementsTableId, id);
 
+    // Ensure the record exists before checking ownership to prevent TypeErrors
     if (!transaction || Object.keys(transaction).length === 0) {
         return next(new AppError('Transaction not found.', 404));
     }
@@ -120,7 +121,7 @@ const updateTransaction = catchAsync(async (req, res, next) => {
 
     const existingRecord = await nocodbService.getRecordById(bankStatementsTableId, id);
 
-    // Ensure the record exists to prevent TypeErrors
+    // Ensure the record exists before checking ownership to prevent TypeErrors
     if (!existingRecord || Object.keys(existingRecord).length === 0) {
         return next(new AppError('Transaction not found.', 404));
     }
@@ -178,7 +179,7 @@ const deleteTransaction = catchAsync(async (req, res, next) => {
     // First, verify the transaction belongs to the user
     const existingRecord = await nocodbService.getRecordById(bankStatementsTableId, id);
 
-    // Ensure the record exists to prevent TypeErrors
+    // Ensure the record exists before checking ownership to prevent TypeErrors
     if (!existingRecord || Object.keys(existingRecord).length === 0) {
         return next(new AppError('Transaction not found.', 404));
     }
