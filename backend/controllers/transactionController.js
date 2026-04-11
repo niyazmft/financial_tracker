@@ -461,10 +461,12 @@ function processCsvFile(filePath, taggingRules, categoryMapping) {
                 }
             })
             .on('end', () => {
+                // Performance: use async unlink to avoid blocking the event loop
                 fs.promises.unlink(filePath).catch(err => console.error('Failed to delete temp file:', err));
                 resolve({ results, errors, rowIndex });
             })
             .on('error', (error) => {
+                // Performance: use async unlink to avoid blocking the event loop
                 fs.promises.unlink(filePath).catch(err => console.error('Failed to delete temp file:', err));
                 reject(error);
             });
@@ -561,6 +563,7 @@ const importTransactionsCsv = catchAsync(async (req, res, next) => {
         
     } catch (error) {
         if (req.file) {
+            // Performance: use async unlink to avoid blocking the event loop
             fs.promises.unlink(req.file.path).catch(err => console.error('Failed to delete temp file:', err));
         }
         
