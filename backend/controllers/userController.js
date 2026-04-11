@@ -19,7 +19,7 @@ const proxyProfileImage = catchAsync(async (req, res, next) => {
     // Security: Only allow specific known domains
     const allowedDomains = ['lh3.googleusercontent.com', 'googleusercontent.com'];
     const urlObj = new URL(url);
-    if (!allowedDomains.some(domain => urlObj.hostname.endsWith(domain))) {
+    if (!allowedDomains.some(domain => urlObj.hostname === domain || urlObj.hostname.endsWith(`.${domain}`))) {
         return next(new AppError('Unauthorized image domain', 403));
     }
 
