@@ -23,6 +23,7 @@ describe('userController', () => {
 
         userController = proxyquire('../../controllers/userController', {
             'axios': axiosStub,
+            '../utils/catchAsync': (fn) => fn,
             '../services/transactionService': {
                 calculateMonthlyIncome: sinon.stub().resolves(5000),
             },

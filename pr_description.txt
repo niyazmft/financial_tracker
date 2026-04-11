@@ -1,7 +1,0 @@
-🎯 **What:** Fixed a Server-Side Request Forgery (SSRF) vulnerability in `proxyProfileImage` where attacker domains mimicking allowed domains (e.g., `attacker-googleusercontent.com`) could bypass the simple `.endsWith()` hostname check.
-⚠️ **Risk:** An attacker could use the application's proxy endpoint to make requests to arbitrary external servers, or potentially access internal network resources if left unchecked.
-🛡️ **Solution:**
-- Replaced the loose `.endsWith()` check with a strict comparison that verifies the hostname is exactly the allowed domain or a valid subdomain (ends with `.${domain}`).
-- Wrapped `new URL()` in a `try-catch` block to gracefully handle invalid URL formats.
-- Enforced strict protocol validation, allowing only `http:` and `https:` to prevent other URI scheme attacks (e.g., `file://`, `ftp://`).
-- Added comprehensive unit tests in `backend/tests/controllers/userController.test.js` to prevent regressions.
