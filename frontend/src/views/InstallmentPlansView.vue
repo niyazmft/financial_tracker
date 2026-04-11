@@ -147,6 +147,7 @@
                     </div>
                     <Button
                       icon="pi pi-pencil"
+                      aria-label="Edit installment plan"
                       severity="secondary"
                       text
                       rounded
@@ -154,6 +155,7 @@
                     />
                     <Button
                       :icon="expandedPlans[plan.itemId] ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+                      aria-label="Toggle installment plan details"
                       severity="secondary"
                       text
                       rounded
@@ -436,6 +438,7 @@
             <template #body="{ data }">
               <Button
                 icon="pi pi-trash"
+                aria-label="Delete installment"
                 severity="danger"
                 text
                 rounded
