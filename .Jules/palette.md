@@ -1,0 +1,3 @@
+## 2025-02-23 - Accessibility for PrimeVue icon-only Buttons
+**Learning:** Found multiple instances across the UI where `Button` components from PrimeVue were used strictly with an `icon` prop (e.g. `icon="pi pi-pencil"`) and no `label` or `aria-label`. Without a descriptive label, screen readers announce these buttons improperly or with confusing terms.
+**Action:** Always ensure icon-only buttons (`Button` tags using icons, native buttons containing icons) have a concise and contextually aware `aria-label` attribute (like "Edit rule" or "Delete category") for proper screen reader accessibility.
