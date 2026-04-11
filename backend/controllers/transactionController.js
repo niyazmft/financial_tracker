@@ -33,6 +33,7 @@ const getTransactionById = catchAsync(async (req, res, next) => {
 
     const transaction = await nocodbService.getRecordById(bankStatementsTableId, id);
 
+    // Ensure the record exists before checking ownership to prevent TypeErrors
     if (!transaction || Object.keys(transaction).length === 0) {
         return next(new AppError('Transaction not found.', 404));
     }
@@ -118,33 +119,54 @@ const updateTransaction = catchAsync(async (req, res, next) => {
 
     const bankStatementsTableId = env.NOCODB.TABLES.BANK_STATEMENTS;
 
-    // First, verify the transaction belongs to the user
     const existingRecord = await nocodbService.getRecordById(bankStatementsTableId, id);
 
+    // Ensure the record exists before checking ownership to prevent TypeErrors
     if (!existingRecord || Object.keys(existingRecord).length === 0) {
         return next(new AppError('Transaction not found.', 404));
     }
 
-    if (existingRecord.user_id != verifiedUserId) {
+    if (existingRecord.user_id !== verifiedUserId) {
         return next(new AppError('Forbidden: You do not have permission to edit this transaction.', 403));
     }
 
-    const categoryMapping = await getCategoryMapping(verifiedUserId);
-    const validatedCategory = validateCategoryById(categories_id, categoryMapping);
+    let validatedDate, validatedAmount, validatedBank, validatedCategory;
 
-    const transactionData = {
-        Id: id,
-        date: validateAndFormatDate(date),
-        amount: validateAndFormatAmount(amount),
-        bank: normalizeAndValidateBank(bank),
+    try {
+        validatedDate = validateAndFormatDate(date);
+        validatedAmount = validateAndFormatAmount(amount);
+        validatedBank = normalizeAndValidateBank(bank);
+
+        const categoryMapping = await getCategoryMapping(verifiedUserId);
+        validatedCategory = validateCategoryById(categories_id, categoryMapping);
+
+    } catch (validationError) {
+        return next(new AppError(validationError.message, 400));
+    }
+
+    const updatedData = {
+        date: validatedDate,
+        amount: validatedAmount,
+        bank: validatedBank,
         categories_id: validatedCategory.id,
         description: description || null,
         ref_no: ref_no || null,
     };
 
-    await nocodbService.updateRecord(bankStatementsTableId, transactionData);
+    const response = await nocodbService.updateRecord(bankStatementsTableId, id, updatedData);
 
-    res.json({ success: true, message: 'Transaction updated successfully' });
+    res.json({
+        success: true,
+        transaction: {
+            id: response.Id,
+            date: updatedData.date,
+            amount: updatedData.amount,
+            bank: updatedData.bank,
+            category: validatedCategory.name,
+            description: updatedData.description
+        },
+        message: 'Transaction updated successfully'
+    });
 });
 
 const deleteTransaction = catchAsync(async (req, res, next) => {
@@ -157,11 +179,12 @@ const deleteTransaction = catchAsync(async (req, res, next) => {
     // First, verify the transaction belongs to the user
     const existingRecord = await nocodbService.getRecordById(bankStatementsTableId, id);
 
+    // Ensure the record exists before checking ownership to prevent TypeErrors
     if (!existingRecord || Object.keys(existingRecord).length === 0) {
         return next(new AppError('Transaction not found.', 404));
     }
 
-    if (existingRecord.user_id != verifiedUserId) {
+    if (existingRecord.user_id !== verifiedUserId) {
         return next(new AppError('Forbidden: You do not have permission to delete this transaction.', 403));
     }
 
@@ -180,6 +203,57 @@ const getTransactionStats = catchAsync(async (req, res, _next) => {
         statistics
     });
 });
+
+/**
+ * Bulk inserts transactions into NocoDB in batches.
+ *
+ * @param {Array} records - DB-ready records with an `index` property mapping to original rows
+ * @param {string} bankStatementsTableId - NocoDB table ID
+ * @param {Object} categoryMapping - Optional mapping to resolve category names, if omitted names will be generic
+ * @returns {Promise<Object>} Object containing successful and failed arrays
+ */
+async function bulkInsertTransactions(records, bankStatementsTableId, categoryMapping = {}) {
+    const successful = [];
+    const failed = [];
+    const batchSize = 100; // NocoDB strict limit
+
+    for (let i = 0; i < records.length; i += batchSize) {
+        const batch = records.slice(i, i + batchSize);
+
+        try {
+            // Strip out internal 'index' before sending to NocoDB
+            const batchData = batch.map(({ index: _index, ...rest }) => rest);
+
+            const response = await nocodbService.createRecord(bankStatementsTableId, batchData);
+
+            successful.push(...batch.map((row, j) => {
+                const categoryName = categoryMapping[row.categories_id] || 'Unknown';
+                return {
+                    row: row.index,
+                    transaction: {
+                        id: response[j] ? response[j].Id : null,
+                        date: row.date,
+                        amount: row.amount,
+                        bank: row.bank,
+                        category: categoryName,
+                        description: row.description
+                    }
+                };
+            }));
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || error.message;
+            batch.forEach((row) => {
+                failed.push({
+                    row: row.index,
+                    data: row,
+                    error: errorMessage
+                });
+            });
+        }
+    }
+
+    return { successful, failed };
+}
 
 const importTransactionsJson = catchAsync(async (req, res, next) => {
     const verifiedUserId = req.user.uid;
@@ -238,23 +312,7 @@ const importTransactionsJson = catchAsync(async (req, res, next) => {
         });
     }
 
-    const successful = [];
-    const importErrors = [];
-    
-    // NocoDB bulk insert has a strict limit of 100 records per request
-    const batchSize = 100;
-    for (let i = 0; i < results.length; i += batchSize) {
-        const batch = results.slice(i, i + batchSize);
-        try {
-            await nocodbService.createRecord(bankStatementsTableId, batch);
-            successful.push(...batch.map((t, j) => ({ row: i + j + 1, transaction: t })));
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message;
-            batch.forEach((t, j) => {
-                importErrors.push({ row: i + j + 1, data: t, error: errorMessage });
-            });
-        }
-    }
+    const { successful, failed: importErrors } = await bulkInsertTransactions(results, bankStatementsTableId, categoryMapping);
 
     res.json({
         success: true,
@@ -269,7 +327,6 @@ const importTransactionsJson = catchAsync(async (req, res, next) => {
         }
     });
 });
-
 
 /**
  * Fetch tagging rules for a user.
@@ -290,7 +347,6 @@ async function fetchTaggingRules(userId) {
     }
     return taggingRules;
 }
-
 
 /**
  * Apply tagging rules to a raw transaction row.
@@ -319,7 +375,6 @@ function applyTaggingRules(rawRow, taggingRules, categoryMapping) {
         }
     }
 }
-
 
 /**
  * Process a single CSV row, apply tagging rules, and validate.
@@ -461,10 +516,12 @@ function processCsvFile(filePath, taggingRules, categoryMapping) {
                 }
             })
             .on('end', () => {
+                // ⚡ PERF: Using async unlink instead of fs.unlinkSync avoids blocking the event loop
                 fs.promises.unlink(filePath).catch(err => console.error('Failed to delete temp file:', err));
                 resolve({ results, errors, rowIndex });
             })
             .on('error', (error) => {
+                // ⚡ PERF: Using async unlink instead of fs.unlinkSync avoids blocking the event loop
                 fs.promises.unlink(filePath).catch(err => console.error('Failed to delete temp file:', err));
                 reject(error);
             });
@@ -499,52 +556,20 @@ const importTransactionsCsv = catchAsync(async (req, res, next) => {
                 }
             });
         }
-        
-        const successful = [];
-        const failed = [];
 
-        // NocoDB bulk insert has a strict limit of 100 records per request
-        const batchSize = 100;
-        
-        for (let i = 0; i < results.length; i += batchSize) {
-            const batch = results.slice(i, i + batchSize);
-            
-            try {
-                const batchData = batch.map(row => ({
-                    date: row.date,
-                    amount: row.amount,
-                    bank: row.bank,
-                    categories_id: parseInt(row.category.id),
-                    description: row.description,
-                    ref_no: row.ref_no,
-                    user_id: verifiedUserId
-                }));
+        // Format results for bulk insert
+        const recordsToInsert = results.map(row => ({
+            index: row.index,
+            date: row.date,
+            amount: row.amount,
+            bank: row.bank,
+            categories_id: parseInt(row.category.id),
+            description: row.description,
+            ref_no: row.ref_no,
+            user_id: verifiedUserId
+        }));
 
-                const response = await nocodbService.createRecord(bankStatementsTableId, batchData);
-
-                // NocoDB bulk insert returns an array of records
-                successful.push(...batch.map((row, j) => ({
-                    row: row.index,
-                    transaction: {
-                        id: response[j] ? response[j].Id : null,
-                        date: batchData[j].date,
-                        amount: batchData[j].amount,
-                        bank: batchData[j].bank,
-                        category: row.category.name,
-                        description: batchData[j].description
-                    }
-                })));
-            } catch (error) {
-                const errorMessage = error.response?.data?.message || error.message;
-                batch.forEach((row) => {
-                    failed.push({
-                        row: row.index,
-                        data: row,
-                        error: errorMessage
-                    });
-                });
-            }
-        }
+        const { successful, failed } = await bulkInsertTransactions(recordsToInsert, bankStatementsTableId, categoryMapping);
         
         res.json({
             success: true,
@@ -561,6 +586,7 @@ const importTransactionsCsv = catchAsync(async (req, res, next) => {
         
     } catch (error) {
         if (req.file) {
+            // ⚡ PERF: Using async unlink instead of fs.unlinkSync avoids blocking the event loop
             fs.promises.unlink(req.file.path).catch(err => console.error('Failed to delete temp file:', err));
         }
         
