@@ -38,19 +38,12 @@ describe('userController.proxyProfileImage', () => {
 
     const runProxyProfileImage = async () => {
         return new Promise((resolve) => {
-             const nextWrapper = (err) => resolve(err || undefined);
-             res.send = sinon.spy(() => resolve());
-             res.status = sinon.stub().returns(res);
-             res.json = sinon.spy(() => resolve());
+            const nextWrapper = (err) => resolve(err || undefined);
+            res.send = sinon.spy(() => resolve());
+            res.status = sinon.stub().returns(res);
+            res.json = sinon.spy(() => resolve());
 
-             // In tests where axios is called successfully, we want data.pipe to resolve the promise.
-             // We can check if axiosStub has a mock that includes a special resolve.
-
-             try {
-                userController.proxyProfileImage(req, res, nextWrapper);
-             } catch (err) {
-                resolve(err);
-             }
+            userController.proxyProfileImage(req, res, nextWrapper);
         });
     };
 
