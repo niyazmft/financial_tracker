@@ -204,6 +204,9 @@ const { formatCurrency } = useFinance();
 
 const currency = computed(() => settingsStore.currency);
 
+/**
+ * Filters computed property
+ */
 const filters = computed({
     get: () => props.filters,
     set: (value) => emit('update:filters', value)
