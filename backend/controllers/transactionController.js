@@ -33,7 +33,6 @@ const getTransactionById = catchAsync(async (req, res, next) => {
 
     const transaction = await nocodbService.getRecordById(bankStatementsTableId, id);
 
-    // Ensure transaction exists before accessing its properties to prevent TypeError
     if (!transaction || Object.keys(transaction).length === 0) {
         return next(new AppError('Transaction not found.', 404));
     }
