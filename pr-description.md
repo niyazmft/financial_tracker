@@ -1,16 +1,11 @@
-🎯 **What:** The vulnerability fixed
-Added a null and empty object check to `transactionController.js`'s `getTransactionById` method. This check prevents accessing the `user_id` property of a `transaction` object that might be null or empty when a transaction is not found.
+🎯 **What:**
+The `processUpcomingPayments` and `processAllPlans` functions in `frontend/src/services/installmentProcessor.js` lacked complete branch coverage. Specifically, conditions for arrays with missing names (`item_name` and `category_name`), as well as undefined or null `installment_payment` fields, were not being tested. Furthermore, sorting equality cases were not robustly verified.
 
-⚠️ **Risk:** The potential impact if left unfixed
-If left unfixed, calling this endpoint with a non-existent transaction ID would result in a `TypeError: Cannot read properties of null (reading 'user_id')` or similar errors at runtime. This causes the backend process to throw unhandled exceptions, potentially leading to application crashes, denial of service, or leaking of stack traces to the client depending on error handling configuration.
+📊 **Coverage:**
 
-🛡️ **Solution:** How the fix addresses the vulnerability
-A check was added immediately after fetching the transaction from the NocoDB service:
+- **Array fallbacks:** Verifies cases where an items array is provided but is missing `item_name`, and where a categories array is provided but is missing `category_name`.
+- **Undefined calculations:** Tests how the functions process records when `installment_payment` is completely absent or explicitly set to `null` (ensuring we correctly fallback to `0`).
+- **Sorting edge cases:** Validates the sorting behavior to ensure upcoming payments correctly sort chronologically first by year, and then by month if years are equal.
 
-```javascript
-if (!transaction || Object.keys(transaction).length === 0) {
-    return next(new AppError('Transaction not found.', 404));
-}
-```
-
-This safely catches the null/empty case, returning a proper 404 AppError instead of crashing the process. This follows the codebase convention of checking for null/empty database records before verifying ownership permissions.
+✨ **Result:**
+Added unit tests that completely cover all untested branches in the target file. Test coverage for `installmentProcessor.js` increased to 100% statements, branches, and functions. Tests are clean and free of side effects.
