@@ -132,14 +132,16 @@
               class="flex gap-2"
             >
               <Button
+                v-tooltip="'Save'"
                 icon="pi pi-check"
-                aria-label="Save Income"
+                aria-label="Save"
                 severity="success"
                 @click="saveIncomeManually"
               />
               <Button
+                v-tooltip="'Cancel'"
                 icon="pi pi-times"
-                aria-label="Cancel Edit"
+                aria-label="Cancel"
                 severity="danger"
                 text
                 @click="cancelIncomeEdit"
