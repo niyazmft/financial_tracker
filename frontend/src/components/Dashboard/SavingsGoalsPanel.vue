@@ -55,7 +55,6 @@
               />
             </div>
             <Button
-              aria-label="Delete Goal"
               icon="pi pi-trash"
               severity="danger"
               text
