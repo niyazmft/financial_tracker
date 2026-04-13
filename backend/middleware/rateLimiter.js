@@ -17,7 +17,7 @@ const createRateLimiter = (options) => {
         rateLimitMap.delete(ip);
       }
     }
-  }, windowMs);
+  }, windowMs * 2); // Clean up every 2 windowMs
 
   // Ensure the interval doesn't keep the process alive
   if (cleanupInterval.unref) {

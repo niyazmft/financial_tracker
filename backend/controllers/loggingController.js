@@ -1,7 +1,8 @@
 const logger = require('../config/logger');
 const AppError = require('../utils/AppError');
+const catchAsync = require('../utils/catchAsync');
 
-exports.logError = (req, res, next) => {
+exports.logError = catchAsync(async (req, res, next) => {
   const { message, stack, url, timestamp } = req.body;
 
   // Input Validation
@@ -32,4 +33,4 @@ exports.logError = (req, res, next) => {
   });
 
   res.status(204).send(); // Send a "No Content" response
-};
+});
