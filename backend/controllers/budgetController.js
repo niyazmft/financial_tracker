@@ -130,13 +130,24 @@ const getActiveBudgets = catchAsync(async (req, res, _next) => {
     const allTransactions = statementsResponse.list || [];
 
     // 3. Calculate spent amount per budget in memory
+    // Group transactions by category to optimize lookup from O(B*T) to O(B+T)
+    const transactionsByCategory = new Map();
+    for (const transaction of allTransactions) {
+        const catId = Number(transaction.categories_id);
+        if (!transactionsByCategory.has(catId)) {
+            transactionsByCategory.set(catId, []);
+        }
+        transactionsByCategory.get(catId).push(transaction);
+    }
+
     const budgetsWithSpending = activeBudgets.map((budget) => {
         let spentAmount = 0;
+        const categoryId = Number(budget.categories_id);
+        const relevantTransactions = transactionsByCategory.get(categoryId) || [];
 
-        for (const transaction of allTransactions) {
-            // Check if transaction belongs to this budget's category and date range
+        for (const transaction of relevantTransactions) {
+            // Check if transaction belongs to this budget's date range
             if (
-                Number(transaction.categories_id) === Number(budget.categories_id) &&
                 transaction.date >= budget.start_date &&
                 transaction.date <= budget.end_date
             ) {
