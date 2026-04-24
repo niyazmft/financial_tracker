@@ -42,8 +42,8 @@ const buildPublicSetupEndpoints = (request, apiRequest) => ({
     })
 });
 
-const buildLogsEndpoints = (apiRequest) => ({
-    logError: (errorData, signal) => apiRequest(`${API_BASE}/log-error`, {
+const buildLogsEndpoints = (request) => ({
+    logError: (errorData, signal) => request(`${API_BASE}/log-error`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(errorData),
@@ -263,7 +263,7 @@ export const api = (getToken) => {
 
     return {
         ...buildPublicSetupEndpoints(request, apiRequest),
-        ...buildLogsEndpoints(apiRequest),
+        ...buildLogsEndpoints(request),
         ...buildFinanceDataEndpoints(request),
         ...buildNocodbResourcesEndpoints(request),
         ...buildBudgetsEndpoints(request),
