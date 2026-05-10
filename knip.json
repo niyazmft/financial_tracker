@@ -1,0 +1,25 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "backend/server.js",
+    "frontend/src/main.js",
+    "vite.config.mjs",
+    "eslint.config.mjs"
+  ],
+  "project": [
+    "backend/**/*.js",
+    "frontend/src/**/*.{js,vue}"
+  ],
+  "ignore": [
+    "backend/scripts/**",
+    "backend/tests/**",
+    "frontend/tests/**",
+    "dist/**",
+    "node_modules/**"
+  ],
+  "exclude": [
+    "types",
+    "duplicates",
+    "unlisted"
+  ]
+}

@@ -75,14 +75,16 @@ FinTrack follows a clean, modular architecture separating the frontend, backend,
 - **Testing**:
   - **Backend**: Mocha + Sinon + Supertest
   - **Frontend**: Vitest + Vue Test Utils
-- **Code Quality**: Project-wide linting via **ESLint** (JS, Vue, JSON), **Stylelint** (CSS/Tailwind v4), and **Markdownlint**. Unified under `pnpm run lint:all`.
+- **Code Quality**:
+  - **ESLint** (JS, Vue, JSON), **Stylelint** (CSS/Tailwind v4), **Markdownlint** - Unified under `pnpm run lint:all`.
+  - **Knip** (unused exports/files), **depcheck** (unused dependencies) - Run via `pnpm run analyze`.
 - **Git Hooks**: Automated pre-commit hooks via **Husky** and **lint-staged** ensure all staged code is automatically fixed and validated before being committed.
 
 ## 🤖 AI-Ready Development
 
-FinTrack is designed to be AI-native and is fully compatible with the **Gemini CLI** and other AI-assisted development tools.
+FinTrack is designed to be AI-native and compatible with AI-assisted development tools like **OpenCode** and **Gemini CLI**.
 
-- **[GEMINI.md](GEMINI.md)**: This file contains the primary context, architectural protocols, and mandatory coding standards for AI agents. It ensures that any AI-generated code or refactoring remains consistent with the project's established patterns and design principles.
+- **[AGENTS.md](AGENTS.md)**: Contains developer guidelines, coding standards, and architectural protocols for AI agents working on this codebase.
 - **Protocol-Driven**: The codebase follows a strict service-layer architecture and TDD workflow, making it highly predictable and safe for automated interventions.
 
 ## 🗄️ Database Setup (NocoDB)
@@ -336,9 +338,10 @@ Contributions are welcome! To ensure stability and high code quality, please fol
 5. **Run local tests** to ensure no regressions:
 
     ```bash
-    pnpm test          # Backend tests
-    pnpm run test:ui   # Frontend tests
-    pnpm run lint:all  # Code quality audit
+    pnpm test                       # Backend tests
+    pnpm run test:ui                # Frontend tests
+    pnpm run lint:all               # Code quality audit
+    pnpm run analyze                # Unused code/deps check
     ```
 
 6. Commit your changes (`git commit -m 'feat: Add some AmazingFeature'`).

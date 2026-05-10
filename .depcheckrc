@@ -1,0 +1,43 @@
+{
+  "ignoreMatches": [
+    "@primevue/auto-import-resolver",
+    "@tailwindcss/container-queries",
+    "@tailwindcss/forms",
+    "@tailwindcss/postcss",
+    "@vitejs/plugin-vue",
+    "@vitest/coverage-v8",
+    "@vue/test-utils",
+    "autoprefixer",
+    "cross-env",
+    "globals",
+    "http-server",
+    "husky",
+    "jsdom",
+    "lint-staged",
+    "markdownlint-cli",
+    "mocha",
+    "nodemon",
+    "postcss",
+    "postcss-cli",
+    "proxyquire",
+    "sinon",
+    "stylelint",
+    "stylelint-config-standard",
+    "unplugin-auto-import",
+    "unplugin-vue-components",
+    "vite",
+    "vitest",
+    "vue-eslint-parser",
+    "webpack",
+    "webpack-cli",
+    "knip",
+    "depcheck"
+  ],
+  "ignorePatterns": [
+    "**/tests/**",
+    "**/scripts/**",
+    "**/dist/**",
+    "**/node_modules/**"
+  ],
+  "skipMissing": false
+}

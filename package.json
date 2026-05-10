@@ -22,6 +22,9 @@
     "lint:md": "markdownlint '**/*.md' --ignore node_modules",
     "lint:json": "eslint '**/*.json' --no-error-on-unmatched-pattern",
     "lint:all": "pnpm run lint:js && pnpm run lint:css && pnpm run lint:md && pnpm run lint:json",
+    "lint:unused": "knip",
+    "lint:deps": "depcheck",
+    "analyze": "pnpm run lint:unused && pnpm run lint:deps",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -46,7 +49,6 @@
     "compression": "^1.8.1",
     "cors": "^2.8.6",
     "csv-parser": "^3.2.0",
-    "diff": "^8.0.3",
     "dotenv": "^16.6.1",
     "express": "^4.22.1",
     "firebase": "^12.11.0",
@@ -55,11 +57,9 @@
     "morgan": "^1.10.1",
     "multer": "^2.1.1",
     "nodemailer": "^7.0.13",
-    "papaparse": "^5.5.3",
     "pinia": "^3.0.4",
     "primeicons": "^7.0.0",
     "primevue": "^4.5.4",
-    "qs": "^6.15.0",
     "vue": "^3.5.30",
     "vue-router": "^4.6.4",
     "winston": "^3.19.0",
@@ -100,6 +100,8 @@
     "vitest": "^4.1.0",
     "vue-eslint-parser": "^10.4.0",
     "webpack": "^5.105.4",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "depcheck": "^1.4.7",
+    "knip": "^5.50.4"
   }
 }
