@@ -18,8 +18,18 @@ const proxyProfileImage = catchAsync(async (req, res, next) => {
 
     // Security: Only allow specific known domains
     const allowedDomains = ['lh3.googleusercontent.com', 'googleusercontent.com'];
-    const urlObj = new URL(url);
-    if (!allowedDomains.some(domain => urlObj.hostname.endsWith(domain))) {
+    let urlObj;
+    try {
+        urlObj = new URL(url);
+    } catch {
+        return next(new AppError('Invalid image URL format', 400));
+    }
+
+    if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
+        return next(new AppError('Invalid image URL protocol', 400));
+    }
+
+    if (!allowedDomains.some(domain => urlObj.hostname === domain || urlObj.hostname.endsWith(`.${domain}`))) {
         return next(new AppError('Unauthorized image domain', 403));
     }
 

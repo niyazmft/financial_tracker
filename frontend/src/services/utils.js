@@ -118,9 +118,10 @@ export const calculateMonthsDifference = (startDate, endDate) => {
 export const capitalizeWords = (text) => {
     if (!text || typeof text !== 'string') return text;
     // Split by whitespace to handle Unicode words correctly (fixes "Eğlence" -> "EğLence" bug)
-    return text.split(/\s+/).map(word => 
-        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-    ).join(' ');
+    return text.split(/\s+/).map(word => {
+        if (!word) return '';
+        return word.charAt(0).toLocaleUpperCase('tr-TR') + word.slice(1).toLocaleLowerCase('tr-TR');
+    }).join(' ');
 };
 
 export const formatCategoryName = (categoryName) => {

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
+// Authentication middleware for securing routes
 const { authenticateToken } = require('../middleware/authMiddleware');
 const installmentController = require('../controllers/installmentController');
 
@@ -13,6 +14,7 @@ const reportRoutes = require('./reportRoutes');
 const transactionRoutes = require('./transactionRoutes');
 const userRoutes = require('./userRoutes');
 const loggingController = require('../controllers/loggingController');
+const createRateLimiter = require('../middleware/rateLimiter');
 const taggingRulesRoutes = require('./taggingRulesRoutes');
 const subscriptionRoutes = require('./subscriptionRoutes');
 const savingsGoalRoutes = require('./savingsGoalRoutes');
@@ -31,6 +33,11 @@ router.use('/api/tagging-rules', taggingRulesRoutes);
 router.use('/api/subscriptions', subscriptionRoutes);
 router.use('/api/savings-goals', savingsGoalRoutes);
 router.use('/api/anomalies', anomalyRoutes);
-router.post('/api/log-error', loggingController.logError);
+
+const loggingRateLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50 // limit each IP to 50 logging requests per windowMs
+});
+router.post('/api/log-error', authenticateToken, loggingRateLimiter, loggingController.logError);
 
 module.exports = router;

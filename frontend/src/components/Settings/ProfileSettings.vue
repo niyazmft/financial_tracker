@@ -113,6 +113,7 @@
               v-if="!isEditingIncome"
               v-tooltip="'Recalculate from Transactions'"
               icon="pi pi-refresh"
+              aria-label="Recalculate from Transactions"
               severity="secondary"
               text
               @click="recalculateIncome"
@@ -121,6 +122,7 @@
               v-if="!isEditingIncome"
               v-tooltip="'Edit Manually'"
               icon="pi pi-pencil"
+              aria-label="Edit Manually"
               severity="secondary"
               text
               @click="isEditingIncome = true"
@@ -130,12 +132,16 @@
               class="flex gap-2"
             >
               <Button
+                v-tooltip="'Save'"
                 icon="pi pi-check"
+                aria-label="Save"
                 severity="success"
                 @click="saveIncomeManually"
               />
               <Button
+                v-tooltip="'Cancel'"
                 icon="pi pi-times"
+                aria-label="Cancel"
                 severity="danger"
                 text
                 @click="cancelIncomeEdit"

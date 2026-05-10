@@ -4,14 +4,23 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 const env = require('../config/env');
 
+/**
+ * Retrieves categories for the authenticated user.
+ * Optionally includes global categories.
+ */
 const getCategories = catchAsync(async (req, res, _next) => {
     const verifiedUserId = req.user.uid;
 
     const categoriesTableId = env.NOCODB.TABLES.CATEGORIES;
     
+    // Strict equality check to prevent truthiness bugs where string 'false' evaluates to true
     const includeGlobal = req.query.includeGlobal === 'true';
     const filters = [`(user_id,eq,${verifiedUserId})`];
-    if (includeGlobal) filters.push('(user_id,isnull)');
+
+    if (includeGlobal) {
+        filters.push('(user_id,isnull)');
+    }
+
     const whereClause = filters.join('~or');
     
     const response = await nocodbService.getRecords(categoriesTableId, { where: whereClause });
