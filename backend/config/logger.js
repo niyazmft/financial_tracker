@@ -1,9 +1,21 @@
 const winston = require('winston');
 require('winston-daily-rotate-file');
 const path = require('path');
+const fs = require('fs');
 
 // Determine log level from environment variable, default to 'info'
 const level = process.env.LOG_LEVEL || 'info';
+
+// Ensure logs directory exists
+const logsDir = path.join(__dirname, '../logs');
+try {
+  if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir, { recursive: true });
+  }
+} catch (err) {
+   
+  console.error('Warning: Could not create logs directory:', err.message);
+}
 
 // Define different logging formats
 const consoleFormat = winston.format.combine(
