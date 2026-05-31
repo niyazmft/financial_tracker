@@ -113,6 +113,7 @@
                 <div class="flex gap-1">
                   <Button
                     icon="pi pi-pencil"
+                    aria-label="Edit budget"
                     severity="secondary"
                     text
                     rounded
@@ -120,6 +121,7 @@
                   />
                   <Button
                     icon="pi pi-trash"
+                    aria-label="Delete budget"
                     severity="danger"
                     text
                     rounded
