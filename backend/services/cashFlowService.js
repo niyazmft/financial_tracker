@@ -6,19 +6,20 @@ const env = require('../config/env');
 /**
  * Calculates spending weights for each day of the week based on cleaned historical transactions.
  */
-function calculateSpendingWeights(categoryTransactions) {
+function calculateSpendingWeights(historicalSpending, categoryId) {
     const dayOfWeekTotals = Array(7).fill(0);
+    const categoryTransactions = historicalSpending.filter(
+        t => t.categories_id === categoryId && parseFloat(t.amount) < 0
+    );
 
-    if (!categoryTransactions || categoryTransactions.length === 0) {
+    if (categoryTransactions.length === 0) {
         return Array(7).fill(1 / 7);
     }
 
     categoryTransactions.forEach(t => {
-        if (parseFloat(t.amount) < 0) {
-            const transactionDate = t._parsedDate || new Date(t.date);
-            const dayOfWeek = transactionDate.getDay();
-            dayOfWeekTotals[dayOfWeek] += Math.abs(parseFloat(t.amount));
-        }
+        const transactionDate = new Date(t.date);
+        const dayOfWeek = transactionDate.getDay();
+        dayOfWeekTotals[dayOfWeek] += Math.abs(parseFloat(t.amount));
     });
 
     const totalSpending = dayOfWeekTotals.reduce((sum, total) => sum + total, 0);
@@ -28,7 +29,7 @@ function calculateSpendingWeights(categoryTransactions) {
 }
 
 /**
- * Winsorizes transactions to mitigate outliers.
+ * Capps extreme outliers (Winsorization) at the 95th percentile.
  */
 function winsorizeTransactions(transactions, percentile = 0.95) {
     const byCategory = {};
@@ -96,7 +97,7 @@ function inferIncomeSchedule(transactions, earningCategoryIds, monthlyIncomeEsti
     const monthlyData = {};
 
     incomeTransactions.forEach(t => {
-        const date = t._parsedDate || new Date(t.date);
+        const date = new Date(t.date);
         const day = date.getDate();
         const month = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
         
@@ -151,44 +152,17 @@ const computeForecast = async (userId, options = {}) => {
     ]);
 
     const transactions = statementsRes.list || [];
+    const currentBalance = transactions.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
     
-    // Performance Optimization: Single pass for initial data processing
-    let currentBalance = 0;
-    let latestTxTime = 0;
-    const transactionsByCategory = new Map();
-
-    for (const t of transactions) {
-        currentBalance += parseFloat(t.amount) || 0;
-
-        // Parse date once and store time for comparisons
-        const parsedDate = new Date(t.date);
-        t._parsedDate = parsedDate;
-        t._parsedTime = parsedDate.getTime();
-
-        if (t._parsedTime > latestTxTime) {
-            latestTxTime = t._parsedTime;
-        }
-
-        // Group by category to avoid N*M filtering later
-        const catId = t.categories_id;
-        if (catId != null) {
-            let catArr = transactionsByCategory.get(catId);
-            if (!catArr) {
-                catArr = [];
-                transactionsByCategory.set(catId, catArr);
-            }
-            catArr.push(t);
-        }
-    }
-
     const settings = settingsRes.list[0] || {};
     const monthlyIncomeEstimate = parseFloat(settings.monthly_income_estimate) || 0;
     const warningThreshold = parseFloat(settings.warning_threshold) || 0;
 
     // 2. Data Freshness
-    const staleDays = latestTxTime > 0 ? Math.floor((Date.now() - latestTxTime) / 86400000) : null;
+    const latestTxDate = transactions.length > 0 ? new Date(Math.max(...transactions.map(t => new Date(t.date)))) : null;
+    const staleDays = latestTxDate ? Math.floor((new Date() - latestTxDate) / 86400000) : null;
     const dataFreshness = {
-        latestRecordDate: latestTxTime > 0 ? new Date(latestTxTime).toISOString().split('T')[0] : null,
+        latestRecordDate: latestTxDate?.toISOString().split('T')[0] ?? null,
         staleDays,
         isStale: staleDays !== null && staleDays > 3
     };
@@ -202,7 +176,6 @@ const computeForecast = async (userId, options = {}) => {
         historicalSpending = historicalSpending.map(t => {
             if (options.anomalyMask.has(t.Id)) {
                 const median = medians[t.categories_id] || Math.abs(parseFloat(t.amount));
-                // Preserve parsed date when mapping
                 return { ...t, amount: -median, isMasked: true };
             }
             return t;
@@ -212,49 +185,21 @@ const computeForecast = async (userId, options = {}) => {
     // Apply Winsorization
     const cleanedHistoricalSpending = winsorizeTransactions(historicalSpending);
 
-    // Group cleaned spending by category for O(1) lookups
-    const cleanedSpendingByCategory = new Map();
-    for (const t of cleanedHistoricalSpending) {
-        const catId = t.categories_id;
-        if (catId != null) {
-            let catArr = cleanedSpendingByCategory.get(catId);
-            if (!catArr) {
-                catArr = [];
-                cleanedSpendingByCategory.set(catId, catArr);
-            }
-            catArr.push(t);
-        }
-    }
-
     // 4. Inferences
     const incomeSchedule = inferIncomeSchedule(transactions, earningCategoryIds, monthlyIncomeEstimate);
 
     // 5. Simulation Preparation
-    const simStartTime = simStartDate.getTime();
-
     const budgetProjections = (budgetRes.list || []).map(budget => {
-        const budgetCatId = budget.categories_id;
-        const catCleanedTx = cleanedSpendingByCategory.get(budgetCatId) || [];
-
-        const weights = calculateSpendingWeights(catCleanedTx);
-
-        // Fast filtering using pre-grouped map and cached times
-        const catAllTx = transactionsByCategory.get(budgetCatId) || [];
-        const budgetStartTime = new Date(budget.start_date).getTime();
-
-        let totalSpentBefore = 0;
-        for (const t of catAllTx) {
-            if (t._parsedTime >= budgetStartTime && t._parsedTime < simStartTime) {
-                totalSpentBefore += (parseFloat(t.amount) || 0);
-            }
-        }
+        const weights = calculateSpendingWeights(cleanedHistoricalSpending, budget.categories_id);
+        const totalSpentBefore = transactions
+            .filter(t => t.categories_id === budget.categories_id && new Date(t.date) >= new Date(budget.start_date) && new Date(t.date) < simStartDate)
+            .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
 
         const remainingToDistribute = parseFloat(budget.target_amount) + totalSpentBefore;
         
         let totalRemainingWeight = 0;
-        const effectiveStart = new Date(Math.max(simStartTime, budgetStartTime));
-        const budgetEndDate = new Date(budget.end_date);
-        for (let d = new Date(effectiveStart); d <= budgetEndDate; d.setDate(d.getDate() + 1)) {
+        const effectiveStart = new Date(Math.max(simStartDate.getTime(), new Date(budget.start_date).getTime()));
+        for (let d = new Date(effectiveStart); d <= new Date(budget.end_date); d.setDate(d.getDate() + 1)) {
             totalRemainingWeight += weights[d.getDay()];
         }
 
