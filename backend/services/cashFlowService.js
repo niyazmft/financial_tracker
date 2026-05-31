@@ -253,7 +253,8 @@ const computeForecast = async (userId, options = {}) => {
         
         let totalRemainingWeight = 0;
         const effectiveStart = new Date(Math.max(simStartTime, budgetStartTime));
-        for (let d = new Date(effectiveStart); d <= new Date(budget.end_date); d.setDate(d.getDate() + 1)) {
+        const budgetEndDate = new Date(budget.end_date);
+        for (let d = new Date(effectiveStart); d <= budgetEndDate; d.setDate(d.getDate() + 1)) {
             totalRemainingWeight += weights[d.getDay()];
         }
 
