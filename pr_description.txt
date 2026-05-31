@@ -1,0 +1,12 @@
+💡 What:
+Replaced full-array `.filter()` scans during cash flow projections with upfront `Map`-based categorization, and cached parsed timestamp values directly onto transaction objects.
+
+🎯 Why:
+The `computeForecast` function was iterating over an array of up to 10,000 transactions multiple times for every budget category, resulting in O(N*M) algorithmic complexity. Additionally, it was executing `new Date(t.date)` continuously inside the inner loops, generating significant CPU overhead and garbage collection pauses.
+
+📊 Impact:
+Reduces computational complexity of cash flow projections from O(N*M) to O(N+M) and removes thousands of redundant `new Date()` allocations. This will yield a substantial decrease in latency and memory pressure when executing forecasts for high-volume users.
+
+🔬 Measurement:
+1. Run backend tests to verify mathematical correctness of forecasts is preserved.
+2. Load a user with 5,000+ transactions and 15+ budgets in production, and observe the duration reduction in API response times via performance tracking.
