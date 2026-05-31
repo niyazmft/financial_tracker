@@ -21,5 +21,14 @@
     "types",
     "duplicates",
     "unlisted"
+  ],
+  "ignoreDependencies": [
+    "@tailwindcss/container-queries",
+    "@tailwindcss/forms",
+    "@tailwindcss/postcss",
+    "autoprefixer",
+    "postcss",
+    "postcss-cli",
+    "tailwindcss"
   ]
 }
