@@ -54,8 +54,9 @@ const detectSpendingAnomalies = async (userId, sensitivity = 3) => {
     scoringCutoff.setDate(scoringCutoff.getDate() - 30); // Last 30 days are for scoring
 
     // Baseline is everything older than the scoring window (Leakage Fix)
-    const historicalTransactions = spendingTransactions.filter(t => t.date < scoringCutoff);
-    const recentTransactions = spendingTransactions.filter(t => t.date >= scoringCutoff);
+    const cutoffTimestamp = new Date(scoringCutoff).setHours(0, 0, 0, 0);
+    const historicalTransactions = spendingTransactions.filter(t => t.date.getTime() < cutoffTimestamp);
+    const recentTransactions = spendingTransactions.filter(t => t.date.getTime() >= cutoffTimestamp);
 
     const categoryAverages = {};
     const categoryCounts = {};
