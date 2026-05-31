@@ -147,7 +147,7 @@
                     </div>
                     <Button
                       icon="pi pi-pencil"
-                      aria-label="Edit plan"
+                      :aria-label="'Edit ' + plan.planName + ' plan'"
                       severity="secondary"
                       text
                       rounded
@@ -155,7 +155,7 @@
                     />
                     <Button
                       :icon="expandedPlans[plan.itemId] ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
-                      aria-label="Toggle details"
+                      :aria-label="'Toggle details for ' + plan.planName"
                       severity="secondary"
                       text
                       rounded
@@ -438,7 +438,7 @@
             <template #body="{ data }">
               <Button
                 icon="pi pi-trash"
-                aria-label="Delete installment"
+                :aria-label="'Delete installment due on ' + formatDateDisplay(data.start_date)"
                 severity="danger"
                 text
                 rounded
