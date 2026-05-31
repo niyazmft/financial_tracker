@@ -84,7 +84,6 @@
     "markdownlint-cli": "^0.48.0",
     "mocha": "^11.7.5",
     "nodemon": "^3.1.14",
-    "pm2": "^5.4.2",
     "postcss": "^8.5.8",
     "postcss-cli": "^10.1.0",
     "proxyquire": "^2.1.3",
