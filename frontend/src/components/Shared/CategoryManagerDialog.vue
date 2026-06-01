@@ -44,7 +44,7 @@
                 <div class="flex gap-1">
                   <Button
                     icon="pi pi-pencil"
-                    aria-label="Edit category"
+                    :aria-label="'Edit ' + data.name + ' category'"
                     text
                     rounded
                     severity="secondary"
@@ -52,7 +52,7 @@
                   />
                   <Button
                     icon="pi pi-trash"
-                    aria-label="Delete category"
+                    :aria-label="'Delete ' + data.name + ' category'"
                     text
                     rounded
                     severity="danger"

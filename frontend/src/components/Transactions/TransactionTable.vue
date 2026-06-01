@@ -147,14 +147,14 @@
         <div class="flex gap-2">
           <Button
             icon="pi pi-pencil"
-            aria-label="Edit transaction"
+            :aria-label="'Edit ' + slotProps.data.description + ' transaction'"
             text
             class="text-gray-400 hover:text-blue-500 transition-colors"
             @click="$emit('edit', slotProps.data)"
           />
           <Button
             icon="pi pi-trash"
-            aria-label="Delete transaction"
+            :aria-label="'Delete ' + slotProps.data.description + ' transaction'"
             text
             class="text-gray-400 hover:text-red-500 transition-colors"
             @click="$emit('delete', slotProps.data)"

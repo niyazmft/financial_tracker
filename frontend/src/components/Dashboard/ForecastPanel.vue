@@ -107,7 +107,8 @@
               </div>
               <Button 
                 v-tooltip="'Dismiss for 24 hours'" 
-                icon="pi pi-times" 
+                icon="pi pi-times"
+                aria-label="Dismiss warning"
                 text 
                 rounded 
                 severity="secondary" 

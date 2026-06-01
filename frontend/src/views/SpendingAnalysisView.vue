@@ -17,6 +17,7 @@
         />
         <Button
           icon="pi pi-refresh"
+          aria-label="Refresh data"
           severity="secondary"
           outlined
           @click="refreshData"

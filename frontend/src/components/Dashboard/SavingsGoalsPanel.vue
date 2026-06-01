@@ -56,6 +56,7 @@
             </div>
             <Button
               icon="pi pi-trash"
+              :aria-label="'Delete ' + goal.goal_name + ' goal'"
               severity="danger"
               text
               rounded
