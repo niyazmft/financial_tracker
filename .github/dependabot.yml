@@ -1,0 +1,66 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # Enable version updates for npm/pnpm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    # Labels on pull requests for version updates only
+    labels:
+      - "dependencies"
+      - "triage"
+    # Group updates together
+    groups:
+      # Group all minor/patch updates together
+      minor-patch-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Group major updates separately
+      major-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+    # Allow up to 10 open PRs at a time
+    open-pull-requests-limit: 10
+    # Reviewers for Dependabot PRs
+    reviewers:
+      - "niyazmft"
+    # Commit message preferences
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    # Ignore certain dependencies (if needed)
+    # ignore:
+    #   - dependency-name: "some-package"
+    #     versions: ["5.x"]
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "triage"
+    reviewers:
+      - "niyazmft"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+      include: "scope"
