@@ -109,11 +109,11 @@ const getMonthlySpending = catchAsync(async (req, res, next) => {
     let offset = 0;
     const pageSize = 1000;
     const MAX_RECORDS = 50000; // Safety limit
-    
+
     while (true) {
         const pageResponse = await nocodbService.getRecords(BANK_STATEMENTS_TABLE_ID, { where: whereClause, limit: pageSize, offset: offset, sort: 'date' });
         const pageData = pageResponse.list || [];
-        
+
         records.push(...pageData);
         if (pageData.length < pageSize || records.length >= MAX_RECORDS) {
             break;
@@ -219,11 +219,11 @@ const getCategorySpending = catchAsync(async (req, res, next) => {
     let offset = 0;
     const pageSize = 1000;
     const MAX_RECORDS = 50000; // Safety limit
-    
+
     while (true) {
         const pageResponse = await nocodbService.getRecords(BANK_STATEMENTS_TABLE_ID, { where: whereClause, limit: pageSize, offset: offset, sort: 'categories_id' });
         const pageData = pageResponse.list || [];
-        
+
         records.push(...pageData);
         if (pageData.length < pageSize || records.length >= MAX_RECORDS) {
             break;
@@ -308,11 +308,11 @@ const getCustomRangeSalary = catchAsync(async (req, res, next) => {
     let offset = 0;
     const pageSize = 1000;
     const MAX_RECORDS = 50000; // Safety limit
-    
+
     while (true) {
         const pageResponse = await nocodbService.getRecords(BANK_STATEMENTS_TABLE_ID, { where: whereClause, limit: pageSize, offset: offset, sort: 'date' });
         const pageData = pageResponse.list || [];
-        
+
         records.push(...pageData);
         if (pageData.length < pageSize || records.length >= MAX_RECORDS) {
             break;

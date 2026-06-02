@@ -35,13 +35,13 @@ async function getTransactions(userId, { startDate, endDate }) {
         const pageRecords = response.list || [];
         
         if (pageRecords.length === 0) break;
-        
+
         allRecords = allRecords.concat(pageRecords);
-        
+
         if (pageRecords.length < pageSize) break;
-        
+
         currentOffset += pageSize;
-        
+
         // Safety check to prevent infinite loops or OOM
         if (currentOffset > 50000) break;
     }
