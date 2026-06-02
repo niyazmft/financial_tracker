@@ -20,8 +20,9 @@ const getAllRecords = async (tableId, params = {}) => {
     // Initial request to get first page and total count
     const initialResponse = await module.exports.getRecords(tableId, { ...params, limit: pageSize, offset: 0 });
 
-    let allRecords = initialResponse.list || [];
-    const totalRows = initialResponse.pageInfo?.totalRows || allRecords.length;
+    let allRecords = initialResponse?.list || [];
+    const MAX_RECORDS = 50000; // Safety limit to prevent OOM / rate limiting
+    const totalRows = Math.min(initialResponse?.pageInfo?.totalRows || allRecords.length, MAX_RECORDS);
 
     if (totalRows > pageSize) {
         const promises = [];
