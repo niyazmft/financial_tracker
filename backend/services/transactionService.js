@@ -18,40 +18,32 @@ async function getTransactions(userId, { startDate, endDate }) {
         whereClause = `${userFilter}~and${dateRangeFilter}`;
     }
 
-    let allRecords;
+    let allRecords = [];
+    let currentOffset = 0;
     const pageSize = 1000;
 
-    // Fetch first page to get total rows
-    const initialParams = {
-        limit: pageSize,
-        offset: 0,
-        sort: '-date',
-        where: whereClause,
-    };
-    const initialResponse = await nocodbService.getRecords(bankStatementsTableId, initialParams);
-    allRecords = initialResponse.list || [];
+    // Fetch all pages
+    while (true) {
+        const params = {
+            limit: pageSize,
+            offset: currentOffset,
+            sort: '-date',
+            where: whereClause,
+        };
 
-    const totalRows = initialResponse.pageInfo?.totalRows !== undefined ? initialResponse.pageInfo.totalRows : allRecords.length;
-    const MAX_RECORDS = 50000;
-    const limitRows = Math.min(totalRows, MAX_RECORDS);
-
-    if (limitRows > pageSize) {
-        const promises = [];
-        for (let offset = pageSize; offset < limitRows; offset += pageSize) {
-            promises.push(
-                nocodbService.getRecords(bankStatementsTableId, {
-                    limit: pageSize,
-                    offset: offset,
-                    sort: '-date',
-                    where: whereClause,
-                })
-            );
-        }
+        const response = await nocodbService.getRecords(bankStatementsTableId, params);
+        const pageRecords = response.list || [];
         
-        const responses = await Promise.all(promises);
-        for (const res of responses) {
-            allRecords = allRecords.concat(res.list || []);
-        }
+        if (pageRecords.length === 0) break;
+
+        allRecords = allRecords.concat(pageRecords);
+
+        if (pageRecords.length < pageSize) break;
+
+        currentOffset += pageSize;
+
+        // Safety check to prevent infinite loops or OOM
+        if (currentOffset > 50000) break;
     }
 
     // Process and format transactions
