@@ -67,14 +67,14 @@
           <div class="flex gap-3">
             <button
               class="text-text-muted hover:text-primary p-1"
-              aria-label="Edit transaction"
+              :aria-label="'Edit ' + transaction.description + ' transaction'"
               @click="$emit('edit', transaction)"
             >
               <i class="pi pi-pencil text-sm" /> 
             </button>
             <button
               class="text-text-muted hover:text-danger p-1"
-              aria-label="Delete transaction"
+              :aria-label="'Delete ' + transaction.description + ' transaction'"
               @click="$emit('delete', transaction)"
             >
               <i class="pi pi-trash text-sm" />
