@@ -31,7 +31,7 @@ async function getTransactions(userId, { startDate, endDate }) {
     const initialResponse = await nocodbService.getRecords(bankStatementsTableId, initialParams);
     allRecords = initialResponse.list || [];
 
-    const totalRows = initialResponse.pageInfo?.totalRows || allRecords.length;
+    const totalRows = initialResponse.pageInfo?.totalRows !== undefined ? initialResponse.pageInfo.totalRows : allRecords.length;
     const MAX_RECORDS = 50000;
     const limitRows = Math.min(totalRows, MAX_RECORDS);
 
