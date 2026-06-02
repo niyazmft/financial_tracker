@@ -1,0 +1,5 @@
+1. **Fix Avatar keyboard accessibility in Navigation**: The user profile `Avatar` in `Navigation.vue` acts as a menu trigger but lacks keyboard accessibility (cannot be tabbed to) and screen reader context (no aria-label or role). I will wrap the `<Avatar>` in a `<button>` with `aria-haspopup="true"` and `aria-label="User profile menu"`, ensuring it has proper focus styles (`focus-visible:ring-2`).
+2. **Fix missing aria-label on mobile search input**: In `TransactionList.vue`, the mobile search `<input>` has a placeholder but no `aria-label`. I will add `aria-label="Search transactions"` so screen readers can properly identify the input.
+3. **Complete pre-commit steps**: Run pre-commit instructions, including linting and tests, to ensure proper testing, verification, review, and reflection are done.
+4. **Update Palette's Journal**: Document the learning about wrapping interactive Avatars in `<button>` tags to ensure native keyboard navigation and screen reader support.
+5. **Submit PR**: Submit the changes with the `submit` tool.
