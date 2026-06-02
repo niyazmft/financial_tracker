@@ -114,7 +114,7 @@ const getMonthlySpending = catchAsync(async (req, res, next) => {
     const initialResponse = await nocodbService.getRecords(BANK_STATEMENTS_TABLE_ID, initialParams);
     records = initialResponse.list || [];
 
-    const totalRows = initialResponse.pageInfo?.totalRows || records.length;
+    const totalRows = initialResponse.pageInfo?.totalRows !== undefined ? initialResponse.pageInfo.totalRows : records.length;
     const limitRows = Math.min(totalRows, MAX_RECORDS);
 
     if (limitRows > pageSize) {
