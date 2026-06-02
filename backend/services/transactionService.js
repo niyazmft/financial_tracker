@@ -18,33 +18,7 @@ async function getTransactions(userId, { startDate, endDate }) {
         whereClause = `${userFilter}~and${dateRangeFilter}`;
     }
 
-    let allRecords = [];
-    let currentOffset = 0;
-    const pageSize = 1000;
-
-    // Fetch all pages
-    while (true) {
-        const params = {
-            limit: pageSize,
-            offset: currentOffset,
-            sort: '-date',
-            where: whereClause,
-        };
-
-        const response = await nocodbService.getRecords(bankStatementsTableId, params);
-        const pageRecords = response.list || [];
-        
-        if (pageRecords.length === 0) break;
-
-        allRecords = allRecords.concat(pageRecords);
-
-        if (pageRecords.length < pageSize) break;
-
-        currentOffset += pageSize;
-
-        // Safety check to prevent infinite loops or OOM
-        if (currentOffset > 50000) break;
-    }
+    const allRecords = await nocodbService.getAllRecords(bankStatementsTableId, { limit: 1000, sort: '-date', where: whereClause });
 
     // Process and format transactions
     const transactions = allRecords.map(record => ({

@@ -105,21 +105,7 @@ const getMonthlySpending = catchAsync(async (req, res, next) => {
     const dateRangeFilter = `(date,ge,exactDate,${actualStartDate})~and(date,le,exactDate,${actualEndDate})`;
     const whereClause = `${userFilter}~and${categoriesFilter}~and${dateRangeFilter}`;
     
-    const records = [];
-    let offset = 0;
-    const pageSize = 1000;
-    const MAX_RECORDS = 50000; // Safety limit
-
-    while (true) {
-        const pageResponse = await nocodbService.getRecords(BANK_STATEMENTS_TABLE_ID, { where: whereClause, limit: pageSize, offset: offset, sort: 'date' });
-        const pageData = pageResponse.list || [];
-
-        records.push(...pageData);
-        if (pageData.length < pageSize || records.length >= MAX_RECORDS) {
-            break;
-        }
-        offset += pageSize;
-    }
+    const records = await nocodbService.getAllRecords(BANK_STATEMENTS_TABLE_ID, { where: whereClause, limit: 1000, sort: 'date' });
     
     const monthlyTotals = {};
     let currentMonth = new Date(actualStartDate);
@@ -215,21 +201,7 @@ const getCategorySpending = catchAsync(async (req, res, next) => {
     const dateRangeFilter = `(date,ge,exactDate,${startDate})~and(date,le,exactDate,${endDate})`;
     const whereClause = `${userFilter}~and${categoriesFilter}~and${dateRangeFilter}`;
     
-    const records = [];
-    let offset = 0;
-    const pageSize = 1000;
-    const MAX_RECORDS = 50000; // Safety limit
-
-    while (true) {
-        const pageResponse = await nocodbService.getRecords(BANK_STATEMENTS_TABLE_ID, { where: whereClause, limit: pageSize, offset: offset, sort: 'categories_id' });
-        const pageData = pageResponse.list || [];
-
-        records.push(...pageData);
-        if (pageData.length < pageSize || records.length >= MAX_RECORDS) {
-            break;
-        }
-        offset += pageSize;
-    }
+    const records = await nocodbService.getAllRecords(BANK_STATEMENTS_TABLE_ID, { where: whereClause, limit: 1000, sort: 'categories_id' });
     
     const categoryTotals = {};
     targetCategories.forEach(catId => {
@@ -304,21 +276,7 @@ const getCustomRangeSalary = catchAsync(async (req, res, next) => {
     const dateRangeFilter = `(date,ge,exactDate,${startDate})~and(date,le,exactDate,${endDate})`;
     const whereClause = `${userFilter}~and${categoriesFilter}~and${dateRangeFilter}`;
     
-    const records = [];
-    let offset = 0;
-    const pageSize = 1000;
-    const MAX_RECORDS = 50000; // Safety limit
-
-    while (true) {
-        const pageResponse = await nocodbService.getRecords(BANK_STATEMENTS_TABLE_ID, { where: whereClause, limit: pageSize, offset: offset, sort: 'date' });
-        const pageData = pageResponse.list || [];
-
-        records.push(...pageData);
-        if (pageData.length < pageSize || records.length >= MAX_RECORDS) {
-            break;
-        }
-        offset += pageSize;
-    }
+    const records = await nocodbService.getAllRecords(BANK_STATEMENTS_TABLE_ID, { where: whereClause, limit: 1000, sort: 'date' });
     
     const customRangeData = records;
     
