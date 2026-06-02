@@ -12,7 +12,7 @@ describe('Transaction Service', () => {
 
     beforeEach(() => {
         getRecordsStub = sinon.stub(nocodbService, 'getRecords');
-        if (nocodbService.getAllRecords) { getAllRecordsStub = sinon.stub(nocodbService, 'getAllRecords'); } else { nocodbService.getAllRecords = () => {}; getAllRecordsStub = sinon.stub(nocodbService, 'getAllRecords'); }
+        getAllRecordsStub = sinon.stub(nocodbService, 'getAllRecords');
         getCategoryMappingStub = sinon.stub(categoryService, 'getCategoryMapping');
     });
 
