@@ -50,7 +50,7 @@ exports.updateGoal = catchAsync(async (req, res, next) => {
 
     // Verify ownership
     const existingRecord = await nocodbService.getRecordById(SAVINGS_GOALS_TABLE_ID, id);
-    if (!existingRecord) {
+    if (!existingRecord || Object.keys(existingRecord).length === 0) {
         return next(new AppError('Savings goal not found.', 404));
     }
     if (existingRecord.user_id !== verifiedUserId) {
