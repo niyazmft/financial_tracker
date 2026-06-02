@@ -3,8 +3,55 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Vue](https://img.shields.io/badge/Vue.js-3.x-4fc08d.svg)](https://vuejs.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff.svg)](https://vitejs.dev/)
+[![CI](https://github.com/niyazmft/financial_tracker/workflows/CI/badge.svg)](https://github.com/niyazmft/financial_tracker/actions)
+[![CodeQL](https://github.com/niyazmft/financial_tracker/workflows/CodeQL/badge.svg)](https://github.com/niyazmft/financial_tracker/actions)
+[![Security](https://img.shields.io/badge/security-secret--scanning-blue)](https://github.com/niyazmft/financial_tracker/security)
+[![Dependabot](https://img.shields.io/badge/dependabot-enabled-brightgreen)](https://github.com/niyazmft/financial_tracker/security/dependabot)
 
 FinTrack is a comprehensive, modern personal finance management application. Built with **Vue 3** and **Node.js**, it provides an intuitive interface to track income, manage budgets, analyze spending trends, and monitor subscriptions—all in one place.
+
+## 📚 Table of Contents
+
+<!-- markdownlint-disable MD051 -->
+- [Features](#-features)
+- [Quick Start](#-quick-start)
+- [Core Concepts](#-core-concepts)
+- [Previews](#-previews)
+- [Architecture & Dependencies](#-architecture--dependencies)
+- [DevOps & Tooling](#-devops--tooling)
+- [Getting Started](#-getting-started)
+- [Contributing](#-contributing)
+- [Security](#-security)
+- [License](#-license)
+<!-- markdownlint-enable MD051 -->
+
+## ⚡ Quick Start
+
+```bash
+# Clone and setup
+git clone https://github.com/niyazmft/financial_tracker.git
+cd financial_tracker
+pnpm install
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your Firebase and NocoDB credentials
+
+# Start infrastructure (Docker)
+cd infrastructure/docker && docker-compose up -d && cd ../..
+
+# Setup database tables
+pnpm run db:setup
+
+# Start development
+pnpm run dev
+```
+
+**Open:** [http://localhost:3000](http://localhost:3000)
+
+For detailed setup instructions, see [Getting Started](#-getting-started).
+
+---
 
 ## 🚀 Features
 
@@ -321,32 +368,40 @@ The backend provides a RESTful API. Key endpoints include:
 - **Firebase Errors:** specific `service-account.json` errors usually mean the file is missing or the path in `.env` is incorrect.
 - **Port Conflicts:** If port 3000 or 5432 is taken, update `infrastructure/docker/docker-compose.yml` or your local env.
 
+---
+
+## 🔒 Security
+
+For information about reporting security vulnerabilities, see our [Security Policy](SECURITY.md).
+
+We use:
+
+- ✅ Secret scanning to detect leaked credentials
+- ✅ Dependabot for automated security updates
+- ✅ CodeQL for code analysis
+- ✅ Protected branches with required reviews
+
+---
+
 ## 🤝 Contributing
 
-Contributions are welcome! To ensure stability and high code quality, please follow these steps:
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for detailed guidelines on:
 
-1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`).
-3. **Lint-First Rule**: If your feature introduces a new language or framework, ensure its linter is configured and added to `pnpm run lint:all` before implementation.
-4. **Auto-Fix Rule**: Before manually addressing linting errors, always execute the project's auto-fixers to save time and tokens:
+- Development workflow
+- Coding standards ([AGENTS.md](AGENTS.md))
+- Testing requirements
+- Pull request process
 
-    ```bash
-    pnpm exec eslint '**/*.{js,mjs,vue}' --fix
-    pnpm exec stylelint 'frontend/src/**/*.css' --fix
-    ```
+**Quick start for contributors:**
 
-5. **Run local tests** to ensure no regressions:
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Run tests and linting: `pnpm run lint:all && pnpm test && pnpm run test:ui`
+4. Commit your changes (`git commit -m 'feat: Add some AmazingFeature'`)
+5. Push to the branch (`git push origin feature/AmazingFeature`)
+6. Open a [Pull Request](https://github.com/niyazmft/financial_tracker/pulls)
 
-    ```bash
-    pnpm test                       # Backend tests
-    pnpm run test:ui                # Frontend tests
-    pnpm run lint:all               # Code quality audit
-    pnpm run analyze                # Unused code/deps check
-    ```
-
-6. Commit your changes (`git commit -m 'feat: Add some AmazingFeature'`).
-7. Push to the branch (`git push origin feature/AmazingFeature`).
-8. Open a Pull Request.
+Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
 
 ## 💎 Credits
 

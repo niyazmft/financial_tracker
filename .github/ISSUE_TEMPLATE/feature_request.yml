@@ -1,0 +1,78 @@
+name: ✨ Feature Request
+description: Suggest an idea for FinTrack
+title: "[FEATURE] "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to suggest a feature! Please provide as much detail as possible to help us understand and evaluate your idea.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Is your feature request related to a problem?
+      description: A clear and concise description of what the problem is
+      placeholder: I'm always frustrated when I have to manually categorize each transaction...
+    validations:
+      required: false
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the solution you'd like
+      description: A clear and concise description of what you want to happen
+      placeholder: I'd like an AI-powered auto-categorization feature that suggests categories based on transaction descriptions
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Describe alternatives you've considered
+      description: A clear and concise description of any alternative solutions or features you've considered
+      placeholder: I tried using tagging rules but they don't cover all edge cases
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Which component would this feature affect?
+      description: Select the primary area this feature relates to
+      options:
+        - Dashboard
+        - Transactions
+        - Budget Manager
+        - Subscriptions
+        - Spending Analysis
+        - Installments
+        - Categories
+        - Tagging Rules
+        - Import/Export
+        - User Settings
+        - Notifications
+        - Reports/Analytics
+        - API
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add any other context, screenshots, or examples about the feature request here
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission Checks
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate request
+          required: true
+        - label: I have checked the README and documentation for existing features
+          required: true
+        - label: This feature aligns with the project's goals (personal finance management)
+          required: true
+        - label: I am willing to help implement this feature (optional)
+          required: false
