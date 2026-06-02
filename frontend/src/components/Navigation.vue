@@ -76,6 +76,7 @@
             v-if="authStore.user"
             aria-label="User profile menu"
             aria-haspopup="true"
+            :aria-expanded="userMenu ? 'true' : 'false'"
             class="focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full cursor-pointer"
             @click="toggleUserMenu"
           >
