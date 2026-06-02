@@ -14,6 +14,31 @@ const getRecords = async (tableId, params) => {
     return response.data;
 };
 
+const getAllRecords = async (tableId, params = {}) => {
+    const pageSize = params.limit || 1000;
+
+    // Initial request to get first page and total count
+    const initialResponse = await module.exports.getRecords(tableId, { ...params, limit: pageSize, offset: 0 });
+
+    let allRecords = initialResponse?.list || [];
+    const MAX_RECORDS = 50000; // Safety limit to prevent OOM / rate limiting
+    const totalRows = Math.min(initialResponse?.pageInfo?.totalRows || allRecords.length, MAX_RECORDS);
+
+    if (totalRows > pageSize) {
+        const promises = [];
+        for (let offset = pageSize; offset < totalRows; offset += pageSize) {
+            promises.push(module.exports.getRecords(tableId, { ...params, limit: pageSize, offset }));
+        }
+
+        const responses = await Promise.all(promises);
+        for (const res of responses) {
+            allRecords = allRecords.concat(res.list || []);
+        }
+    }
+
+    return allRecords;
+};
+
 const createRecord = async (tableId, data) => {
     const url = `${nocodbApiUrl}/api/v2/tables/${tableId}/records`;
     try {
@@ -47,6 +72,7 @@ const getRecordById = async (tableId, recordId) => {
 
 module.exports = {
     getRecords,
+    getAllRecords,
     createRecord,
     updateRecord,
     deleteRecord,

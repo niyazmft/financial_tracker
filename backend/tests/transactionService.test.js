@@ -7,10 +7,12 @@ const env = require('../config/env');
 
 describe('Transaction Service', () => {
     let getRecordsStub;
+    let getAllRecordsStub;
     let getCategoryMappingStub;
 
     beforeEach(() => {
         getRecordsStub = sinon.stub(nocodbService, 'getRecords');
+        getAllRecordsStub = sinon.stub(nocodbService, 'getAllRecords');
         getCategoryMappingStub = sinon.stub(categoryService, 'getCategoryMapping');
     });
 
@@ -38,14 +40,14 @@ describe('Transaction Service', () => {
             10: 'Groceries'
         };
 
-        getRecordsStub.resolves(mockRecords);
+        getAllRecordsStub.resolves(mockRecords.list);
         getCategoryMappingStub.resolves(mockCategoryMapping);
 
         const result = await transactionService.getTransactions(userId, {});
 
         // Verify NocoDB call
-        assert.ok(getRecordsStub.calledOnce);
-        const callArgs = getRecordsStub.firstCall.args;
+        assert.ok(getAllRecordsStub.calledOnce);
+        const callArgs = getAllRecordsStub.firstCall.args;
         assert.strictEqual(callArgs[0], env.NOCODB.TABLES.BANK_STATEMENTS);
         assert.ok(callArgs[1].where.includes(`(user_id,eq,${userId})`));
 
@@ -60,22 +62,13 @@ describe('Transaction Service', () => {
         const userId = 'user123';
         
         // Mock first page (full page)
-        getRecordsStub.onFirstCall().resolves({
-            list: Array(1000).fill({ Id: 1, amount: 10 }),
-            pageInfo: { totalRows: 1001 }
-        });
-        
-        // Mock second page (remaining)
-        getRecordsStub.onSecondCall().resolves({
-            list: [{ Id: 2, amount: 10 }],
-            pageInfo: { totalRows: 1001 }
-        });
+        getAllRecordsStub.resolves(Array(1001).fill({ Id: 1, amount: 10 }));
 
         getCategoryMappingStub.resolves({});
 
         const result = await transactionService.getTransactions(userId, {});
 
-        assert.ok(getRecordsStub.calledTwice);
+        assert.ok(getAllRecordsStub.calledOnce);
         assert.strictEqual(result.transactions.length, 1001);
     });
 
