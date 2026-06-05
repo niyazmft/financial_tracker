@@ -13,7 +13,7 @@
     "db:setup": "node backend/scripts/setupNocodb.js",
     "db:seed": "node backend/scripts/seedData.js",
     "db:check": "node backend/scripts/checkData.js",
-    "test": "cross-env NODE_ENV=test FIREBASE_SERVICE_ACCOUNT_KEY_JSON='{\"project_id\":\"mock-project\"}' CATEGORIES_TABLE_ID=mock_table mocha 'backend/tests/**/*.test.js'",
+    "test": "cross-env NODE_ENV=test FIREBASE_SERVICE_ACCOUNT_KEY_JSON='{\"project_id\":\"mock-project\"}' CATEGORIES_TABLE_ID=mock_table mocha 'backend/tests/**/*.test.js' --exit",
     "test:email": "node backend/tests/manual_email_test.js",
     "test:ui": "vitest run --config vite.config.mjs",
     "build": "vite build",

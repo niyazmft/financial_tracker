@@ -113,7 +113,7 @@ pnpm run pm2:logs               # View logs
 After ANY code change, run:
 
 ```bash
-pnpm test                       # Backend tests (Mocha)
+pnpm test                       # Backend tests (Mocha) with --exit
 pnpm run test:ui                # Frontend tests (Vitest)
 pnpm run lint:all               # All linters
 ```
