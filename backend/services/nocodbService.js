@@ -9,7 +9,7 @@ const headers = {
 };
 
 const getRecords = async (tableId, params) => {
-    const url = `${nocodbApiUrl}/api/v2/tables/${tableId}/records`;
+    const url = `${nocodbApiUrl}/api/v2/tables/${encodeURIComponent(tableId)}/records`;
     const response = await axios.get(url, { headers, params });
     return response.data;
 };
@@ -40,7 +40,7 @@ const getAllRecords = async (tableId, params = {}) => {
 };
 
 const createRecord = async (tableId, data) => {
-    const url = `${nocodbApiUrl}/api/v2/tables/${tableId}/records`;
+    const url = `${nocodbApiUrl}/api/v2/tables/${encodeURIComponent(tableId)}/records`;
     try {
         const response = await axios.post(url, data, { headers });
         return response.data;
@@ -53,19 +53,19 @@ const createRecord = async (tableId, data) => {
 };
 
 const updateRecord = async (tableId, data) => {
-    const url = `${nocodbApiUrl}/api/v2/tables/${tableId}/records`;
+    const url = `${nocodbApiUrl}/api/v2/tables/${encodeURIComponent(tableId)}/records`;
     const response = await axios.patch(url, data, { headers });
     return response.data;
 };
 
 const deleteRecord = async (tableId, recordId) => {
-    const url = `${nocodbApiUrl}/api/v2/tables/${tableId}/records`;
+    const url = `${nocodbApiUrl}/api/v2/tables/${encodeURIComponent(tableId)}/records`;
     const response = await axios.delete(url, { headers, data: { Id: recordId } });
     return response.data;
 };
 
 const getRecordById = async (tableId, recordId) => {
-    const url = `${nocodbApiUrl}/api/v2/tables/${tableId}/records/${recordId}`;
+    const url = `${nocodbApiUrl}/api/v2/tables/${encodeURIComponent(tableId)}/records/${encodeURIComponent(recordId)}`;
     const response = await axios.get(url, { headers });
     return response.data;
 };
