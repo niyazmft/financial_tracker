@@ -1,7 +1,4 @@
-🛡️ Sentinel: [CRITICAL] Fix authorization bypass in API (IDOR)
-
-🚨 Severity: CRITICAL
-💡 Vulnerability: The `updateGoal` and `deleteGoal` endpoints in `backend/controllers/savingsGoalController.js` lacked authorization checks. While authentication was required (via `authenticateToken` middleware), the endpoints trusted the provided ID parameter blindly, allowing any authenticated user to modify or delete another user's savings goal by merely changing the `id` in the API path. This is an Insecure Direct Object Reference (IDOR) vulnerability.
-🎯 Impact: An attacker with a standard user account could manipulate or delete any other user's savings goals in the system, leading to data loss and unauthorized data modification.
-🔧 Fix: Implemented the "retrieve, verify, mutate" pattern. Before updating or deleting a goal, the controller now fetches the existing record using `nocodbService.getRecordById` and strictly compares the `user_id` of the record against the authenticated user's ID (`req.user.uid`). If they don't match, it returns a 403 Forbidden error.
-✅ Verification: Ensure the test suite passes (`pnpm test`). Manually testing the endpoints with an ID belonging to a different user will now result in a 403 response.
+💡 What: Replaced !Object.keys(categoryMapping).includes() with direct property access !categoryMapping[].
+🎯 Why: Object.keys().includes() is an O(N) operation. Direct property access is an O(1) operation.
+📊 Impact: Reduces category validation lookup time significantly, especially as the number of categories grows.
+🔬 Measurement: Run node backend/scripts/benchmark4.js to verify.
