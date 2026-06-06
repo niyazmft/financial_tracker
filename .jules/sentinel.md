@@ -15,3 +15,9 @@
 **Vulnerability:** Missing authorization checks in the `updateSubscription` and `deleteSubscription` endpoints. The endpoints passed the ID directly to the service layer without verifying if the authenticated user (`req.user.uid`) actually owned the subscription record, allowing any authenticated user to modify or delete any subscription by guessing its ID.
 **Learning:** When abstracting database operations into a service layer (e.g., `subscriptionService.js`), it's crucial to maintain authorization boundaries. The controller must fetch the existing record and verify ownership (`record.user_id === req.user.uid`) before delegating the update/delete operation to the service.
 **Prevention:** Implement strict ownership verification in controllers before invoking service methods for updates or deletions, returning `403 Forbidden` if the `user_id` doesn't match the authenticated user.
+
+## 2024-06-06 - [Path Traversal / SSRF via Unsanitized User Input in NocoDB Axios Calls]
+
+**Vulnerability:** The functions in `backend/services/nocodbService.js` (such as `getRecordById`, `createRecord`, etc.) constructed NocoDB API URLs by directly interpolating `tableId` and `recordId` without URI encoding them. An attacker could potentially supply a malicious `tableId` or `recordId` parameter (e.g., `../../something/else`) to alter the requested endpoint path, resulting in Path Traversal or Server-Side Request Forgery (SSRF) against internal resources.
+**Learning:** Whenever interpolating user-supplied data into a URL path segment or query string for making outbound HTTP requests (e.g., using `axios`), always encode the input. String concatenation or template literals are unsafe if the data isn't sanitized first.
+**Prevention:** Wrap user-controlled variables used in URL construction with `encodeURIComponent()` to ensure they are treated strictly as data parameters rather than structural path or query components.
