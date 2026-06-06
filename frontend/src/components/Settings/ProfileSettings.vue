@@ -99,13 +99,9 @@
 
         <!-- Income Estimate -->
         <div class="flex flex-col gap-2">
-          <label
-            for="monthly_income"
-            class="text-sm font-medium text-text-sub"
-          >Monthly Income Estimate</label>
+          <label class="text-sm font-medium text-text-sub">Monthly Income Estimate</label>
           <div class="flex items-center gap-2">
             <InputNumber
-              id="monthly_income"
               v-model="form.monthly_income_estimate"
               mode="currency"
               :currency="form.currency"

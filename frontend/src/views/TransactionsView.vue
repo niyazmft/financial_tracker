@@ -116,12 +116,8 @@
         </div>
 
         <div class="flex flex-col gap-2">
-          <label
-            for="transaction-amount-filter"
-            class="font-medium text-sm text-text-sub"
-          >Amount</label>
+          <label class="font-medium text-sm text-text-sub">Amount</label>
           <InputNumber
-            id="transaction-amount-filter"
             v-model="filters.amount.constraints[0].value"
             mode="currency"
             :currency="currency"

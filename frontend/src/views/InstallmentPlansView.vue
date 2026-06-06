@@ -383,18 +383,12 @@
       <div class="flex flex-col gap-4 py-4">
         <div class="grid grid-cols-2 gap-4">
           <div class="flex flex-col gap-2">
-            <label for="plan-name-input">Plan Name</label>
-            <InputText
-              id="plan-name-input"
-              v-model="editForm.planName"
-            />
+            <label>Plan Name</label>
+            <InputText v-model="editForm.planName" />
           </div>
           <div class="flex flex-col gap-2">
-            <label for="plan-category-input">Category</label>
-            <CategoryPicker
-              id="plan-category-input"
-              v-model="editForm.categoryId"
-            />
+            <label>Category</label>
+            <CategoryPicker v-model="editForm.categoryId" />
           </div>
         </div>
             
