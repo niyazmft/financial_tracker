@@ -1,5 +1,10 @@
 const catchAsync = require('../utils/catchAsync');
 const subscriptionService = require('../services/subscriptionService');
+const nocodbService = require('../services/nocodbService');
+const AppError = require('../utils/AppError');
+const env = require('../config/env');
+
+const SUBSCRIPTIONS_TABLE_ID = env.NOCODB.TABLES.SUBSCRIPTIONS;
 
 exports.getSubscriptions = catchAsync(async (req, res, _next) => {
     const userId = req.user.uid;
@@ -41,8 +46,21 @@ exports.createSubscription = catchAsync(async (req, res, _next) => {
     });
 });
 
-exports.updateSubscription = catchAsync(async (req, res, _next) => {
-    const updatedSubscription = await subscriptionService.updateSubscription(req.params.id, req.body);
+exports.updateSubscription = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const userId = req.user.uid;
+
+    const existingRecord = await nocodbService.getRecordById(SUBSCRIPTIONS_TABLE_ID, id);
+
+    if (!existingRecord || Object.keys(existingRecord).length === 0) {
+        return next(new AppError('Subscription not found.', 404));
+    }
+
+    if (existingRecord.user_id !== userId) {
+        return next(new AppError('Forbidden: You do not have permission to edit this subscription.', 403));
+    }
+
+    const updatedSubscription = await subscriptionService.updateSubscription(id, req.body);
 
     res.status(200).json({
         status: 'success',
@@ -52,8 +70,21 @@ exports.updateSubscription = catchAsync(async (req, res, _next) => {
     });
 });
 
-exports.deleteSubscription = catchAsync(async (req, res, _next) => {
-    await subscriptionService.deleteSubscription(req.params.id);
+exports.deleteSubscription = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const userId = req.user.uid;
+
+    const existingRecord = await nocodbService.getRecordById(SUBSCRIPTIONS_TABLE_ID, id);
+
+    if (!existingRecord || Object.keys(existingRecord).length === 0) {
+        return next(new AppError('Subscription not found.', 404));
+    }
+
+    if (existingRecord.user_id !== userId) {
+        return next(new AppError('Forbidden: You do not have permission to delete this subscription.', 403));
+    }
+
+    await subscriptionService.deleteSubscription(id);
 
     res.status(204).json({
         status: 'success',
