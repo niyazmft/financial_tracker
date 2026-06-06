@@ -145,7 +145,7 @@ const createItem = catchAsync(async (req, res, next) => {
     }
 
     const categoryMapping = await getCategoryMapping(verifiedUserId);
-    if (!categoryMapping[categories_id]) {
+    if (!Object.prototype.hasOwnProperty.call(categoryMapping, categories_id)) {
         return next(new AppError('Forbidden: You do not have permission to use this category.', 403));
     }
     

@@ -5,5 +5,5 @@
 
 ## 2024-06-06 - [O(1) Dictionary Lookup]
 
-**Learning:** `!Object.keys(map).includes(id.toString())` operates in O(N) time as it has to generate an array of keys and then iterate through the array to check for inclusion. Direct property access `!map[id]` does the same check in O(1) time.
-**Action:** Replace `Object.keys().includes()` with direct property access for dictionaries / objects mapping keys to values when evaluating key existence.
+**Learning:** `!Object.keys(map).includes(id.toString())` operates in O(N) time as it has to generate an array of keys and then iterate through the array to check for inclusion. Direct property access like `!map[id]` checks truthiness, which can misclassify inherited properties and falsy values like 0, '', null, or false.
+**Action:** Replace `Object.keys().includes()` with `!Object.prototype.hasOwnProperty.call(map, id)` for correct O(1) key-existence checks (or `!map.has(id)` for ES Map) instead of `!map[id]`.
