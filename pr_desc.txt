@@ -1,4 +1,0 @@
-💡 What: Replaced !Object.keys(categoryMapping).includes() with !Object.prototype.hasOwnProperty.call(categoryMapping, categories_id).
-🎯 Why: Object.keys().includes() is an O(N) operation. Direct property access !map[id] checks for truthiness, which can be inaccurate for falsy values. Object.prototype.hasOwnProperty.call() is an accurate O(1) operation.
-📊 Impact: Reduces category validation lookup time significantly, especially as the number of categories grows.
-🔬 Measurement: Run node backend/scripts/benchmark4.js to verify.
