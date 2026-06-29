@@ -1,4 +1,0 @@
-💡 What: Replaced sequential `while (true)` loops for NocoDB paginated fetches with a concurrent `Promise.all` approach in `nocodbService.getAllRecords()`.
-🎯 Why: Sequential pagination blocked the event loop and caused O(N) network roundtrips. Fetching pages concurrently drastically reduces latency.
-📊 Impact: Reduces network request time from O(N) to roughly O(1) roundtrip for large dataset fetches (e.g., custom range salary, monthly spending, and transactions retrieval), improving overall performance.
-🔬 Measurement: Verify by executing queries returning multiple pages in NocoDB, and measuring API response time compared to previous queries (which took up to 50 iterations sequentially).
