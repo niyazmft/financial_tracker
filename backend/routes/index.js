@@ -9,7 +9,6 @@ const budgetRoutes = require('./budgetRoutes');
 const cashFlowRoutes = require('./cashFlowRoutes');
 const installmentRoutes = require('./installmentRoutes');
 const nocodbRoutes = require('./nocodbRoutes');
-const pageRoutes = require('./pageRoutes');
 const reportRoutes = require('./reportRoutes');
 const transactionRoutes = require('./transactionRoutes');
 const userRoutes = require('./userRoutes');
@@ -20,7 +19,6 @@ const subscriptionRoutes = require('./subscriptionRoutes');
 const savingsGoalRoutes = require('./savingsGoalRoutes');
 const anomalyRoutes = require('./anomalyRoutes');
 
-router.use('/', pageRoutes);
 router.use('/api', budgetRoutes);
 router.use('/api', cashFlowRoutes);
 router.use('/api/installments', installmentRoutes);
