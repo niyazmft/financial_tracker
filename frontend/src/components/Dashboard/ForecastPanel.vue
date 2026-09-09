@@ -70,7 +70,15 @@
         :key="index"
       >
         <Message
-          v-if="warningGroup.type === 'info'"
+          v-if="!forecast.hasData"
+          severity="info"
+          icon="pi pi-info-circle"
+          :closable="false"
+        >
+          Add your first transactions to unlock a real cash-flow forecast. Until then, we can't predict upcoming balances.
+        </Message>
+        <Message
+          v-else-if="warningGroup.type === 'info'"
           severity="success"
           :closable="false"
         >
@@ -162,7 +170,8 @@ const forecast = reactive({
     averageProjectedBalance: 0,
     totalProjectedIncome: 0,
     totalProjectedExpenses: 0,
-    warnings: []
+    warnings: [],
+    hasData: true
 });
 
 const forecastMetrics = computed(() => [
@@ -182,6 +191,9 @@ const loadForecastData = async (days = 30) => {
             forecast.averageProjectedBalance = data.summaryMetrics.averageProjectedBalance;
             forecast.totalProjectedIncome = data.summaryMetrics.totalProjectedIncome;
             forecast.totalProjectedExpenses = data.summaryMetrics.totalProjectedExpenses;
+
+            // No history when the latest recorded transaction date is absent
+            forecast.hasData = Boolean(data.summaryMetrics?.dataFreshness?.latestRecordDate);
             
             if (data.dailyBalances && data.dailyBalances.length > 0) {
                 forecast.currentProjectedBalance = formatCurrency(data.dailyBalances[data.dailyBalances.length - 1].balance);

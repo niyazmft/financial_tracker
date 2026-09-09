@@ -18,7 +18,7 @@
     "build": "vite build",
     "lint:js": "eslint '**/*.{js,mjs,vue}'",
     "lint:css": "stylelint 'frontend/src/**/*.css'",
-    "lint:md": "markdownlint '**/*.md' --ignore node_modules",
+    "lint:md": "markdownlint '**/*.md' --ignore node_modules --ignore 'reports/**/*.md'",
     "lint:json": "eslint '**/*.json' --no-error-on-unmatched-pattern",
     "lint:all": "pnpm run lint:js && pnpm run lint:css && pnpm run lint:md && pnpm run lint:json",
     "lint:unused": "knip",

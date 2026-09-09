@@ -26,33 +26,42 @@
     <div class="step-content mt-8">
       <div v-if="currentStep === 0">
         <h2 class="text-xl font-bold mb-4">
-          Secure Sign-In & Authentication
+          Understand your money, not just track it
         </h2>
-        <p>Your financial data is protected. We use secure, token-based authentication for every request. Your information is only accessible to you.</p>
+        <p class="mb-3">
+          FinTrack turns your transactions into plain-language answers, so you can:
+        </p>
+        <ul class="list-disc list-inside space-y-1">
+          <li>See cash-flow warnings before they surprise you</li>
+          <li>Spot unusual spending compared to your own history</li>
+          <li>Plan budgets, subscriptions, and savings goals</li>
+          <li>Read a plain-English outlook of your financial health</li>
+        </ul>
       </div>
       <div v-if="currentStep === 1">
         <h2 class="text-xl font-bold mb-4">
-          CSV Upload Process
+          Add your transactions
         </h2>
-        <p>To get started, upload a CSV file of your bank statements. Navigate to the 'Transactions' page and click 'Add Transactions' to begin.</p>
-        <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p class="font-bold">
-            Required Columns:
-          </p>
-          <ul class="list-disc list-inside mt-2">
-            <li><code class="bg-gray-200 px-1 rounded">date</code> (YYYY-MM-DD)</li>
-            <li><code class="bg-gray-200 px-1 rounded">amount</code></li>
-            <li><code class="bg-gray-200 px-1 rounded">bank</code></li>
-            <li><code class="bg-gray-200 px-1 rounded">category</code></li>
-            <li><code class="bg-gray-200 px-1 rounded">description</code></li>
-          </ul>
-        </div>
+        <p class="mb-3">
+          A CSV is just a simple spreadsheet of your bank statements — the kind most banks let you download. We'll turn it into your insights.
+        </p>
+        <p class="mb-4">
+          Need a hand? We'll open the import window for you with a ready-made template.
+        </p>
+        <Button
+          label="Add my transactions"
+          icon="pi pi-arrow-right"
+          @click="goToImport"
+        />
       </div>
       <div v-if="currentStep === 2">
         <h2 class="text-xl font-bold mb-4">
-          You're All Set!
+          Your data is protected
         </h2>
-        <p>You can always find more information in our documentation. Enjoy tracking your finances!</p>
+        <p class="mb-3">
+          Everything you add is private and only accessible to you. We use secure sign-in on every request, and you stay in control of your information.
+        </p>
+        <p>You can also explore on your own and import later — no pressure.</p>
       </div>
     </div>
     <template #footer>
@@ -69,8 +78,14 @@
       />
       <Button
         v-else
-        label="Finish"
+        label="Start exploring"
         severity="success"
+        @click="finishOnboarding"
+      />
+      <Button
+        label="Skip for now"
+        text
+        severity="secondary"
         @click="finishOnboarding"
       />
     </template>
@@ -79,11 +94,13 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
 import { useSettingsStore } from '../../stores/settings';
 
 const settingsStore = useSettingsStore();
+const router = useRouter();
 const visible = computed({
   get: () => !settingsStore.hasCompletedOnboarding,
   set: (value) => {
@@ -94,9 +111,9 @@ const visible = computed({
 });
 
 const steps = ref([
-  { title: 'Security' },
-  { title: 'CSV Upload' },
-  { title: 'Complete' }
+  { title: 'Why FinTrack' },
+  { title: 'Get Started' },
+  { title: 'Privacy' }
 ]);
 const currentStep = ref(0);
 
@@ -114,6 +131,12 @@ const prevStep = () => {
 
 const finishOnboarding = () => {
   settingsStore.completeOnboarding();
+};
+
+const goToImport = () => {
+  // Mark onboarding complete, then deep-link into the import flow
+  settingsStore.completeOnboarding();
+  router.push({ path: '/transactions', query: { import: '1' } });
 };
 </script>
 

@@ -149,6 +149,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useFinance } from '../composables/useFinance';
+import { useRoute } from 'vue-router';
 import { useSettingsStore } from '../stores/settings';
 import { useFinanceStore } from '../stores/finance';
 import { storeToRefs } from 'pinia';
@@ -248,4 +249,10 @@ onMounted(() => {
     financeStore.fetchTransactions(utils.formatDateForInput(start), utils.formatDateForInput(today));
     financeStore.fetchCategories();
 });
+
+// Allow onboarding/first-run to deep-link directly into the import flow
+const route = useRoute();
+if (route.query.import === '1') {
+    showImportModal.value = true;
+}
 </script>
