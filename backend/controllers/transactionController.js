@@ -2,11 +2,39 @@ const nocodbService = require('../services/nocodbService');
 const transactionService = require('../services/transactionService');
 const csv = require('csv-parser');
 const fs = require('fs');
+const path = require('path');
 const { getCategoryMapping } = require('../services/categoryService');
 const { validateAndFormatDate, validateAndFormatAmount, normalizeAndValidateBank, normalizeAndValidateCategory, validateCategoryById } = require('../utils/validationUtils');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 const env = require('../config/env');
+
+// Directory where multer stores uploaded files (must match uploadMiddleware.js).
+const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
+
+/**
+ * Validate that a file path is within the uploads directory before using it in
+ * fs operations. Prevents path-injection (CodeQL js/path-injection) where an
+ * attacker-controlled path could be used to read or delete arbitrary files.
+ *
+ * Uses path.basename (a CodeQL-recognized sanitizer) to strip any directory
+ * components, so the returned path can never escape the uploads directory.
+ *
+ * @param {string} filePath - The candidate file path.
+ * @returns {string} A safe absolute path inside the uploads directory.
+ * @throws {AppError} If the path is missing or has no usable basename.
+ */
+const assertSafeUploadPath = (filePath) => {
+    if (!filePath || typeof filePath !== 'string') {
+        throw new AppError('Invalid file path', 400);
+    }
+    // Strip directory components (and any traversal) via basename.
+    const basename = path.basename(filePath);
+    if (!basename || basename === '.' || basename === '..') {
+        throw new AppError('Invalid file path', 400);
+    }
+    return path.join(UPLOADS_DIR, basename);
+};
 
 const getTransactions = catchAsync(async (req, res, _next) => {
     const verifiedUserId = req.user.uid;
@@ -489,12 +517,14 @@ async function _insertCsvRecords(results, bankStatementsTableId, verifiedUserId)
  * @returns {Promise<Object>} { results, errors, rowIndex }
  */
 function processCsvFile(filePath, taggingRules, categoryMapping) {
+    const safePath = assertSafeUploadPath(filePath);
     return new Promise((resolve, reject) => {
         const results = [];
         const errors = [];
         let rowIndex = 0;
 
-        fs.createReadStream(filePath)
+        // codeql[js/path-injection] safePath is confined to the uploads dir by assertSafeUploadPath (path.basename)
+        fs.createReadStream(safePath)
             .pipe(csv())
             .on('data', (data) => {
                 rowIndex++;
@@ -513,12 +543,14 @@ function processCsvFile(filePath, taggingRules, categoryMapping) {
             })
             .on('end', () => {
                 // ⚡ PERF: Using async unlink instead of fs.unlinkSync avoids blocking the event loop
-                fs.promises.unlink(filePath).catch(err => console.error('Failed to delete temp file:', err));
+                // codeql[js/path-injection] safePath is confined to the uploads dir by assertSafeUploadPath (path.basename)
+                fs.promises.unlink(safePath).catch(err => console.error('Failed to delete temp file:', err));
                 resolve({ results, errors, rowIndex });
             })
             .on('error', (error) => {
                 // ⚡ PERF: Using async unlink instead of fs.unlinkSync avoids blocking the event loop
-                fs.promises.unlink(filePath).catch(err => console.error('Failed to delete temp file:', err));
+                // codeql[js/path-injection] safePath is confined to the uploads dir by assertSafeUploadPath (path.basename)
+                fs.promises.unlink(safePath).catch(err => console.error('Failed to delete temp file:', err));
                 reject(error);
             });
     });
@@ -533,12 +565,16 @@ const importTransactionsCsv = catchAsync(async (req, res, next) => {
         }
         
         const bankStatementsTableId = env.NOCODB.TABLES.BANK_STATEMENTS;
-        
+
+        // Validate the uploaded file path is within the uploads directory before
+        // any fs read/unlink or DB work (path-injection guard).
+        const safePath = assertSafeUploadPath(req.file.path);
+
         const categoryMapping = await getCategoryMapping(verifiedUserId);
 
         const taggingRules = await fetchTaggingRules(verifiedUserId);
         
-        const { results, errors, rowIndex } = await processCsvFile(req.file.path, taggingRules, categoryMapping);
+        const { results, errors, rowIndex } = await processCsvFile(safePath, taggingRules, categoryMapping);
 
         if (results.length === 0) {
             return res.json({
@@ -583,10 +619,21 @@ const importTransactionsCsv = catchAsync(async (req, res, next) => {
     } catch (error) {
         if (req.file) {
             // ⚡ PERF: Using async unlink instead of fs.unlinkSync avoids blocking the event loop
-            fs.promises.unlink(req.file.path).catch(err => console.error('Failed to delete temp file:', err));
+            // Only unlink if the path is safe (within the uploads directory).
+            try {
+                const safePath = assertSafeUploadPath(req.file.path);
+                // codeql[js/path-injection] safePath is confined to the uploads dir by assertSafeUploadPath (path.basename)
+                fs.promises.unlink(safePath).catch(err => console.error('Failed to delete temp file:', err));
+            } catch (pathError) {
+                // Path is not safe; do not attempt to unlink an arbitrary file.
+                console.error('Skipping cleanup of unsafe upload path:', pathError.message);
+            }
         }
         
-        // Pass to global error handler
+        // Preserve AppError status codes (e.g. 400 for invalid path); default unexpected errors to 500.
+        if (error instanceof AppError) {
+            return next(error);
+        }
         return next(new AppError(error.message, 500));
     }
 });
@@ -600,4 +647,5 @@ module.exports = {
     getTransactionStats,
     importTransactionsJson,
     importTransactionsCsv,
+    assertSafeUploadPath,
 };
