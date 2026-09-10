@@ -17,7 +17,6 @@ app.use(morgan('combined', { stream: logger.stream }));
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'dist')));
-app.use(express.static(path.join(__dirname, '..', 'frontend', 'src')));
 
 // Routes
 app.use('/', routes);

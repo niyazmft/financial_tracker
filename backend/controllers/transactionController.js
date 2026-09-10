@@ -153,7 +153,7 @@ const updateTransaction = catchAsync(async (req, res, next) => {
         ref_no: ref_no || null,
     };
 
-    const response = await nocodbService.updateRecord(bankStatementsTableId, id, updatedData);
+    const response = await nocodbService.updateRecord(bankStatementsTableId, { Id: id, ...updatedData });
 
     res.json({
         success: true,

@@ -2,6 +2,8 @@ const cashFlowService = require('../services/cashFlowService');
 const catchAsync = require('../utils/catchAsync');
 const env = require('../config/env');
 
+const MAX_FORECAST_DURATION = 365; // Upper bound to prevent CPU DoS via unbounded per-day simulation
+
 /**
  * Endpoint for summarized cash flow warnings (backward compatible).
  */
@@ -27,7 +29,8 @@ const getCashFlowWarnings = catchAsync(async (req, res, _next) => {
  */
 const getCashFlowForecast = catchAsync(async (req, res, _next) => {
     const verifiedUserId = req.user.uid;
-    const duration = parseInt(req.query.duration) || 30;
+    const rawDuration = parseInt(req.query.duration, 10);
+    const duration = Number.isNaN(rawDuration) ? 30 : Math.min(Math.max(rawDuration, 1), MAX_FORECAST_DURATION);
 
     const forecast = await cashFlowService.computeForecast(verifiedUserId, { duration });
 

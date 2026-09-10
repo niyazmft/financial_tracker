@@ -1,5 +1,6 @@
 const assert = require('assert');
 const sinon = require('sinon');
+const proxyquire = require('proxyquire');
 const transactionController = require('../../controllers/transactionController');
 const AppError = require('../../utils/AppError');
 
@@ -51,6 +52,82 @@ describe('Transaction Controller', () => {
             assert.ok(errorArg instanceof AppError, 'next should be called with an AppError');
             assert.strictEqual(errorArg.statusCode, 400, 'AppError status code should be 400');
             assert.ok(errorArg.message.includes('Invalid date format'), 'AppError message should reflect the invalid date format error');
+        });
+    });
+
+    describe('updateTransaction', () => {
+        let req, res, next;
+        let mockNocodbService;
+        let mockCategoryService;
+        let proxiedController;
+
+        beforeEach(() => {
+            mockNocodbService = {
+                getRecordById: sinon.stub(),
+                updateRecord: sinon.stub()
+            };
+            mockCategoryService = {
+                getCategoryMapping: sinon.stub()
+            };
+            proxiedController = proxyquire('../../controllers/transactionController', {
+                '../services/nocodbService': mockNocodbService,
+                '../services/categoryService': mockCategoryService,
+                '../utils/catchAsync': fn => fn
+            });
+
+            req = {
+                user: { uid: 'user123' },
+                params: { id: 'txn1' },
+                body: {
+                    date: '2024-01-15',
+                    amount: '50.00',
+                    bank: 'Chase',
+                    categories_id: '1',
+                    description: 'Groceries',
+                    ref_no: 'REF123'
+                }
+            };
+            res = {
+                json: sinon.spy()
+            };
+            next = sinon.spy();
+        });
+
+        afterEach(() => {
+            sinon.restore();
+        });
+
+        it('should send the validated fields (not the raw id) as the update payload', async () => {
+            mockNocodbService.getRecordById.resolves({ Id: 'txn1', user_id: 'user123' });
+            mockCategoryService.getCategoryMapping.resolves({ '1': 'Groceries' });
+            mockNocodbService.updateRecord.resolves({ Id: 'txn1', amount: 50 });
+
+            await proxiedController.updateTransaction(req, res, next);
+
+            assert.ok(mockNocodbService.updateRecord.calledOnce);
+            const [tableId, payload] = mockNocodbService.updateRecord.firstCall.args;
+            assert.strictEqual(tableId, require('../../config/env').NOCODB.TABLES.BANK_STATEMENTS);
+            // The payload must be an object containing the Id plus the validated fields,
+            // NOT the raw id string as the entire body (the pre-fix bug).
+            assert.strictEqual(typeof payload, 'object');
+            assert.strictEqual(payload.Id, 'txn1');
+            assert.strictEqual(payload.amount, 50);
+            assert.strictEqual(payload.date, '2024-01-15');
+            assert.strictEqual(payload.categories_id, 1);
+            assert.strictEqual(payload.description, 'Groceries');
+            assert.ok(next.notCalled);
+        });
+
+        it('should return 403 when the transaction belongs to another user', async () => {
+            mockNocodbService.getRecordById.resolves({ Id: 'txn1', user_id: 'other-user' });
+
+            await proxiedController.updateTransaction(req, res, next);
+
+            assert.ok(next.calledOnce);
+            const errorArg = next.firstCall.args[0];
+            assert.ok(errorArg instanceof AppError);
+            assert.strictEqual(errorArg.statusCode, 403);
+            assert.ok(mockNocodbService.updateRecord.notCalled);
         });
     });
 });
