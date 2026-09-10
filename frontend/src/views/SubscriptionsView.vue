@@ -37,6 +37,16 @@
         <p class="text-text-sub">
           No active subscriptions being tracked.
         </p>
+        <p class="text-sm text-text-mute mt-1 max-w-sm mx-auto">
+          Track recurring payments like streaming, phone, or insurance so they never surprise you.
+        </p>
+        <Button
+          label="Add a subscription"
+          icon="pi pi-plus"
+          size="small"
+          class="mt-3"
+          @click="openModal()"
+        />
       </div>
 
       <div

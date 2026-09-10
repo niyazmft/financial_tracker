@@ -36,6 +36,9 @@
             <p class="text-text-sub">
               No upcoming payments found.
             </p>
+            <p class="text-sm text-text-mute mt-1">
+              Nothing due soon — you're all caught up.
+            </p>
           </div>
           <div
             v-else
@@ -109,6 +112,16 @@
             <p class="text-text-sub">
               No installment plans found.
             </p>
+            <p class="text-sm text-text-mute mt-1 max-w-sm mx-auto">
+              Add a plan (like a car or phone loan) to see your payment schedule and track what's left.
+            </p>
+            <Button
+              label="Add a plan"
+              icon="pi pi-plus"
+              size="small"
+              class="mt-3"
+              @click="showAddModal = true"
+            />
           </div>
           <div
             v-else

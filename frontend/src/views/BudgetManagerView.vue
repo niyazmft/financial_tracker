@@ -93,7 +93,10 @@
               v-else-if="budgets.length === 0"
               class="text-center py-8 text-text-sub"
             >
-              No active budgets found.
+              <p>No active budgets found.</p>
+              <p class="text-sm text-text-mute mt-1">
+                Set a budget for a category to keep your spending on track.
+              </p>
             </div>
             <div
               v-for="budget in budgets"

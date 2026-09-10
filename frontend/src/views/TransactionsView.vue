@@ -55,6 +55,7 @@
             :unique-banks="uniqueBanks"
             @edit="openEditModal"
             @delete="confirmDeleteTransaction"
+            @import="showImportModal = true"
           />
         </div>
 
@@ -66,6 +67,7 @@
           @toggle-filters="showMobileFilters = true"
           @edit="openEditModal"
           @delete="confirmDeleteTransaction"
+          @import="showImportModal = true"
         />
       </template>
     </Card>
