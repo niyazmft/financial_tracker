@@ -523,6 +523,7 @@ function processCsvFile(filePath, taggingRules, categoryMapping) {
         const errors = [];
         let rowIndex = 0;
 
+        // codeql[js/path-injection] safePath is confined to the uploads dir by assertSafeUploadPath (path.basename)
         fs.createReadStream(safePath)
             .pipe(csv())
             .on('data', (data) => {
@@ -542,11 +543,13 @@ function processCsvFile(filePath, taggingRules, categoryMapping) {
             })
             .on('end', () => {
                 // ⚡ PERF: Using async unlink instead of fs.unlinkSync avoids blocking the event loop
+                // codeql[js/path-injection] safePath is confined to the uploads dir by assertSafeUploadPath (path.basename)
                 fs.promises.unlink(safePath).catch(err => console.error('Failed to delete temp file:', err));
                 resolve({ results, errors, rowIndex });
             })
             .on('error', (error) => {
                 // ⚡ PERF: Using async unlink instead of fs.unlinkSync avoids blocking the event loop
+                // codeql[js/path-injection] safePath is confined to the uploads dir by assertSafeUploadPath (path.basename)
                 fs.promises.unlink(safePath).catch(err => console.error('Failed to delete temp file:', err));
                 reject(error);
             });
@@ -619,6 +622,7 @@ const importTransactionsCsv = catchAsync(async (req, res, next) => {
             // Only unlink if the path is safe (within the uploads directory).
             try {
                 const safePath = assertSafeUploadPath(req.file.path);
+                // codeql[js/path-injection] safePath is confined to the uploads dir by assertSafeUploadPath (path.basename)
                 fs.promises.unlink(safePath).catch(err => console.error('Failed to delete temp file:', err));
             } catch (pathError) {
                 // Path is not safe; do not attempt to unlink an arbitrary file.
