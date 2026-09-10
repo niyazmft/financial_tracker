@@ -69,21 +69,21 @@
               class="flex flex-col gap-2"
             >
               <label class="text-sm font-medium">
-                Sensitivity Threshold: {{ anomalyDetection.sensitivity }}
+                Alert Level: {{ alertLevel }}
                 <i
-                  v-tooltip="'How easily we flag unusual spending. Lower = more alerts (catches small changes). Higher = fewer alerts (only big changes).'"
+                  v-tooltip="'How easily we flag unusual spending. Higher = more alerts (catches small changes). Lower = fewer alerts (only big changes).'"
                   class="pi pi-question-circle text-xs ml-1 cursor-help"
                 />
               </label>
               <Slider
-                v-model="anomalyDetection.sensitivity"
+                v-model="alertLevel"
                 :min="2"
                 :max="10"
                 :step="0.5"
                 class="w-full mt-2"
               />
               <p class="text-xs text-text-mute">
-                Lower values are more sensitive — you'll see more alerts. Higher values mean fewer, bigger alerts.
+                Higher values mean more alerts — you'll catch smaller changes. Lower values mean fewer, bigger alerts.
               </p>
             </div>
 
@@ -128,7 +128,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useSettingsStore } from '../stores/settings';
@@ -169,6 +169,13 @@ const userForm = reactive({
 const anomalyDetection = reactive({
   enabled: false,
   sensitivity: 3
+});
+
+// Display the slider so higher = more alerts (intuitive), while the stored
+// sensitivity stays 2-10 where lower = more sensitive. Invert around 12.
+const alertLevel = computed({
+  get: () => 12 - anomalyDetection.sensitivity,
+  set: (value) => { anomalyDetection.sensitivity = 12 - value; }
 });
 
 const selectedTheme = ref('system');
