@@ -22,6 +22,7 @@ router.post('/', transactionController.createTransaction);
 router.put('/:id', transactionController.updateTransaction);
 router.delete('/:id', transactionController.deleteTransaction);
 router.post('/import-json', importRateLimiter, transactionController.importTransactionsJson);
+// codeql[js/missing-rate-limiting] importRateLimiter (custom createRateLimiter) is applied above; CodeQL only recognizes express-rate-limit
 router.post('/import', importRateLimiter, upload.single('csvFile'), transactionController.importTransactionsCsv);
 
 module.exports = router;
