@@ -37,6 +37,16 @@
         <p class="text-text-sub">
           No active subscriptions being tracked.
         </p>
+        <p class="text-sm text-text-mute mt-1 max-w-sm mx-auto">
+          Track recurring payments like streaming, phone, or insurance so they never surprise you.
+        </p>
+        <Button
+          label="Add a subscription"
+          icon="pi pi-plus"
+          size="small"
+          class="mt-3"
+          @click="openModal()"
+        />
       </div>
 
       <div
@@ -169,7 +179,7 @@
               v-model="form.amount"
               mode="currency"
               :currency="form.currency"
-              locale="tr-TR"
+              :locale="formCurrencyLocale"
             />
           </div>
           <div class="flex flex-col gap-2">
@@ -237,7 +247,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useFinanceStore } from '../stores/finance';
@@ -301,6 +311,8 @@ const form = reactive({
   category_id: null,
   auto_renewal: true
 });
+
+const formCurrencyLocale = computed(() => utils.getCurrencyLocale(form.currency));
 
 const normalizeSubscription = (sub) => {
   return {

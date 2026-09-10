@@ -29,9 +29,15 @@
     </div>
     <div
       v-else-if="paginatedTransactions.length === 0"
-      class="text-center py-8 text-text-sub"
+      class="text-center py-8 text-text-sub flex flex-col items-center gap-3"
     >
-      No transactions found.
+      <p>No transactions found. Add your first one to start building your financial picture.</p>
+      <Button
+        label="Add transactions"
+        icon="pi pi-upload"
+        size="small"
+        @click="$emit('import')"
+      />
     </div>
     <div 
       v-else
@@ -133,7 +139,7 @@ const props = defineProps({
     }
 });
 
-const _emit = defineEmits(['toggle-filters', 'edit', 'delete', 'update:filters']);
+const _emit = defineEmits(['toggle-filters', 'edit', 'delete', 'update:filters', 'import']);
 
 const { formatCurrency } = useFinance();
 

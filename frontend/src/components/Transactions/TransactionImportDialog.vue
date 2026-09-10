@@ -35,7 +35,7 @@
                   v-model="singleForm.amount"
                   mode="currency"
                   :currency="currency"
-                  locale="tr-TR"
+                  :locale="currencyLocale"
                 />
               </div>
               <div class="flex flex-col gap-2">
@@ -43,7 +43,7 @@
                 <InputText
                   id="bank"
                   v-model="singleForm.bank"
-                  placeholder="e.g. Akbank"
+                  placeholder="e.g. My Bank"
                 />
               </div>
               <div class="flex flex-col gap-2">
@@ -108,6 +108,16 @@
                 <p>Drag and drop CSV files here to upload.</p>
               </template>
             </FileUpload>
+
+            <Message
+              v-if="csvParseError"
+              severity="error"
+              icon="pi pi-exclamation-triangle"
+              :closable="false"
+              class="mt-2"
+            >
+              {{ csvParseError }}
+            </Message>
                         
             <div
               v-if="importResult"
@@ -218,6 +228,7 @@ import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel';
 import FileUpload from 'primevue/fileupload';
 import Dialog from 'primevue/dialog';
+import Message from 'primevue/message';
 
 const props = defineProps({
     modelValue: {
@@ -238,6 +249,7 @@ const { trackEvent } = useAnalytics();
 const toast = useToast();
 
 const currency = computed(() => settingsStore.currency);
+const currencyLocale = computed(() => utils.getCurrencyLocale(currency.value));
 const visible = computed({
     get: () => props.modelValue,
     set: (val) => emit('update:modelValue', val)
@@ -246,6 +258,7 @@ const visible = computed({
 const singleLoading = ref(false);
 const importLoading = ref(false);
 const csvPreviewData = ref([]);
+const csvParseError = ref('');
 const importResult = ref(null);
 
 const singleForm = reactive({
@@ -297,20 +310,30 @@ const onCsvUpload = (event) => {
     const reader = new FileReader();
     reader.onload = (e) => {
         const text = e.target.result;
-        const lines = text.split('\n').filter(l => l.trim() !== '');
+        const parsed = utils.parseCsv(text);
+        if (parsed === null) {
+            csvParseError.value = 'This file has unbalanced quotes and could not be read. Please check the file and try again.';
+            csvPreviewData.value = [];
+            return;
+        }
+        csvParseError.value = '';
+
+        const lines = parsed.filter(l => l.some(cell => cell.trim() !== ''));
         if (lines.length < 2) return;
         
-        const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
+        const headers = lines[0].map(h => h.trim().toLowerCase());
         
         csvPreviewData.value = lines.slice(1).map(line => {
-            const values = line.split(',');
-            // Basic CSV parsing (not robust for commas in quotes, but matches original implementation)
+            const get = (name) => {
+                const idx = headers.indexOf(name);
+                return idx >= 0 ? (line[idx] || '').trim() : '';
+            };
             return {
-                date: values[headers.indexOf('date')]?.trim(),
-                amount: parseFloat(values[headers.indexOf('amount')]?.trim()),
-                bank: values[headers.indexOf('bank')]?.trim(),
-                category: values[headers.indexOf('category')]?.trim(),
-                description: values[headers.indexOf('description')]?.trim()
+                date: get('date'),
+                amount: parseFloat(get('amount')),
+                bank: get('bank'),
+                category: get('category'),
+                description: get('description')
             };
         });
     };
@@ -356,7 +379,7 @@ const submitCsvImport = async () => {
 
 const downloadTemplate = () => {
     const headers = ['date', 'amount', 'bank', 'category', 'description', 'ref_no'];
-    const exampleRow = ['2026-03-18', '-150.00', 'Akbank', 'Dining', 'Lunch at Cafe', 'TXN123456'];
+    const exampleRow = ['2026-03-18', '-150.00', 'My Bank', 'Dining', 'Lunch at Cafe', 'TXN123456'];
 
     const content = utils.generateCsvTemplate(headers, exampleRow);
     utils.downloadFile(content, 'fintrack_template.csv');

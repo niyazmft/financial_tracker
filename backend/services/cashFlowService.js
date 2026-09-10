@@ -276,8 +276,29 @@ const computeForecast = async (userId, options = {}) => {
     };
 };
 
+/**
+ * Calculates confidence bands (low/high bounds) for the projected balance.
+ * Uncertainty grows over time and with the number of anomalies.
+ */
+function computeConfidenceBands(dailyBalances, anomalyCount = 0) {
+    return dailyBalances.map((day, i) => {
+        // Uncertainty grows over time (max 15% at day 30)
+        // and with the number of anomalies (3% per anomaly, max 10%)
+        const timeUncertainty = (i / dailyBalances.length) * 0.15;
+        const anomalyUncertainty = Math.min(anomalyCount * 0.03, 0.10);
+        const totalUncertainty = timeUncertainty + anomalyUncertainty;
+
+        return {
+            ...day,
+            low: day.balance * (1 - totalUncertainty),
+            high: day.balance * (1 + totalUncertainty)
+        };
+    });
+}
+
 module.exports = {
     computeForecast,
     winsorizeTransactions,
-    computeCategoryMedians
+    computeCategoryMedians,
+    computeConfidenceBands
 };

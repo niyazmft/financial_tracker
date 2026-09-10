@@ -20,6 +20,22 @@
             <p class="text-xs opacity-80">
               {{ anomaly.reason }}
             </p>
+            <div class="flex flex-wrap gap-2 mt-2">
+              <Button
+                label="Review this category"
+                icon="pi pi-search"
+                size="small"
+                outlined
+                @click="goToCategory(anomaly.categoryName)"
+              />
+              <Button
+                label="Set a budget"
+                icon="pi pi-wallet"
+                size="small"
+                text
+                @click="goToBudgets"
+              />
+            </div>
           </li>
         </ul>
       </div>
@@ -29,13 +45,24 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useFinance } from '@/composables/useFinance';
 import { useApi } from '@/services/apiInstance';
 import Message from 'primevue/message';
+import Button from 'primevue/button';
 
 const api = useApi();
+const router = useRouter();
 const anomalies = ref([]);
 const { formatCurrency } = useFinance();
+
+const goToCategory = (categoryName) => {
+  router.push({ path: '/transactions', query: { category: categoryName } });
+};
+
+const goToBudgets = () => {
+  router.push('/budget_manager');
+};
 
 onMounted(async () => {
   try {

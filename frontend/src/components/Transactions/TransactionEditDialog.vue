@@ -21,7 +21,7 @@
           v-model="form.amount"
           mode="currency"
           :currency="currency"
-          locale="tr-TR"
+          :locale="currencyLocale"
         />
       </div>
       <div class="flex flex-col gap-2">
@@ -96,6 +96,7 @@ const financeStore = useFinanceStore();
 const toast = useToast();
 
 const currency = computed(() => settingsStore.currency);
+const currencyLocale = computed(() => utils.getCurrencyLocale(currency.value));
 const visible = computed({
     get: () => props.modelValue,
     set: (val) => emit('update:modelValue', val)

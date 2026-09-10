@@ -8,6 +8,7 @@ describe('DashboardView.vue', () => {
         global: {
             plugins: [PrimeVue],
             stubs: {
+                AdvisoryInsight: { template: '<div class="stub-advisory"></div>' },
                 AnomalyAlerts: { template: '<div class="stub-anomaly"></div>' },
                 ForecastPanel: { template: '<div class="stub-forecast"></div>' },
                 HistoryPanel: { template: '<div class="stub-history"></div>' },
@@ -26,6 +27,7 @@ describe('DashboardView.vue', () => {
         const wrapper = mount(DashboardView, mountOptions);
         
         expect(wrapper.find('h1').text()).toBe('Dashboard');
+        expect(wrapper.find('.stub-advisory').exists()).toBe(true);
         expect(wrapper.find('.stub-anomaly').exists()).toBe(true);
         // By default activeTab is 'forecast', so ForecastPanel should be there
         expect(wrapper.find('.stub-forecast').exists()).toBe(true);

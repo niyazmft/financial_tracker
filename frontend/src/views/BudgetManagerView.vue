@@ -41,7 +41,7 @@
                 input-id="budget-amount"
                 mode="currency"
                 :currency="currency"
-                locale="tr-TR"
+                :locale="currencyLocale"
                 class="w-full"
               />
             </div>
@@ -93,7 +93,10 @@
               v-else-if="budgets.length === 0"
               class="text-center py-8 text-text-sub"
             >
-              No active budgets found.
+              <p>No active budgets found.</p>
+              <p class="text-sm text-text-mute mt-1">
+                Set a budget for a category to keep your spending on track.
+              </p>
             </div>
             <div
               v-for="budget in budgets"
@@ -170,7 +173,7 @@
             input-id="edit-amount"
             mode="currency"
             :currency="currency"
-            locale="tr-TR"
+            :locale="currencyLocale"
             class="w-full"
           />
         </div>
@@ -238,6 +241,7 @@ const isUpdating = ref(false);
 const showEditModal = ref(false);
 
 const currency = computed(() => settingsStore.currency);
+const currencyLocale = computed(() => utils.getCurrencyLocale(currency.value));
 
 const createForm = reactive({
   categories_id: null,

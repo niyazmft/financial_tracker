@@ -254,7 +254,8 @@ const buildSavingsGoalsEndpoints = (request) => ({
 });
 
 const buildAnomaliesEndpoints = (request) => ({
-    fetchAnomalies: (signal) => request(`${API_BASE}/anomalies`, { signal })
+    fetchAnomalies: (signal) => request(`${API_BASE}/anomalies`, { signal }),
+    fetchAdvisory: (signal) => request(`${API_BASE}/anomalies/advisory`, { signal })
 });
 
 export const api = (getToken) => {

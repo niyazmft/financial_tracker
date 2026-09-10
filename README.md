@@ -56,12 +56,14 @@ For detailed setup instructions, see [Getting Started](#-getting-started).
 ## 🚀 Features
 
 - **Centralized Dashboard**: Unified view of your financial health with interactive balance forecasting.
-- **Transaction Management**: Robust filtering, categorization, and smart import (CSV/JSON).
+- **Plain-Language Insights**: A "Money at a glance" advisory reads your financial health in everyday words — projected dips, one-time anomalies, and your long-term outlook — with confidence bands on the forecast.
+- **Actionable Risk Alerts**: Forecast warnings and spending anomalies don't just describe risk — they offer next steps (review a category, set a budget, check installments).
+- **Transaction Management**: Robust filtering, categorization, and smart import (CSV/JSON) with a resilient CSV parser.
 - **Intelligent Tagging**: Automate transaction categorization with custom rules.
 - **Budget Manager**: Set monthly targets per category with real-time progress tracking.
 - **Installment Plans**: Manage long-term payments with automatic schedule generation and rebalancing.
 - **Subscription Tracker**: Identify and track recurring payments with smart suggestions from your transaction history.
-- **Spending Analysis**: Deep-dive into spending patterns with category-based breakdowns and YoY trends.
+- **Spending Analysis & Reports**: Deep-dive into spending patterns with category-based breakdowns, YoY trends, and a dedicated Reports page.
 - **Secure Auth & Analytics**: Powered by **Firebase Authentication** for secure sign-up and session management, and **Firebase Analytics** to track user interactions and improve the experience.
 - **Smart Notifications**: Transactional emails for welcome messages and password resets (Dev-friendly with Ethereal).
 
@@ -357,7 +359,12 @@ The backend provides a RESTful API. Key endpoints include:
 - `POST /api/transactions` - Create a new transaction.
 - `GET /api/budgets/active` - Get currently active budgets.
 - `GET /api/subscriptions` - List all subscriptions and recurring payments.
-- `GET /api/cash-flow-forecast` - Get 30-day balance projection.
+- `GET /api/cash-flow-forecast` - Get 30-day balance projection (with confidence bands).
+- `GET /api/anomalies` - Get detected spending anomalies.
+- `GET /api/anomalies/advisory` - Get a plain-language financial health advisory.
+- `GET /api/salary/last-month` - Get last month's earnings summary.
+- `GET /api/spending/monthly-data` - Get monthly spending trend.
+- `GET /api/spending/categories` - Get spending breakdown by category.
 
 *Full API documentation is available in the codebase under `backend/routes`.*
 

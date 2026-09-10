@@ -9,13 +9,24 @@ const CURRENCY_SYMBOLS = {
     GBP: '£'
 };
 
+// Map each supported currency to a sensible locale for number grouping/decimals
+const CURRENCY_LOCALES = {
+    TRY: 'tr-TR',
+    USD: 'en-US',
+    EUR: 'de-DE',
+    GBP: 'en-GB'
+};
+
+export const getCurrencyLocale = (currency) => CURRENCY_LOCALES[currency] || 'en-US';
+
 export const formatCurrency = (amount, currency = 'TRY', useKFormat = false) => {
     if (useKFormat && amount >= 1000) {
         const symbol = CURRENCY_SYMBOLS[currency] || '$';
         return `${symbol}${(amount / 1000).toFixed(1)}K`;
     }
     
-    const formatter = new Intl.NumberFormat('tr-TR', {
+    const locale = CURRENCY_LOCALES[currency] || 'en-US';
+    const formatter = new Intl.NumberFormat(locale, {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
     });
@@ -179,6 +190,67 @@ export const generateCsvTemplate = (headers, exampleRow = []) => {
     }
     
     return rows.join('\n');
+};
+
+/**
+ * Parses CSV text into an array of rows (arrays of strings), handling
+ * quoted fields, embedded commas, escaped quotes (""), and newlines inside
+ * quotes. RFC-4180-compatible. Returns null on unbalanced quotes.
+ * @param {string} text - Raw CSV text
+ * @returns {string[][]|null} - Array of rows, or null if malformed
+ */
+export const parseCsv = (text) => {
+    if (typeof text !== 'string' || text.trim() === '') return [];
+
+    const rows = [];
+    let row = [];
+    let field = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+
+        if (inQuotes) {
+            if (char === '"') {
+                // Escaped quote ("") inside a quoted field
+                if (text[i + 1] === '"') {
+                    field += '"';
+                    i++;
+                } else {
+                    inQuotes = false;
+                }
+            } else {
+                field += char;
+            }
+        } else if (char === '"') {
+            inQuotes = true;
+        } else if (char === ',') {
+            row.push(field);
+            field = '';
+        } else if (char === '\n' || char === '\r') {
+            // Handle CRLF: skip the \n that follows a \r
+            if (char === '\r' && text[i + 1] === '\n') {
+                i++;
+            }
+            row.push(field);
+            rows.push(row);
+            row = [];
+            field = '';
+        } else {
+            field += char;
+        }
+    }
+
+    // Unbalanced quotes = malformed CSV
+    if (inQuotes) return null;
+
+    // Push the final field/row if there's trailing content
+    if (field !== '' || row.length > 0) {
+        row.push(field);
+        rows.push(row);
+    }
+
+    return rows;
 };
 
 /**

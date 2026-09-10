@@ -33,6 +33,9 @@
             class="text-center py-4 text-text-sub"
           >
             No tagging rules found.
+            <p class="text-sm text-text-mute mt-1">
+              Add a rule to auto-categorize transactions by keyword — e.g. "Netflix" → Entertainment.
+            </p>
           </div>
           <div
             v-for="rule in rules"

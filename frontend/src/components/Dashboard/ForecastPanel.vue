@@ -3,7 +3,10 @@
     <Card class="lg:col-span-2">
       <template #header>
         <div class="flex flex-wrap items-center justify-between p-4 pb-0">
-          <h3 class="text-lg font-bold">
+          <h3
+            v-tooltip="'A simulation of your balance over the next period, based on your income, budgets, and known installments.'"
+            class="text-lg font-bold"
+          >
             Projected Balance
           </h3>
           <SelectButton
@@ -34,6 +37,12 @@
             :loading="isLoadingForecast" 
           />
         </div>
+        <p
+          v-if="forecastRawData?.warningThreshold !== undefined && forecastRawData?.warningThreshold !== null"
+          class="text-xs text-text-mute mt-2"
+        >
+          The dashed line is your warning threshold — if your projected balance dips below it, you'll see a warning.
+        </p>
       </template>
     </Card>
 
@@ -50,6 +59,11 @@
             />
             <p class="text-xs font-bold uppercase tracking-wider text-text-sub">
               {{ metric.label }}
+              <i
+                v-if="metric.hint"
+                v-tooltip="metric.hint"
+                class="pi pi-question-circle text-xs ml-1 cursor-help"
+              />
             </p>
           </div>
           <p :class="['text-2xl font-bold', metric.valueClass]">
@@ -70,7 +84,15 @@
         :key="index"
       >
         <Message
-          v-if="warningGroup.type === 'info'"
+          v-if="!forecast.hasData"
+          severity="info"
+          icon="pi pi-info-circle"
+          :closable="false"
+        >
+          Add your first transactions to unlock a real cash-flow forecast. Until then, we can't predict upcoming balances.
+        </Message>
+        <Message
+          v-else-if="warningGroup.type === 'info'"
           severity="success"
           :closable="false"
         >
@@ -104,6 +126,22 @@
                 <p class="text-sm">
                   Projected balance: <span class="font-medium">{{ formatCurrency(warning.details.balance) }}</span>
                 </p>
+                <div class="flex flex-wrap gap-2 mt-2">
+                  <Button
+                    label="Review upcoming installments"
+                    icon="pi pi-calendar"
+                    size="small"
+                    outlined
+                    @click="goToInstallments"
+                  />
+                  <Button
+                    label="Set a budget"
+                    icon="pi pi-wallet"
+                    size="small"
+                    text
+                    @click="goToBudgets"
+                  />
+                </div>
               </div>
               <Button 
                 v-tooltip="'Dismiss for 24 hours'" 
@@ -126,6 +164,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useFinance } from '../../composables/useFinance';
 import { useAnalytics } from '../../composables/useAnalytics';
 import { useApi } from '../../services/apiInstance';
@@ -143,8 +182,17 @@ import Button from 'primevue/button';
 const api = useApi();
 const settingsStore = useSettingsStore();
 const toast = useToast();
+const router = useRouter();
 const { formatCurrency, getForecastAmountClass } = useFinance();
 const { trackEvent } = useAnalytics();
+
+const goToInstallments = () => {
+  router.push('/installment_plans');
+};
+
+const goToBudgets = () => {
+  router.push('/budget_manager');
+};
 
 const isLoadingForecast = ref(false);
 const forecastRawData = ref(null);
@@ -162,14 +210,15 @@ const forecast = reactive({
     averageProjectedBalance: 0,
     totalProjectedIncome: 0,
     totalProjectedExpenses: 0,
-    warnings: []
+    warnings: [],
+    hasData: true
 });
 
 const forecastMetrics = computed(() => [
-    { label: 'Minimum Balance', value: formatCurrency(forecast.lowestProjectedBalance), icon: 'pi pi-arrow-down-right', iconClass: 'text-danger', valueClass: getForecastAmountClass(forecast.lowestProjectedBalance) },
-    { label: 'Average Balance', value: formatCurrency(forecast.averageProjectedBalance), icon: 'pi pi-info-circle', iconClass: 'text-info', valueClass: getForecastAmountClass(forecast.averageProjectedBalance) },
-    { label: 'Total Income', value: formatCurrency(forecast.totalProjectedIncome), icon: 'pi pi-arrow-up', iconClass: 'text-success', valueClass: 'text-success' },
-    { label: 'Total Expenses', value: formatCurrency(forecast.totalProjectedExpenses), icon: 'pi pi-arrow-down', iconClass: 'text-danger', valueClass: 'text-danger' }
+    { label: 'Minimum Balance', value: formatCurrency(forecast.lowestProjectedBalance), icon: 'pi pi-arrow-down-right', iconClass: 'text-danger', valueClass: getForecastAmountClass(forecast.lowestProjectedBalance), hint: 'The lowest your balance is projected to reach in this period.' },
+    { label: 'Average Balance', value: formatCurrency(forecast.averageProjectedBalance), icon: 'pi pi-info-circle', iconClass: 'text-info', valueClass: getForecastAmountClass(forecast.averageProjectedBalance), hint: 'Your typical projected balance across the period.' },
+    { label: 'Total Income', value: formatCurrency(forecast.totalProjectedIncome), icon: 'pi pi-arrow-up', iconClass: 'text-success', valueClass: 'text-success', hint: 'Money expected to come in during this period.' },
+    { label: 'Total Expenses', value: formatCurrency(forecast.totalProjectedExpenses), icon: 'pi pi-arrow-down', iconClass: 'text-danger', valueClass: 'text-danger', hint: 'Money expected to go out during this period.' }
 ]);
 
 const loadForecastData = async (days = 30) => {
@@ -182,6 +231,9 @@ const loadForecastData = async (days = 30) => {
             forecast.averageProjectedBalance = data.summaryMetrics.averageProjectedBalance;
             forecast.totalProjectedIncome = data.summaryMetrics.totalProjectedIncome;
             forecast.totalProjectedExpenses = data.summaryMetrics.totalProjectedExpenses;
+
+            // No history when the latest recorded transaction date is absent
+            forecast.hasData = Boolean(data.summaryMetrics?.dataFreshness?.latestRecordDate);
             
             if (data.dailyBalances && data.dailyBalances.length > 0) {
                 forecast.currentProjectedBalance = formatCurrency(data.dailyBalances[data.dailyBalances.length - 1].balance);

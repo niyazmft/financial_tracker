@@ -64,14 +64,6 @@
       </template>
       <template #end>
         <div class="flex items-center gap-2">
-          <Button
-            icon="pi pi-bell"
-            aria-label="Notifications"
-            severity="secondary"
-            text
-            rounded
-          />
-                    
           <button
             v-if="authStore.user"
             aria-label="User profile menu"
@@ -104,7 +96,6 @@ import { useAuthStore } from '../stores/auth';
 import { useBreakpoints } from '../composables/useBreakpoints';
 import Menubar from 'primevue/menubar';
 import Avatar from 'primevue/avatar';
-import Button from 'primevue/button';
 import Menu from 'primevue/menu';
 
 const router = useRouter();

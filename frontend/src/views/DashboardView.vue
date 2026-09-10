@@ -9,6 +9,8 @@
       </p>
     </div>
 
+    <AdvisoryInsight />
+
     <AnomalyAlerts />
 
     <Tabs v-model:value="activeTab">
@@ -46,6 +48,7 @@
 <script setup>
 import { ref } from 'vue';
 import AnomalyAlerts from '../components/AnomalyAlerts/AnomalyAlerts.vue';
+import AdvisoryInsight from '../components/Dashboard/AdvisoryInsight.vue';
 import ForecastPanel from '../components/Dashboard/ForecastPanel.vue';
 import HistoryPanel from '../components/Dashboard/HistoryPanel.vue';
 import SavingsGoalsPanel from '../components/Dashboard/SavingsGoalsPanel.vue';

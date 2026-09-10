@@ -10,6 +10,9 @@
           <p class="text-text-sub text-base text-center px-4">
             Log in to your FinTrack account
           </p>
+          <p class="text-text-mute text-sm text-center px-6">
+            Understand your money — track spending, plan budgets, and get plain-language insights into your financial health.
+          </p>
         </div>
       </template>
       <template #content>

@@ -36,6 +36,9 @@
             <p class="text-text-sub">
               No upcoming payments found.
             </p>
+            <p class="text-sm text-text-mute mt-1">
+              Nothing due soon — you're all caught up.
+            </p>
           </div>
           <div
             v-else
@@ -109,6 +112,16 @@
             <p class="text-text-sub">
               No installment plans found.
             </p>
+            <p class="text-sm text-text-mute mt-1 max-w-sm mx-auto">
+              Add a plan (like a car or phone loan) to see your payment schedule and track what's left.
+            </p>
+            <Button
+              label="Add a plan"
+              icon="pi pi-plus"
+              size="small"
+              class="mt-3"
+              @click="showAddModal = true"
+            />
           </div>
           <div
             v-else
@@ -269,8 +282,8 @@
               id="add-total"
               v-model="addForm.total_amount"
               mode="currency"
-              currency="TRY"
-              locale="tr-TR"
+              :currency="settingsStore.currency"
+              :locale="currencyLocale"
             />
           </div>
           <div class="flex flex-col gap-2">
@@ -480,6 +493,7 @@ import { ref, reactive, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useFinanceStore } from '../stores/finance';
+import { useSettingsStore } from '../stores/settings';
 import { useApi } from '../services/apiInstance';
 import { useFinance } from '../composables/useFinance';
 import * as utils from '../services/utils';
@@ -512,10 +526,12 @@ import ProgressSpinner from 'primevue/progressspinner';
 const router = useRouter();
 const authStore = useAuthStore();
 const financeStore = useFinanceStore();
+const settingsStore = useSettingsStore();
 const api = useApi();
 const { formatCurrency } = useFinance();
 const confirm = useConfirm();
 const toast = useToast();
+const currencyLocale = computed(() => utils.getCurrencyLocale(settingsStore.currency));
 
 const activeTab = ref('upcoming');
 const loading = ref(false);

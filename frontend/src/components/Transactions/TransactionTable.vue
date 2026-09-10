@@ -28,7 +28,17 @@
     </template>
 
     <template #empty>
-      No transactions found.
+      <div class="py-8 flex flex-col items-center gap-3">
+        <p class="text-text-sub">
+          No transactions found. Add your first one to start building your financial picture.
+        </p>
+        <Button
+          label="Add transactions"
+          icon="pi pi-upload"
+          size="small"
+          @click="$emit('import')"
+        />
+      </div>
     </template>
     <template #loading>
       Loading transactions data. Please wait.
@@ -118,7 +128,7 @@
           v-model="filterModel.value"
           mode="currency"
           :currency="currency"
-          locale="tr-TR"
+          :locale="currencyLocale"
           placeholder="Amount"
           class="p-column-filter"
         />
@@ -197,12 +207,13 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(['update:filters', 'edit', 'delete']);
+const emit = defineEmits(['update:filters', 'edit', 'delete', 'import']);
 
 const settingsStore = useSettingsStore();
 const { formatCurrency } = useFinance();
 
 const currency = computed(() => settingsStore.currency);
+const currencyLocale = computed(() => utils.getCurrencyLocale(currency.value));
 
 const filters = computed({
     get: () => props.filters,

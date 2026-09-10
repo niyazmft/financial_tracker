@@ -55,6 +55,7 @@
             :unique-banks="uniqueBanks"
             @edit="openEditModal"
             @delete="confirmDeleteTransaction"
+            @import="showImportModal = true"
           />
         </div>
 
@@ -66,6 +67,7 @@
           @toggle-filters="showMobileFilters = true"
           @edit="openEditModal"
           @delete="confirmDeleteTransaction"
+          @import="showImportModal = true"
         />
       </template>
     </Card>
@@ -121,7 +123,7 @@
             v-model="filters.amount.constraints[0].value"
             mode="currency"
             :currency="currency"
-            locale="tr-TR"
+            :locale="currencyLocale"
             placeholder="Exact Amount"
             fluid
           />
@@ -149,6 +151,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useFinance } from '../composables/useFinance';
+import { useRoute } from 'vue-router';
 import { useSettingsStore } from '../stores/settings';
 import { useFinanceStore } from '../stores/finance';
 import { storeToRefs } from 'pinia';
@@ -180,6 +183,7 @@ const showMobileFilters = ref(false);
 const selectedTransaction = ref(null);
 
 const currency = computed(() => settingsStore.currency);
+const currencyLocale = computed(() => utils.getCurrencyLocale(currency.value));
 const totalTransactions = totalTransactionCount; 
 const totalAmount = totalTransactionAmount;
 
@@ -248,4 +252,15 @@ onMounted(() => {
     financeStore.fetchTransactions(utils.formatDateForInput(start), utils.formatDateForInput(today));
     financeStore.fetchCategories();
 });
+
+// Allow onboarding/first-run to deep-link directly into the import flow
+const route = useRoute();
+if (route.query.import === '1') {
+    showImportModal.value = true;
+}
+
+// Allow deep-linking to a pre-filtered category (e.g. from an anomaly action)
+if (route.query.category) {
+    filters.value.category.value = route.query.category;
+}
 </script>
