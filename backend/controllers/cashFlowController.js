@@ -31,6 +31,9 @@ const getCashFlowForecast = catchAsync(async (req, res, _next) => {
 
     const forecast = await cashFlowService.computeForecast(verifiedUserId, { duration });
 
+    // Add confidence bands so the UI can show forecast uncertainty
+    const dailyBalancesWithBands = cashFlowService.computeConfidenceBands(forecast.dailyBalances);
+
     // Transform service warnings into the expected API format (message/type/details)
     const formattedWarnings = (forecast.warnings || []).map(w => ({
         message: `Alert for ${w.date}: Balance may drop below threshold (${w.threshold})`,
@@ -42,6 +45,7 @@ const getCashFlowForecast = catchAsync(async (req, res, _next) => {
     res.status(200).json({
         success: true,
         ...forecast,
+        dailyBalances: dailyBalancesWithBands,
         warnings: formattedWarnings,
         currency: env.DEFAULT_CURRENCY
     });

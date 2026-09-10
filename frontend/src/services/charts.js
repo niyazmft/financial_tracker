@@ -207,6 +207,9 @@ export function createCashFlowForecastChart(canvasId, chartData, warningThreshol
 
         const labels = chartData.dailyBalances.map(d => utils.formatDateDisplay(d.date, { month: 'short', day: 'numeric' }));
         const balances = chartData.dailyBalances.map(d => d.balance);
+        const hasBands = chartData.dailyBalances.some(d => d.low !== undefined && d.high !== undefined);
+        const bandHigh = hasBands ? chartData.dailyBalances.map(d => d.high) : [];
+        const bandLow = hasBands ? chartData.dailyBalances.map(d => d.low) : [];
 
         const options = {
             ...getBaseChartOptions('Projected Balance Over Time'),
@@ -225,7 +228,30 @@ export function createCashFlowForecastChart(canvasId, chartData, warningThreshol
             }
         };
 
-        const datasets = [{
+        const datasets = [];
+
+        // Confidence band (uncertainty range) rendered behind the main line
+        if (hasBands) {
+            datasets.push({
+                label: 'Possible Range',
+                data: bandHigh,
+                borderColor: 'rgba(59, 130, 246, 0.0)',
+                backgroundColor: 'rgba(59, 130, 246, 0.10)',
+                fill: '-1',
+                pointRadius: 0,
+                tension: 0.4
+            }, {
+                label: 'Possible Range',
+                data: bandLow,
+                borderColor: 'rgba(59, 130, 246, 0.0)',
+                backgroundColor: 'rgba(59, 130, 246, 0.10)',
+                fill: false,
+                pointRadius: 0,
+                tension: 0.4
+            });
+        }
+
+        datasets.push({
             label: 'Projected Balance',
             data: balances,
             borderColor: utils.getCssVariableValue('--color-primary'),
@@ -237,7 +263,7 @@ export function createCashFlowForecastChart(canvasId, chartData, warningThreshol
             segment: {
                 borderColor: ctx => (ctx.p0.parsed.y < (warningThreshold || 0) || ctx.p1.parsed.y < (warningThreshold || 0)) ? utils.getCssVariableValue('--color-danger') : undefined
             }
-        }];
+        });
 
         const plugins = [];
         if (warningThreshold !== undefined && warningThreshold !== null) {
