@@ -130,4 +130,50 @@ describe('Transaction Controller', () => {
             assert.ok(mockNocodbService.updateRecord.notCalled);
         });
     });
+
+    describe('importTransactionsCsv (path-injection guard)', () => {
+        let req, res, next;
+        let mockNocodbService;
+        let mockCategoryService;
+        let proxiedController;
+
+        beforeEach(() => {
+            mockNocodbService = {
+                createRecord: sinon.stub()
+            };
+            mockCategoryService = {
+                getCategoryMapping: sinon.stub()
+            };
+            proxiedController = proxyquire('../../controllers/transactionController', {
+                '../services/nocodbService': mockNocodbService,
+                '../services/categoryService': mockCategoryService,
+                '../utils/catchAsync': fn => fn
+            });
+
+            req = {
+                user: { uid: 'user123' },
+                file: { path: '/etc/passwd' } // attacker-controlled path outside uploads dir
+            };
+            res = {
+                json: sinon.spy()
+            };
+            next = sinon.spy();
+        });
+
+        afterEach(() => {
+            sinon.restore();
+        });
+
+        it('should reject a file path outside the uploads directory (path-injection guard)', async () => {
+            await proxiedController.importTransactionsCsv(req, res, next);
+
+            assert.ok(next.calledOnce);
+            const errorArg = next.firstCall.args[0];
+            assert.ok(errorArg instanceof AppError);
+            assert.strictEqual(errorArg.statusCode, 400);
+            assert.ok(errorArg.message.includes('Invalid file path'));
+            // Must not attempt to read the arbitrary file
+            assert.ok(mockCategoryService.getCategoryMapping.notCalled);
+        });
+    });
 });
