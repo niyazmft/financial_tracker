@@ -21,7 +21,9 @@ This directory contains GitHub-specific configuration files for the FinTrack pro
 ## Workflows
 
 ### CI Pipeline (`workflows/ci.yml`)
+
 Runs on every push and PR to `main`:
+
 - Installs dependencies with pnpm
 - Runs linting (ESLint, Stylelint, Markdownlint)
 - Runs backend tests (Mocha)
@@ -29,7 +31,9 @@ Runs on every push and PR to `main`:
 - Builds the application
 
 ### CodeQL Analysis (`workflows/codeql.yml`)
+
 Security scanning that runs:
+
 - On every push to `main`
 - On every PR to `main`
 - Weekly (Monday 9 AM UTC)
@@ -45,6 +49,7 @@ Located in `ISSUE_TEMPLATE/`:
 ## Pull Request Template
 
 `PULL_REQUEST_TEMPLATE.md` provides a checklist for contributors including:
+
 - Change type selection
 - Testing checklist
 - Code review checklist
@@ -53,6 +58,7 @@ Located in `ISSUE_TEMPLATE/`:
 ## Dependabot
 
 `dependabot.yml` configures automated dependency updates:
+
 - **npm**: Weekly updates for Node.js packages
 - **github-actions**: Weekly updates for GitHub Actions
 
@@ -82,6 +88,7 @@ Updates are grouped by minor/patch vs major versions.
 ## Contributing
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on:
+
 - Development workflow
 - Coding standards
 - Testing requirements
@@ -90,6 +97,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on:
 ## Security
 
 See [SECURITY.md](../SECURITY.md) for:
+
 - Vulnerability reporting process
 - Security measures in place
 - Security best practices
@@ -97,7 +105,3 @@ See [SECURITY.md](../SECURITY.md) for:
 ## Code of Conduct
 
 See [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) for community standards.
-
----
-
-**Note**: These configurations follow GitHub community health best practices and align with industry standards for open source projects.
