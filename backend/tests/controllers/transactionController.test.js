@@ -131,49 +131,40 @@ describe('Transaction Controller', () => {
         });
     });
 
-    describe('importTransactionsCsv (path-injection guard)', () => {
-        let req, res, next;
-        let mockNocodbService;
-        let mockCategoryService;
-        let proxiedController;
+    describe('assertSafeUploadPath (path-injection guard)', () => {
+        const path = require('path');
+        const UPLOADS_DIR = path.join(__dirname, '..', '..', '..', 'backend', 'uploads');
 
-        beforeEach(() => {
-            mockNocodbService = {
-                createRecord: sinon.stub()
-            };
-            mockCategoryService = {
-                getCategoryMapping: sinon.stub()
-            };
-            proxiedController = proxyquire('../../controllers/transactionController', {
-                '../services/nocodbService': mockNocodbService,
-                '../services/categoryService': mockCategoryService,
-                '../utils/catchAsync': fn => fn
+        it('should return a path inside the uploads directory for a normal filename', () => {
+            const safe = transactionController.assertSafeUploadPath(path.join(UPLOADS_DIR, 'abc123.csv'));
+            assert.ok(safe.startsWith(UPLOADS_DIR + path.sep));
+            assert.strictEqual(path.basename(safe), 'abc123.csv');
+        });
+
+        it('should sanitize a directory-traversal path to stay inside the uploads directory', () => {
+            // An attacker-controlled path must never escape the uploads dir.
+            const safe = transactionController.assertSafeUploadPath('../../../../etc/passwd');
+            assert.ok(safe.startsWith(UPLOADS_DIR + path.sep));
+            assert.strictEqual(path.basename(safe), 'passwd');
+        });
+
+        it('should sanitize an absolute path outside the uploads directory', () => {
+            const safe = transactionController.assertSafeUploadPath('/etc/passwd');
+            assert.ok(safe.startsWith(UPLOADS_DIR + path.sep));
+            assert.strictEqual(path.basename(safe), 'passwd');
+        });
+
+        it('should throw AppError 400 for a missing or empty path', () => {
+            assert.throws(() => transactionController.assertSafeUploadPath(null), (err) => {
+                assert.ok(err instanceof AppError);
+                assert.strictEqual(err.statusCode, 400);
+                return true;
             });
-
-            req = {
-                user: { uid: 'user123' },
-                file: { path: '/etc/passwd' } // attacker-controlled path outside uploads dir
-            };
-            res = {
-                json: sinon.spy()
-            };
-            next = sinon.spy();
-        });
-
-        afterEach(() => {
-            sinon.restore();
-        });
-
-        it('should reject a file path outside the uploads directory (path-injection guard)', async () => {
-            await proxiedController.importTransactionsCsv(req, res, next);
-
-            assert.ok(next.calledOnce);
-            const errorArg = next.firstCall.args[0];
-            assert.ok(errorArg instanceof AppError);
-            assert.strictEqual(errorArg.statusCode, 400);
-            assert.ok(errorArg.message.includes('Invalid file path'));
-            // Must not attempt to read the arbitrary file
-            assert.ok(mockCategoryService.getCategoryMapping.notCalled);
+            assert.throws(() => transactionController.assertSafeUploadPath(''), (err) => {
+                assert.ok(err instanceof AppError);
+                assert.strictEqual(err.statusCode, 400);
+                return true;
+            });
         });
     });
 });

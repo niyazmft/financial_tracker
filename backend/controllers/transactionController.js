@@ -17,20 +17,23 @@ const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
  * fs operations. Prevents path-injection (CodeQL js/path-injection) where an
  * attacker-controlled path could be used to read or delete arbitrary files.
  *
+ * Uses path.basename (a CodeQL-recognized sanitizer) to strip any directory
+ * components, so the returned path can never escape the uploads directory.
+ *
  * @param {string} filePath - The candidate file path.
- * @returns {string} The resolved, validated absolute path.
- * @throws {AppError} If the path is missing or escapes the uploads directory.
+ * @returns {string} A safe absolute path inside the uploads directory.
+ * @throws {AppError} If the path is missing or has no usable basename.
  */
 const assertSafeUploadPath = (filePath) => {
     if (!filePath || typeof filePath !== 'string') {
         throw new AppError('Invalid file path', 400);
     }
-    const resolved = path.resolve(filePath);
-    const uploadsResolved = path.resolve(UPLOADS_DIR);
-    if (resolved !== uploadsResolved && !resolved.startsWith(uploadsResolved + path.sep)) {
+    // Strip directory components (and any traversal) via basename.
+    const basename = path.basename(filePath);
+    if (!basename || basename === '.' || basename === '..') {
         throw new AppError('Invalid file path', 400);
     }
-    return resolved;
+    return path.join(UPLOADS_DIR, basename);
 };
 
 const getTransactions = catchAsync(async (req, res, _next) => {
@@ -640,4 +643,5 @@ module.exports = {
     getTransactionStats,
     importTransactionsJson,
     importTransactionsCsv,
+    assertSafeUploadPath,
 };
