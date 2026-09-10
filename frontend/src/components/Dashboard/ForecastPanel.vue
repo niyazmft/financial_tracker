@@ -112,6 +112,22 @@
                 <p class="text-sm">
                   Projected balance: <span class="font-medium">{{ formatCurrency(warning.details.balance) }}</span>
                 </p>
+                <div class="flex flex-wrap gap-2 mt-2">
+                  <Button
+                    label="Review upcoming installments"
+                    icon="pi pi-calendar"
+                    size="small"
+                    outlined
+                    @click="goToInstallments"
+                  />
+                  <Button
+                    label="Set a budget"
+                    icon="pi pi-wallet"
+                    size="small"
+                    text
+                    @click="goToBudgets"
+                  />
+                </div>
               </div>
               <Button 
                 v-tooltip="'Dismiss for 24 hours'" 
@@ -134,6 +150,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useFinance } from '../../composables/useFinance';
 import { useAnalytics } from '../../composables/useAnalytics';
 import { useApi } from '../../services/apiInstance';
@@ -151,8 +168,17 @@ import Button from 'primevue/button';
 const api = useApi();
 const settingsStore = useSettingsStore();
 const toast = useToast();
+const router = useRouter();
 const { formatCurrency, getForecastAmountClass } = useFinance();
 const { trackEvent } = useAnalytics();
+
+const goToInstallments = () => {
+  router.push('/installment_plans');
+};
+
+const goToBudgets = () => {
+  router.push('/budget_manager');
+};
 
 const isLoadingForecast = ref(false);
 const forecastRawData = ref(null);

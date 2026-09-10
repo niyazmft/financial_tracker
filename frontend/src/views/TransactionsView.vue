@@ -255,4 +255,9 @@ const route = useRoute();
 if (route.query.import === '1') {
     showImportModal.value = true;
 }
+
+// Allow deep-linking to a pre-filtered category (e.g. from an anomaly action)
+if (route.query.category) {
+    filters.value.category.value = route.query.category;
+}
 </script>
