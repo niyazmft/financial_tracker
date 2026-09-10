@@ -121,7 +121,7 @@
             v-model="filters.amount.constraints[0].value"
             mode="currency"
             :currency="currency"
-            locale="tr-TR"
+            :locale="currencyLocale"
             placeholder="Exact Amount"
             fluid
           />
@@ -181,6 +181,7 @@ const showMobileFilters = ref(false);
 const selectedTransaction = ref(null);
 
 const currency = computed(() => settingsStore.currency);
+const currencyLocale = computed(() => utils.getCurrencyLocale(currency.value));
 const totalTransactions = totalTransactionCount; 
 const totalAmount = totalTransactionAmount;
 

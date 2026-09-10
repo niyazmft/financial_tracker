@@ -109,8 +109,8 @@
             id="goal-target"
             v-model="addGoalForm.target_amount"
             mode="currency"
-            currency="TRY"
-            locale="tr-TR"
+            :currency="settingsStore.currency"
+            :locale="currencyLocale"
           />
         </div>
         <div class="flex flex-col gap-2">
@@ -147,9 +147,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { useFinance } from '../../composables/useFinance';
 import { useApi } from '../../services/apiInstance';
+import { useSettingsStore } from '../../stores/settings';
 import * as utils from '../../services/utils';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
@@ -167,7 +168,9 @@ import DatePicker from 'primevue/datepicker';
 const api = useApi();
 const confirm = useConfirm();
 const toast = useToast();
+const settingsStore = useSettingsStore();
 const { formatCurrency } = useFinance();
+const currencyLocale = computed(() => utils.getCurrencyLocale(settingsStore.currency));
 
 const isLoadingSavings = ref(false);
 const showAddGoalModal = ref(false);

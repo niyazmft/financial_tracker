@@ -118,7 +118,7 @@
           v-model="filterModel.value"
           mode="currency"
           :currency="currency"
-          locale="tr-TR"
+          :locale="currencyLocale"
           placeholder="Amount"
           class="p-column-filter"
         />
@@ -203,6 +203,7 @@ const settingsStore = useSettingsStore();
 const { formatCurrency } = useFinance();
 
 const currency = computed(() => settingsStore.currency);
+const currencyLocale = computed(() => utils.getCurrencyLocale(currency.value));
 
 const filters = computed({
     get: () => props.filters,

@@ -269,8 +269,8 @@
               id="add-total"
               v-model="addForm.total_amount"
               mode="currency"
-              currency="TRY"
-              locale="tr-TR"
+              :currency="settingsStore.currency"
+              :locale="currencyLocale"
             />
           </div>
           <div class="flex flex-col gap-2">
@@ -480,6 +480,7 @@ import { ref, reactive, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useFinanceStore } from '../stores/finance';
+import { useSettingsStore } from '../stores/settings';
 import { useApi } from '../services/apiInstance';
 import { useFinance } from '../composables/useFinance';
 import * as utils from '../services/utils';
@@ -512,10 +513,12 @@ import ProgressSpinner from 'primevue/progressspinner';
 const router = useRouter();
 const authStore = useAuthStore();
 const financeStore = useFinanceStore();
+const settingsStore = useSettingsStore();
 const api = useApi();
 const { formatCurrency } = useFinance();
 const confirm = useConfirm();
 const toast = useToast();
+const currencyLocale = computed(() => utils.getCurrencyLocale(settingsStore.currency));
 
 const activeTab = ref('upcoming');
 const loading = ref(false);

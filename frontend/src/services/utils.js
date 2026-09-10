@@ -9,13 +9,24 @@ const CURRENCY_SYMBOLS = {
     GBP: '£'
 };
 
+// Map each supported currency to a sensible locale for number grouping/decimals
+const CURRENCY_LOCALES = {
+    TRY: 'tr-TR',
+    USD: 'en-US',
+    EUR: 'de-DE',
+    GBP: 'en-GB'
+};
+
+export const getCurrencyLocale = (currency) => CURRENCY_LOCALES[currency] || 'en-US';
+
 export const formatCurrency = (amount, currency = 'TRY', useKFormat = false) => {
     if (useKFormat && amount >= 1000) {
         const symbol = CURRENCY_SYMBOLS[currency] || '$';
         return `${symbol}${(amount / 1000).toFixed(1)}K`;
     }
     
-    const formatter = new Intl.NumberFormat('tr-TR', {
+    const locale = CURRENCY_LOCALES[currency] || 'en-US';
+    const formatter = new Intl.NumberFormat(locale, {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
     });

@@ -35,7 +35,7 @@
                   v-model="singleForm.amount"
                   mode="currency"
                   :currency="currency"
-                  locale="tr-TR"
+                  :locale="currencyLocale"
                 />
               </div>
               <div class="flex flex-col gap-2">
@@ -43,7 +43,7 @@
                 <InputText
                   id="bank"
                   v-model="singleForm.bank"
-                  placeholder="e.g. Akbank"
+                  placeholder="e.g. My Bank"
                 />
               </div>
               <div class="flex flex-col gap-2">
@@ -238,6 +238,7 @@ const { trackEvent } = useAnalytics();
 const toast = useToast();
 
 const currency = computed(() => settingsStore.currency);
+const currencyLocale = computed(() => utils.getCurrencyLocale(currency.value));
 const visible = computed({
     get: () => props.modelValue,
     set: (val) => emit('update:modelValue', val)
@@ -356,7 +357,7 @@ const submitCsvImport = async () => {
 
 const downloadTemplate = () => {
     const headers = ['date', 'amount', 'bank', 'category', 'description', 'ref_no'];
-    const exampleRow = ['2026-03-18', '-150.00', 'Akbank', 'Dining', 'Lunch at Cafe', 'TXN123456'];
+    const exampleRow = ['2026-03-18', '-150.00', 'My Bank', 'Dining', 'Lunch at Cafe', 'TXN123456'];
 
     const content = utils.generateCsvTemplate(headers, exampleRow);
     utils.downloadFile(content, 'fintrack_template.csv');

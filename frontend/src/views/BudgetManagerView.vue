@@ -41,7 +41,7 @@
                 input-id="budget-amount"
                 mode="currency"
                 :currency="currency"
-                locale="tr-TR"
+                :locale="currencyLocale"
                 class="w-full"
               />
             </div>
@@ -170,7 +170,7 @@
             input-id="edit-amount"
             mode="currency"
             :currency="currency"
-            locale="tr-TR"
+            :locale="currencyLocale"
             class="w-full"
           />
         </div>
@@ -238,6 +238,7 @@ const isUpdating = ref(false);
 const showEditModal = ref(false);
 
 const currency = computed(() => settingsStore.currency);
+const currencyLocale = computed(() => utils.getCurrencyLocale(currency.value));
 
 const createForm = reactive({
   categories_id: null,
