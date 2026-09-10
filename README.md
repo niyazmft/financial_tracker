@@ -116,6 +116,14 @@ FinTrack follows a clean, modular architecture separating the frontend, backend,
 - **Authentication & Analytics**: Firebase Admin SDK (Backend), Firebase Client SDK (Frontend).
 - **Infrastructure**: Docker & PM2 configurations (located in `infrastructure/`).
 
+### Design Decisions
+
+The following are intentional architectural trade-offs documented for contributors and future audits:
+
+- **PrimeVue Vendor Chunking**: All PrimeVue dependencies are bundled into a single `vendor-primevue` chunk via Vite's `manualChunks`. This is a deliberate caching strategy — per-component tree-shaking is already applied at import level. The chunk size is an accepted trade-off for fewer HTTP requests.
+- **Force Token Refresh**: The auth store uses `getIdToken(true)` to guarantee fresh Firebase tokens on every API call. This prioritizes security (zero stale-token risk) over per-call latency. A future optimization may switch to cached tokens with 401-retry.
+- **Knip False Positives**: Some exports flagged by Knip (`pnpm run lint:unused`) are internally-used utilities (e.g., `getFirebaseApp` consumed by `getFirebaseAuth`). Verify internal references before deleting any flagged export.
+
 ## 🛠️ DevOps & Tooling
 
 - **CI/CD Pipeline**: Automated testing (Mocha/Vitest) and build checks via **GitHub Actions**.

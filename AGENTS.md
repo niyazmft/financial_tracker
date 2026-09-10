@@ -166,6 +166,22 @@ New backend features in `controllers/` or `services/` MUST have corresponding te
 - Required env vars mocked in CI (Firebase, NocoDB table IDs)
 - Pipeline order: install → lint:all → test → test:ui → build
 
+## Known Design Choices & Intentional Trade-offs
+
+The following are deliberate architectural decisions. If a future audit flags them as bugs, verify against this section before treating them as defects.
+
+### PrimeVue Vendor Chunking (P2-14)
+
+`vite.config.mjs` bundles all PrimeVue dependencies (`primevue`, `@primevue`, `primeicons`) into a single `vendor-primevue` chunk via `manualChunks`. This is an **intentional bundling strategy** — not a bug or performance defect. Per-component tree-shaking is already applied at import level (each view imports from `primevue/xxx`). The 1 MB ungzipped chunk (≈200 kB gzip) is accepted as a trade-off for simpler caching and fewer HTTP requests.
+
+### Force Token Refresh (P2-13)
+
+`frontend/src/stores/auth.js` uses `getIdToken(true)` to force a Firebase token network refresh on **every** API call. This is an **intentional security trade-off** — it guarantees zero stale-token risk at the cost of per-call latency. A future optimization may move to `getIdToken(false)` (cached) with 401-retry force-refresh, but the current behavior is by design, not a bug.
+
+### Knip False Positives (P2-20)
+
+Knip (`pnpm run lint:unused`) flags some exports that are **internally-used utilities**, not dead code. For example, `getFirebaseApp` in `firebase.js` is consumed by `getFirebaseAuth` and `getFirebaseAnalytics` (both exported). Before deleting any Knip-reported unused export, verify internal references within the same module. Do not blindly delete exports flagged by automated tools.
+
 ## Common Gotchas
 
 1. **Vite root is `frontend/`** - paths in vite.config.mjs are relative to this
