@@ -68,7 +68,13 @@
               v-if="anomalyDetection.enabled"
               class="flex flex-col gap-2"
             >
-              <label class="text-sm font-medium">Sensitivity Threshold: {{ anomalyDetection.sensitivity }}</label>
+              <label class="text-sm font-medium">
+                Sensitivity Threshold: {{ anomalyDetection.sensitivity }}
+                <i
+                  v-tooltip="'How easily we flag unusual spending. Lower = more alerts (catches small changes). Higher = fewer alerts (only big changes).'"
+                  class="pi pi-question-circle text-xs ml-1 cursor-help"
+                />
+              </label>
               <Slider
                 v-model="anomalyDetection.sensitivity"
                 :min="2"
@@ -77,7 +83,7 @@
                 class="w-full mt-2"
               />
               <p class="text-xs text-text-mute">
-                Lower values are more sensitive.
+                Lower values are more sensitive — you'll see more alerts. Higher values mean fewer, bigger alerts.
               </p>
             </div>
 

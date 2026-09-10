@@ -3,7 +3,10 @@
     <Card class="lg:col-span-2">
       <template #header>
         <div class="flex flex-wrap items-center justify-between p-4 pb-0">
-          <h3 class="text-lg font-bold">
+          <h3
+            v-tooltip="'A simulation of your balance over the next period, based on your income, budgets, and known installments.'"
+            class="text-lg font-bold"
+          >
             Projected Balance
           </h3>
           <SelectButton
@@ -34,6 +37,12 @@
             :loading="isLoadingForecast" 
           />
         </div>
+        <p
+          v-if="forecastRawData?.warningThreshold !== undefined && forecastRawData?.warningThreshold !== null"
+          class="text-xs text-text-mute mt-2"
+        >
+          The dashed line is your warning threshold — if your projected balance dips below it, you'll see a warning.
+        </p>
       </template>
     </Card>
 
@@ -50,6 +59,11 @@
             />
             <p class="text-xs font-bold uppercase tracking-wider text-text-sub">
               {{ metric.label }}
+              <i
+                v-if="metric.hint"
+                v-tooltip="metric.hint"
+                class="pi pi-question-circle text-xs ml-1 cursor-help"
+              />
             </p>
           </div>
           <p :class="['text-2xl font-bold', metric.valueClass]">
@@ -201,10 +215,10 @@ const forecast = reactive({
 });
 
 const forecastMetrics = computed(() => [
-    { label: 'Minimum Balance', value: formatCurrency(forecast.lowestProjectedBalance), icon: 'pi pi-arrow-down-right', iconClass: 'text-danger', valueClass: getForecastAmountClass(forecast.lowestProjectedBalance) },
-    { label: 'Average Balance', value: formatCurrency(forecast.averageProjectedBalance), icon: 'pi pi-info-circle', iconClass: 'text-info', valueClass: getForecastAmountClass(forecast.averageProjectedBalance) },
-    { label: 'Total Income', value: formatCurrency(forecast.totalProjectedIncome), icon: 'pi pi-arrow-up', iconClass: 'text-success', valueClass: 'text-success' },
-    { label: 'Total Expenses', value: formatCurrency(forecast.totalProjectedExpenses), icon: 'pi pi-arrow-down', iconClass: 'text-danger', valueClass: 'text-danger' }
+    { label: 'Minimum Balance', value: formatCurrency(forecast.lowestProjectedBalance), icon: 'pi pi-arrow-down-right', iconClass: 'text-danger', valueClass: getForecastAmountClass(forecast.lowestProjectedBalance), hint: 'The lowest your balance is projected to reach in this period.' },
+    { label: 'Average Balance', value: formatCurrency(forecast.averageProjectedBalance), icon: 'pi pi-info-circle', iconClass: 'text-info', valueClass: getForecastAmountClass(forecast.averageProjectedBalance), hint: 'Your typical projected balance across the period.' },
+    { label: 'Total Income', value: formatCurrency(forecast.totalProjectedIncome), icon: 'pi pi-arrow-up', iconClass: 'text-success', valueClass: 'text-success', hint: 'Money expected to come in during this period.' },
+    { label: 'Total Expenses', value: formatCurrency(forecast.totalProjectedExpenses), icon: 'pi pi-arrow-down', iconClass: 'text-danger', valueClass: 'text-danger', hint: 'Money expected to go out during this period.' }
 ]);
 
 const loadForecastData = async (days = 30) => {

@@ -23,12 +23,13 @@ function getChartPalette() {
     ];
 }
 
-function getBaseChartOptions() {
+function getBaseChartOptions(title) {
     return {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-            legend: { display: false },
+            legend: { display: true, position: 'bottom', labels: { color: utils.getCssVariableValue('--chart-text'), boxWidth: 12, padding: 12 } },
+            title: title ? { display: true, text: title, color: utils.getCssVariableValue('--chart-text'), font: { size: 13, weight: '600' }, padding: { bottom: 8 } } : { display: false },
             tooltip: {
                 backgroundColor: utils.getCssVariableValue('--chart-tooltip-bg'),
                 titleColor: utils.getCssVariableValue('--chart-tooltip-text'),
@@ -100,7 +101,7 @@ export function createSpendingBarChart(canvasId, chartData) {
         const data = chartData.categoryData.map(d => d.totalAmount);
         
         const options = {
-            ...getBaseChartOptions(),
+            ...getBaseChartOptions('Spending by Category'),
             scales: {
                 x: {
                     ...getBaseChartOptions().scales.x,
@@ -156,7 +157,7 @@ export function createSpendingLineChart(canvasId, chartData) {
         const data = chartData.monthlyData.map(d => d.totalAmount);
 
         const options = {
-            ...getBaseChartOptions(),
+            ...getBaseChartOptions('Monthly Spending Trend'),
             scales: {
                 x: {
                     ...getBaseChartOptions().scales.x,
@@ -208,7 +209,7 @@ export function createCashFlowForecastChart(canvasId, chartData, warningThreshol
         const balances = chartData.dailyBalances.map(d => d.balance);
 
         const options = {
-            ...getBaseChartOptions(),
+            ...getBaseChartOptions('Projected Balance Over Time'),
             scales: {
                 x: {
                     ...getBaseChartOptions().scales.x,
