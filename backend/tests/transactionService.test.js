@@ -4,6 +4,7 @@ const transactionService = require('../services/transactionService');
 const nocodbService = require('../services/nocodbService');
 const categoryService = require('../services/categoryService');
 const env = require('../config/env');
+const AppError = require('../utils/AppError');
 
 describe('Transaction Service', () => {
     let getRecordsStub;
@@ -98,5 +99,50 @@ describe('Transaction Service', () => {
         // Verify filters
         const callArgs = getRecordsStub.firstCall.args;
         assert.ok(callArgs[1].where.includes(`(categories_id,in,5,6)`));
+    });
+
+    it('should reject an invalid startDate with AppError 400 (filter injection guard)', async () => {
+        const userId = 'user123';
+        getCategoryMappingStub.resolves({});
+
+        // A malicious date string that could inject NocoDB filter operators
+        await assert.rejects(
+            () => transactionService.getTransactions(userId, { startDate: '2024-01-01)~or(user_id,eq,attacker', endDate: '2024-12-31' }),
+            (err) => {
+                assert.ok(err instanceof AppError);
+                assert.strictEqual(err.statusCode, 400);
+                return true;
+            }
+        );
+        // NocoDB must not be called with the unvalidated input
+        assert.ok(getAllRecordsStub.notCalled);
+    });
+
+    it('should reject an invalid endDate with AppError 400', async () => {
+        const userId = 'user123';
+        getCategoryMappingStub.resolves({});
+
+        await assert.rejects(
+            () => transactionService.getTransactions(userId, { startDate: '2024-01-01', endDate: 'not-a-date' }),
+            (err) => {
+                assert.ok(err instanceof AppError);
+                assert.strictEqual(err.statusCode, 400);
+                return true;
+            }
+        );
+        assert.ok(getAllRecordsStub.notCalled);
+    });
+
+    it('should pass validated dates into the NocoDB where clause', async () => {
+        const userId = 'user123';
+        getCategoryMappingStub.resolves({});
+        getAllRecordsStub.resolves([]);
+
+        await transactionService.getTransactions(userId, { startDate: '2024-01-01', endDate: '2024-12-31' });
+
+        assert.ok(getAllRecordsStub.calledOnce);
+        const where = getAllRecordsStub.firstCall.args[1].where;
+        assert.ok(where.includes('(date,ge,exactDate,2024-01-01)'));
+        assert.ok(where.includes('(date,le,exactDate,2024-12-31)'));
     });
 });

@@ -3,8 +3,22 @@ const { getEarningCategoryIds, getSpendingCategoryIds, getCategoryMapping } = re
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 const env = require('../config/env');
+const { validateAndFormatDate } = require('../utils/validationUtils');
 
 const BANK_STATEMENTS_TABLE_ID = env.NOCODB.TABLES.BANK_STATEMENTS;
+
+// Validate a date-range pair before interpolating into NocoDB filter strings.
+// Returns the validated (start, end) tuple or throws an AppError(400).
+const validateDateRange = (startDate, endDate) => {
+    let validatedStart, validatedEnd;
+    try {
+        validatedStart = validateAndFormatDate(startDate);
+        validatedEnd = validateAndFormatDate(endDate);
+    } catch (validationError) {
+        throw new AppError(validationError.message, 400);
+    }
+    return [validatedStart, validatedEnd];
+};
 
 const getLastMonthSalary = catchAsync(async (req, res, next) => {
     const verifiedUserId = req.user.uid;
@@ -84,8 +98,7 @@ const getMonthlySpending = catchAsync(async (req, res, next) => {
 
     let actualStartDate, actualEndDate;
     if (startDate && endDate) {
-        actualStartDate = startDate;
-        actualEndDate = endDate;
+        [actualStartDate, actualEndDate] = validateDateRange(startDate, endDate);
     } else {
         const today = new Date();
         const twelveMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 12, 1);
@@ -188,7 +201,9 @@ const getCategorySpending = catchAsync(async (req, res, next) => {
     if (!BANK_STATEMENTS_TABLE_ID) {
         return next(new AppError('Backend is missing NocoDB BANK_STATEMENTS_TABLE_ID configuration.', 500));
     }
-    
+
+    const [validatedStart, validatedEnd] = validateDateRange(startDate, endDate);
+
     const targetCategories = await getSpendingCategoryIds(verifiedUserId);
     const categoryMapping = await getCategoryMapping(verifiedUserId);
     
@@ -198,7 +213,7 @@ const getCategorySpending = catchAsync(async (req, res, next) => {
 
     const userFilter = `(user_id,eq,${verifiedUserId})`;
     const categoriesFilter = `(categories_id,in,${targetCategories.join(',')})`;
-    const dateRangeFilter = `(date,ge,exactDate,${startDate})~and(date,le,exactDate,${endDate})`;
+    const dateRangeFilter = `(date,ge,exactDate,${validatedStart})~and(date,le,exactDate,${validatedEnd})`;
     const whereClause = `${userFilter}~and${categoriesFilter}~and${dateRangeFilter}`;
     
     const records = await nocodbService.getAllRecords(BANK_STATEMENTS_TABLE_ID, { where: whereClause, limit: 1000, sort: 'categories_id' });
@@ -265,7 +280,9 @@ const getCustomRangeSalary = catchAsync(async (req, res, next) => {
     if (!BANK_STATEMENTS_TABLE_ID) {
         return next(new AppError('Backend is missing NocoDB BANK_STATEMENTS_TABLE_ID configuration.', 500));
     }
-    
+
+    const [validatedStart, validatedEnd] = validateDateRange(startDate, endDate);
+
     const earningCategories = await getEarningCategoryIds(verifiedUserId);
     if (earningCategories.length === 0) {
         return res.status(200).json({ totalEarnings: 0, recordCount: 0, currency: env.DEFAULT_CURRENCY });
@@ -273,7 +290,7 @@ const getCustomRangeSalary = catchAsync(async (req, res, next) => {
     
     const userFilter = `(user_id,eq,${verifiedUserId})`;
     const categoriesFilter = `(categories_id,in,${earningCategories.join(',')})`;
-    const dateRangeFilter = `(date,ge,exactDate,${startDate})~and(date,le,exactDate,${endDate})`;
+    const dateRangeFilter = `(date,ge,exactDate,${validatedStart})~and(date,le,exactDate,${validatedEnd})`;
     const whereClause = `${userFilter}~and${categoriesFilter}~and${dateRangeFilter}`;
     
     const records = await nocodbService.getAllRecords(BANK_STATEMENTS_TABLE_ID, { where: whereClause, limit: 1000, sort: 'date' });

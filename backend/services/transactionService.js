@@ -1,6 +1,8 @@
 const nocodbService = require('./nocodbService');
 const categoryService = require('./categoryService');
 const env = require('../config/env');
+const AppError = require('../utils/AppError');
+const { validateAndFormatDate } = require('../utils/validationUtils');
 
 /**
  * Fetch all transactions for a user within a date range.
@@ -14,7 +16,15 @@ async function getTransactions(userId, { startDate, endDate }) {
     let whereClause = userFilter;
 
     if (startDate && endDate) {
-        const dateRangeFilter = `(date,ge,exactDate,${startDate})~and(date,le,exactDate,${endDate})`;
+        // Validate both dates before interpolating into the NocoDB filter string
+        let validatedStart, validatedEnd;
+        try {
+            validatedStart = validateAndFormatDate(startDate);
+            validatedEnd = validateAndFormatDate(endDate);
+        } catch (validationError) {
+            throw new AppError(validationError.message, 400);
+        }
+        const dateRangeFilter = `(date,ge,exactDate,${validatedStart})~and(date,le,exactDate,${validatedEnd})`;
         whereClause = `${userFilter}~and${dateRangeFilter}`;
     }
 
