@@ -45,7 +45,7 @@
     "@primevue/themes": "^4.5.4",
     "axios": "^1.18.1",
     "chart.js": "^4.5.1",
-    "compression": "^1.8.1",
+    "compression": "^1.8.2",
     "cors": "^2.8.6",
     "csv-parser": "^3.2.1",
     "dotenv": "^16.6.1",
